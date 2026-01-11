@@ -410,6 +410,10 @@ class AcceladeManager {
         const el = component.element;
         const state = component.state;
 
+        // Update the data-accelade-state attribute so MutationObservers can detect changes
+        // This is important for lazy loading conditional triggers
+        el.dataset.acceladeState = JSON.stringify(state);
+
         // a-text binding
         const textElements = el.querySelectorAll<HTMLElement>('[a-text]');
         textElements.forEach((element) => {

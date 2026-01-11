@@ -263,6 +263,66 @@ Creates a reactive component block:
 @seo
 ```
 
+### Lazy Loading Component
+
+```blade
+{{-- Basic lazy loading with shimmer --}}
+<x-accelade::lazy :shimmer="true">
+    Content to load lazily
+</x-accelade::lazy>
+
+{{-- With custom shimmer options --}}
+<x-accelade::lazy
+    :shimmer="true"
+    :shimmer-lines="5"
+    shimmer-height="200px"
+    :shimmer-rounded="true"
+>
+    Content here
+</x-accelade::lazy>
+
+{{-- Circle shimmer for avatars --}}
+<x-accelade::lazy :shimmer="true" :shimmer-circle="true">
+    <img src="{{ $avatar }}" alt="Avatar">
+</x-accelade::lazy>
+
+{{-- Custom placeholder --}}
+<x-accelade::lazy>
+    <x-slot:placeholder>
+        <div class="loading">Loading...</div>
+    </x-slot:placeholder>
+    Content here
+</x-accelade::lazy>
+
+{{-- Load from URL --}}
+<x-accelade::lazy url="/api/content" :shimmer="true" />
+
+{{-- Conditional loading --}}
+<x-accelade::lazy show="isVisible" :shimmer="true">
+    Content shown when isVisible is true
+</x-accelade::lazy>
+
+{{-- With delay --}}
+<x-accelade::lazy :delay="500" :shimmer="true">
+    Content loads after 500ms
+</x-accelade::lazy>
+```
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `shimmer` | bool | `false` | Enable shimmer placeholder |
+| `shimmer-lines` | int | `3` | Number of shimmer lines |
+| `shimmer-height` | string | auto | Custom height |
+| `shimmer-width` | string | auto | Custom width |
+| `shimmer-rounded` | bool | `false` | Rounded corners |
+| `shimmer-circle` | bool | `false` | Circle shape |
+| `url` | string | null | URL to fetch content |
+| `method` | string | `GET` | HTTP method |
+| `data` | array | `[]` | POST data |
+| `delay` | int | `0` | Delay in ms |
+| `show` | bool/string | `true` | Condition for loading |
+| `name` | string | null | Component name |
+
 ---
 
 ## JavaScript API

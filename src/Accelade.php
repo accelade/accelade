@@ -389,6 +389,180 @@ HTML;
     }
     .accelade-notif-close:hover { background: #f3f4f6; color: #6b7280; }
     .accelade-notif-close svg { width: 1rem; height: 1rem; }
+
+    /* ========================================
+       Accelade Lazy Loading
+       ======================================== */
+    .accelade-lazy-wrapper {
+        position: relative;
+    }
+
+    .accelade-lazy-placeholder {
+        transition: opacity 0.2s ease-out;
+    }
+
+    .accelade-lazy-placeholder.accelade-lazy-hiding {
+        opacity: 0;
+    }
+
+    .accelade-lazy-content {
+        opacity: 0;
+        transition: opacity 0.3s ease-out;
+    }
+
+    .accelade-lazy-content.accelade-lazy-visible {
+        opacity: 1;
+    }
+
+    /* Default spinner */
+    .accelade-lazy-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .accelade-lazy-spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #e5e7eb;
+        border-top-color: #6366f1;
+        border-radius: 50%;
+        animation: accelade-lazy-spin 0.8s linear infinite;
+    }
+
+    @keyframes accelade-lazy-spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* ========================================
+       Shimmer / Skeleton Loader
+       ======================================== */
+    .accelade-shimmer-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.25rem 0;
+    }
+
+    .accelade-shimmer-container.accelade-shimmer-rounded {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .accelade-shimmer-container.accelade-shimmer-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .accelade-shimmer-line {
+        height: 1rem;
+        background: linear-gradient(
+            90deg,
+            #f0f0f0 0%,
+            #e0e0e0 20%,
+            #f0f0f0 40%,
+            #f0f0f0 100%
+        );
+        background-size: 200% 100%;
+        animation: accelade-shimmer 1.5s ease-in-out infinite;
+        border-radius: 0.25rem;
+    }
+
+    .accelade-shimmer-line-short {
+        width: 60%;
+    }
+
+    .accelade-shimmer-circle-inner {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            #f0f0f0 0%,
+            #e0e0e0 20%,
+            #f0f0f0 40%,
+            #f0f0f0 100%
+        );
+        background-size: 200% 100%;
+        animation: accelade-shimmer 1.5s ease-in-out infinite;
+    }
+
+    @keyframes accelade-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* Shimmer variants */
+    .accelade-shimmer-dark .accelade-shimmer-line,
+    .accelade-shimmer-dark .accelade-shimmer-circle-inner {
+        background: linear-gradient(
+            90deg,
+            #374151 0%,
+            #4b5563 20%,
+            #374151 40%,
+            #374151 100%
+        );
+        background-size: 200% 100%;
+    }
+
+    /* Card shimmer preset */
+    .accelade-shimmer-card {
+        padding: 1rem;
+        background: #fff;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+    }
+
+    .accelade-shimmer-card .accelade-shimmer-line:first-child {
+        height: 1.5rem;
+        width: 40%;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Image shimmer preset */
+    .accelade-shimmer-image {
+        aspect-ratio: 16/9;
+        border-radius: 0.5rem;
+    }
+
+    .accelade-shimmer-image .accelade-shimmer-line {
+        height: 100%;
+        border-radius: 0.5rem;
+    }
+
+    /* Avatar shimmer preset */
+    .accelade-shimmer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .accelade-shimmer-avatar .accelade-shimmer-line {
+        height: 100%;
+        border-radius: 50%;
+    }
+
+    /* Inline shimmer (for text) */
+    .accelade-shimmer-inline {
+        display: inline-block;
+        height: 1em;
+        width: 100px;
+        vertical-align: middle;
+        border-radius: 0.25rem;
+        background: linear-gradient(
+            90deg,
+            #f0f0f0 0%,
+            #e0e0e0 20%,
+            #f0f0f0 40%,
+            #f0f0f0 100%
+        );
+        background-size: 200% 100%;
+        animation: accelade-shimmer 1.5s ease-in-out infinite;
+    }
 </style>
 HTML;
     }

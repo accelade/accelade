@@ -141,6 +141,12 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         // Setup reactive bindings
         this.setupReactiveBindings(element, stateAdapter, bindingAdapter);
 
+        // Setup state attribute sync for lazy loading conditional triggers
+        const stateAttrCleanup = stateAdapter.subscribe(() => {
+            element.dataset.acceladeState = JSON.stringify(stateAdapter.getState());
+        });
+        this.addCleanups(config.id, [stateAttrCleanup]);
+
         // Create component instance
         const instance: ComponentInstance = {
             id: config.id,

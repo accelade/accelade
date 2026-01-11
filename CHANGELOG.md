@@ -55,6 +55,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Works consistently across Vanilla, Vue, React, Svelte, and Angular
   - Legacy syntax (`a-on:`, `v-on:`, etc.) still supported for backward compatibility
 
+- **Lazy Loading** - Defer content rendering with beautiful placeholders
+  - `<x-accelade::lazy>` Blade component for lazy loading content
+  - Shimmer placeholder with single `shimmer` attribute
+  - Customizable shimmer lines, height, width, rounded, and circle shapes
+  - Custom placeholder slot for advanced loading UI
+  - URL mode for loading content from endpoints
+  - Conditional loading with `show` attribute
+  - Delay option for timed loading
+  - JavaScript API: `Accelade.lazy.load()`, `Accelade.lazy.reload()`, `Accelade.lazy.hide()`
+  - Events: `load`, `loaded`, `error`
+  - Full documentation in `docs/lazy-loading.md`
+
 ## [0.2.0] - 2024-01-11
 
 ### Added

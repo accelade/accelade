@@ -209,6 +209,12 @@ function initVueComponent(el: HTMLElement, config: AcceladeComponentConfig): voi
     // Setup reactive effects for v-text, v-show, v-if, v-model
     setupReactiveBindings(el, state);
 
+    // Update the data-accelade-state attribute so MutationObservers can detect changes
+    // This is important for lazy loading conditional triggers
+    effect(() => {
+        el.dataset.acceladeState = JSON.stringify(state);
+    });
+
     // Watch for sync properties
     if (config.sync.length > 0) {
         config.sync.forEach(prop => {

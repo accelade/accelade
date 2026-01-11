@@ -460,6 +460,12 @@ Notify::success('Saved!')->message('Changes saved.');</pre>
         </script>
     </section>
 
+    <!-- Shared Data Section -->
+    @include('accelade::demo.partials._shared-data', ['prefix' => 'a'])
+
+    <!-- Lazy Loading Section -->
+    @include('accelade::demo.partials._lazy-loading', ['prefix' => 'a'])
+
     <!-- Vanilla JS Features -->
     <section class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 text-white">
         <h2 class="text-2xl font-bold mb-8 text-center">Vanilla JS Features</h2>

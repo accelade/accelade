@@ -45,62 +45,59 @@
         </div>
         <p class="text-slate-500 mb-6 ml-6">Define custom functions using &lt;accelade:script&gt; with Angular signals.</p>
 
-        @accelade(['count' => 0, 'message' => 'Click the buttons!'])
-            <div class="text-center p-6 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl mb-6">
-                <p class="text-2xl text-slate-800 mb-4 font-medium" ng-text="message">
-                    Click the buttons!
-                </p>
-
-                <p class="text-4xl font-bold text-red-600 mb-4" ng-text="count">0</p>
-
-                <div class="flex gap-2 justify-center">
-                    <button
-                        class="px-6 py-3 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition shadow-lg shadow-red-200"
-                        ng-on-click="addFive()"
-                    >
-                        +5
-                    </button>
-                    <button
-                        class="px-6 py-3 bg-pink-600 text-white rounded-xl font-medium hover:bg-pink-700 transition shadow-lg shadow-pink-200"
-                        ng-on-click="double()"
-                    >
-                        Double
-                    </button>
-                    <button
-                        class="px-6 py-3 bg-slate-600 text-white rounded-xl font-medium hover:bg-slate-700 transition shadow-lg shadow-slate-200"
-                        ng-on-click="reset('count')"
-                    >
-                        Reset
-                    </button>
-                </div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- Native Angular Syntax -->
+            <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
+                <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
+                    <span class="text-xs px-2 py-1 bg-red-100 text-red-700 rounded">Native</span>
+                    ng-on-click Syntax
+                </h3>
+                @accelade(['count' => 0, 'message' => 'Click me!'])
+                    <div class="text-center">
+                        <p class="text-lg text-slate-800 mb-2" ng-text="message">Click me!</p>
+                        <p class="text-3xl font-bold text-red-600 mb-4" ng-text="count">0</p>
+                        <div class="flex gap-2 justify-center">
+                            <button class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition" ng-on-click="$set('count', count + 1)">+1</button>
+                            <button class="px-4 py-2 bg-pink-600 text-white rounded-lg text-sm font-medium hover:bg-pink-700 transition" ng-on-click="$set('count', count * 2)">x2</button>
+                            <button class="px-4 py-2 bg-slate-600 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition" ng-on-click="reset('count')">Reset</button>
+                        </div>
+                    </div>
+                @endaccelade
             </div>
 
-            <accelade:script>
-                return {
-                    addFive() {
-                        $set('count', $get('count') + 5);
-                        $set('message', 'Added 5!');
-                    },
-                    double() {
-                        const current = $get('count');
-                        $set('count', current * 2);
-                        $set('message', 'Doubled to ' + (current * 2) + '!');
-                    }
-                };
-            </accelade:script>
-        @endaccelade
+            <!-- Unified @ Syntax -->
+            <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
+                <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
+                    <span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">Unified</span>
+                    @click Syntax
+                </h3>
+                @accelade(['count' => 0, 'message' => 'Click me!'])
+                    <div class="text-center">
+                        <p class="text-lg text-slate-800 mb-2" ng-text="message">Click me!</p>
+                        <p class="text-3xl font-bold text-pink-600 mb-4" ng-text="count">0</p>
+                        <div class="flex gap-2 justify-center">
+                            <button class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition" @click="$set('count', count + 1)">+1</button>
+                            <button class="px-4 py-2 bg-pink-600 text-white rounded-lg text-sm font-medium hover:bg-pink-700 transition" @click="$set('count', count * 2)">x2</button>
+                            <button class="px-4 py-2 bg-slate-600 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition" @click="reset('count')">Reset</button>
+                        </div>
+                    </div>
+                @endaccelade
+            </div>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+            <p class="text-amber-800 text-sm">
+                <strong>Both syntaxes work!</strong> Use <code class="bg-amber-100 px-1.5 py-0.5 rounded">ng-on-click</code> for Angular-style or <code class="bg-amber-100 px-1.5 py-0.5 rounded">@click</code> for unified syntax across all frameworks.
+            </p>
+        </div>
 
         <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-            <pre class="text-sm font-mono text-slate-700 whitespace-pre-wrap">&lt;accelade:script&gt;
-    return {
-        addFive() {
-            $set('count', $get('count') + 5);
-        },
-        double() {
-            $set('count', $get('count') * 2);
-        }
-    };
-&lt;/accelade:script&gt;</pre>
+            <pre class="text-sm font-mono text-slate-700 whitespace-pre-wrap">&lt;!-- Native Angular syntax --&gt;
+&lt;button ng-on-click="$set('count', count + 1)"&gt;+1&lt;/button&gt;
+&lt;span ng-text="count"&gt;0&lt;/span&gt;
+
+&lt;!-- Unified syntax (works on all frameworks) --&gt;
+&lt;button @click="$set('count', count + 1)"&gt;+1&lt;/button&gt;</pre>
         </div>
     </section>
 
@@ -300,6 +297,12 @@ return redirect()->back();</pre>
             }
         </script>
     </section>
+
+    <!-- Shared Data Section -->
+    @include('accelade::demo.partials._shared-data', ['prefix' => 'ng'])
+
+    <!-- Lazy Loading Section -->
+    @include('accelade::demo.partials._lazy-loading', ['prefix' => 'ng'])
 
     <!-- Angular Features -->
     <section class="bg-gradient-to-r from-red-600 to-pink-600 rounded-2xl shadow-xl p-8 text-white">

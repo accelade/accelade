@@ -35,9 +35,10 @@ Add reactivity to your Laravel Blade templates without the overhead of a full SP
 - **SPA Navigation** — Client-side routing with automatic progress bar.
 - **Server Sync** — Seamlessly persist state to Laravel backend.
 - **Shared Data** — Pass data from PHP to JavaScript globally across your app.
+- **Lazy Loading** — Defer content with beautiful shimmer placeholders.
 - **SEO Engine** — Fluent API for managing meta tags, OpenGraph, and Twitter Cards.
 - **Toast Notifications** — Beautiful Filament-style notifications from PHP or JS.
-- **Lightweight** — ~15KB gzipped. No heavy dependencies.
+- **Lightweight** — ~28KB gzipped. No heavy dependencies.
 
 ---
 
@@ -131,6 +132,20 @@ const theme = window.Accelade.shared.get('settings.theme');
 @endaccelade
 ```
 
+### Lazy Loading with Shimmer
+```blade
+<x-accelade::lazy :shimmer="true">
+    @foreach($items as $item)
+        <div class="card">{{ $item->name }}</div>
+    @endforeach
+</x-accelade::lazy>
+
+{{-- Circle shimmer for avatars --}}
+<x-accelade::lazy :shimmer="true" :shimmer-circle="true">
+    <img src="{{ $user->avatar }}" alt="Avatar">
+</x-accelade::lazy>
+```
+
 ### SEO Management
 ```blade
 @seoTitle('My Page Title')
@@ -188,6 +203,7 @@ ACCELADE_FRAMEWORK=vue
 | [Getting Started](docs/getting-started.md) | Installation and first steps |
 | [Components](docs/components.md) | Building reactive components |
 | [Shared Data](docs/shared-data.md) | Share data from PHP to JavaScript |
+| [Lazy Loading](docs/lazy-loading.md) | Deferred content with shimmer |
 | [SEO](docs/seo.md) | Meta tags, OpenGraph, Twitter Cards |
 | [Notifications](docs/notifications.md) | Toast notification system |
 | [SPA Navigation](docs/spa-navigation.md) | Client-side routing |

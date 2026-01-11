@@ -15,29 +15,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Framework-specific demo pages
-Route::get('/vanilla', fn () => view('accelade::demo.vanilla', ['framework' => 'vanilla']))
-    ->name('demo.vanilla');
-
-Route::get('/vue', fn () => view('accelade::demo.vue', ['framework' => 'vue']))
-    ->name('demo.vue');
-
-Route::get('/react', fn () => view('accelade::demo.react', ['framework' => 'react']))
-    ->name('demo.react');
-
-Route::get('/svelte', fn () => view('accelade::demo.svelte', ['framework' => 'svelte']))
-    ->name('demo.svelte');
-
-Route::get('/angular', fn () => view('accelade::demo.angular', ['framework' => 'angular']))
-    ->name('demo.angular');
-
-// Backend notification demo routes
-Route::get('/notify/{type}', [NotifyDemoController::class, 'show'])
-    ->name('demo.notify');
-
-// Shared data demo
-Route::get('/shared-data', function () {
-    // Share some example data
+// Share demo data for all demo routes
+$shareData = function () {
     Accelade::share('appName', config('app.name', 'Accelade Demo'));
     Accelade::share('currentTime', now()->toIso8601String());
     Accelade::share('user', [
@@ -50,9 +29,42 @@ Route::get('/shared-data', function () {
         'language' => 'en',
         'notifications' => true,
     ]);
+};
 
-    return view('accelade::demo.shared-data');
-})->name('demo.shared-data');
+// Framework-specific demo pages
+Route::get('/vanilla', function () use ($shareData) {
+    $shareData();
+
+    return view('accelade::demo.vanilla', ['framework' => 'vanilla']);
+})->name('demo.vanilla');
+
+Route::get('/vue', function () use ($shareData) {
+    $shareData();
+
+    return view('accelade::demo.vue', ['framework' => 'vue']);
+})->name('demo.vue');
+
+Route::get('/react', function () use ($shareData) {
+    $shareData();
+
+    return view('accelade::demo.react', ['framework' => 'react']);
+})->name('demo.react');
+
+Route::get('/svelte', function () use ($shareData) {
+    $shareData();
+
+    return view('accelade::demo.svelte', ['framework' => 'svelte']);
+})->name('demo.svelte');
+
+Route::get('/angular', function () use ($shareData) {
+    $shareData();
+
+    return view('accelade::demo.angular', ['framework' => 'angular']);
+})->name('demo.angular');
+
+// Backend notification demo routes
+Route::get('/notify/{type}', [NotifyDemoController::class, 'show'])
+    ->name('demo.notify');
 
 // Default demo (redirects to vanilla)
 Route::get('/', fn () => redirect()->route('demo.vanilla'))

@@ -45,62 +45,59 @@
         </div>
         <p class="text-slate-500 mb-6 ml-6">Define custom functions using &lt;accelade:script&gt; with React state.</p>
 
-        @accelade(['count' => 0, 'message' => 'Click the buttons!'])
-            <div class="text-center p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl mb-6">
-                <p class="text-2xl text-slate-800 mb-4 font-medium" data-state-text="message">
-                    Click the buttons!
-                </p>
-
-                <p class="text-4xl font-bold text-blue-600 mb-4" data-state-text="count">0</p>
-
-                <div class="flex gap-2 justify-center">
-                    <button
-                        class="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-200"
-                        data-on-click="addFive()"
-                    >
-                        +5
-                    </button>
-                    <button
-                        class="px-6 py-3 bg-cyan-600 text-white rounded-xl font-medium hover:bg-cyan-700 transition shadow-lg shadow-cyan-200"
-                        data-on-click="double()"
-                    >
-                        Double
-                    </button>
-                    <button
-                        class="px-6 py-3 bg-slate-600 text-white rounded-xl font-medium hover:bg-slate-700 transition shadow-lg shadow-slate-200"
-                        data-on-click="reset('count')"
-                    >
-                        Reset
-                    </button>
-                </div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- Native React Syntax -->
+            <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
+                <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
+                    <span class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">Native</span>
+                    data-on-click Syntax
+                </h3>
+                @accelade(['count' => 0, 'message' => 'Click me!'])
+                    <div class="text-center">
+                        <p class="text-lg text-slate-800 mb-2" data-state-text="message">Click me!</p>
+                        <p class="text-3xl font-bold text-blue-600 mb-4" data-state-text="count">0</p>
+                        <div class="flex gap-2 justify-center">
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition" data-on-click="$set('count', count + 1)">+1</button>
+                            <button class="px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 transition" data-on-click="$set('count', count * 2)">x2</button>
+                            <button class="px-4 py-2 bg-slate-600 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition" data-on-click="reset('count')">Reset</button>
+                        </div>
+                    </div>
+                @endaccelade
             </div>
 
-            <accelade:script>
-                return {
-                    addFive() {
-                        $set('count', $get('count') + 5);
-                        $set('message', 'Added 5!');
-                    },
-                    double() {
-                        const current = $get('count');
-                        $set('count', current * 2);
-                        $set('message', 'Doubled to ' + (current * 2) + '!');
-                    }
-                };
-            </accelade:script>
-        @endaccelade
+            <!-- Unified @ Syntax -->
+            <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
+                <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
+                    <span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">Unified</span>
+                    @click Syntax
+                </h3>
+                @accelade(['count' => 0, 'message' => 'Click me!'])
+                    <div class="text-center">
+                        <p class="text-lg text-slate-800 mb-2" data-state-text="message">Click me!</p>
+                        <p class="text-3xl font-bold text-cyan-600 mb-4" data-state-text="count">0</p>
+                        <div class="flex gap-2 justify-center">
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition" @click="$set('count', count + 1)">+1</button>
+                            <button class="px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 transition" @click="$set('count', count * 2)">x2</button>
+                            <button class="px-4 py-2 bg-slate-600 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition" @click="reset('count')">Reset</button>
+                        </div>
+                    </div>
+                @endaccelade
+            </div>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+            <p class="text-amber-800 text-sm">
+                <strong>Both syntaxes work!</strong> Use <code class="bg-amber-100 px-1.5 py-0.5 rounded">data-on-click</code> for React-style or <code class="bg-amber-100 px-1.5 py-0.5 rounded">@click</code> for unified syntax across all frameworks.
+            </p>
+        </div>
 
         <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-            <pre class="text-sm font-mono text-slate-700 whitespace-pre-wrap">&lt;accelade:script&gt;
-    return {
-        addFive() {
-            $set('count', $get('count') + 5);
-        },
-        double() {
-            $set('count', $get('count') * 2);
-        }
-    };
-&lt;/accelade:script&gt;</pre>
+            <pre class="text-sm font-mono text-slate-700 whitespace-pre-wrap">&lt;!-- Native React syntax --&gt;
+&lt;button data-on-click="$set('count', count + 1)"&gt;+1&lt;/button&gt;
+&lt;span data-state-text="count"&gt;0&lt;/span&gt;
+
+&lt;!-- Unified syntax (works on all frameworks) --&gt;
+&lt;button @click="$set('count', count + 1)"&gt;+1&lt;/button&gt;</pre>
         </div>
     </section>
 
@@ -308,6 +305,12 @@ return redirect()->back();</pre>
             }
         </script>
     </section>
+
+    <!-- Shared Data Section -->
+    @include('accelade::demo.partials._shared-data', ['prefix' => 'data-state'])
+
+    <!-- Lazy Loading Section -->
+    @include('accelade::demo.partials._lazy-loading', ['prefix' => 'data-state'])
 
     <!-- React Features -->
     <section class="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl shadow-xl p-8 text-white">

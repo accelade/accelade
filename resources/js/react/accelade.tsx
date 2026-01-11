@@ -326,6 +326,16 @@ function AcceladeComponent({ template, config, scripts }: AcceladeComponentProps
         syncProperties: config.sync,
         scripts
     });
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Update the data-accelade-state attribute so MutationObservers can detect changes
+    // This is important for lazy loading conditional triggers
+    useEffect(() => {
+        const parentEl = containerRef.current?.closest('[data-accelade]');
+        if (parentEl) {
+            (parentEl as HTMLElement).dataset.acceladeState = JSON.stringify(state);
+        }
+    }, [state]);
 
     // Parse and render template with state bindings
     const renderTemplate = useCallback((): ReactNode[] => {
@@ -439,7 +449,7 @@ function AcceladeComponent({ template, config, scripts }: AcceladeComponentProps
             .filter((node): node is ReactNode => node !== null);
     }, [template, state, actions, customMethods]);
 
-    return <div>{renderTemplate()}</div>;
+    return <div ref={containerRef}>{renderTemplate()}</div>;
 }
 
 /**

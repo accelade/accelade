@@ -87,6 +87,18 @@ export {
     createTextInterpolator,
 } from './core/interpolation';
 
+// Lazy loading
+export {
+    LazyLoaderManager,
+    getLazyLoader,
+    initLazy,
+    registerLazy,
+    loadLazy,
+    configureLazy,
+    type LazyConfig,
+    type LazyInstance,
+} from './core/lazy';
+
 // Framework registry
 export { FrameworkRegistry } from './registry/FrameworkRegistry';
 
@@ -138,6 +150,7 @@ import {
 import { NotificationManager } from './core/notification';
 import type { FrameworkType, ComponentInstance } from './adapters/types';
 import type { SharedData } from './core/types';
+import { initLazy, getLazyLoader, registerLazy, loadLazy, configureLazy, type LazyConfig } from './core/lazy';
 
 // Singleton notification manager
 let notificationManager: NotificationManager | null = null;
@@ -350,6 +363,60 @@ const shared = {
         SharedDataManager.getInstance(),
 };
 
+// Lazy loading API object
+const lazy = {
+    /**
+     * Initialize all lazy components on the page
+     */
+    init: initLazy,
+
+    /**
+     * Register a lazy component element
+     */
+    register: registerLazy,
+
+    /**
+     * Load a lazy component by ID
+     */
+    load: loadLazy,
+
+    /**
+     * Configure lazy loading options
+     */
+    configure: configureLazy,
+
+    /**
+     * Get a lazy instance by ID
+     */
+    get: (id: string) => getLazyLoader().get(id),
+
+    /**
+     * Get all lazy instances
+     */
+    getAll: () => getLazyLoader().getAll(),
+
+    /**
+     * Reload a lazy component
+     */
+    reload: (id: string) => getLazyLoader().reload(id),
+
+    /**
+     * Hide a lazy component (show placeholder)
+     */
+    hide: (id: string) => getLazyLoader().hide(id),
+
+    /**
+     * Subscribe to lazy events
+     */
+    on: (event: 'load' | 'loaded' | 'error', callback: Parameters<typeof getLazyLoader>['0']['on'] extends (e: infer E, c: infer C) => void ? C : never) =>
+        getLazyLoader().on(event, callback as Parameters<ReturnType<typeof getLazyLoader>['on']>[1]),
+
+    /**
+     * Get the LazyLoaderManager instance
+     */
+    instance: getLazyLoader,
+};
+
 /**
  * Main Accelade API
  */
@@ -377,6 +444,9 @@ const Accelade = {
 
     // Shared data
     shared,
+
+    // Lazy loading
+    lazy,
 
     // Debug (set via DebugManager when enabled)
     debug: false as boolean,
@@ -410,9 +480,13 @@ if (typeof window !== 'undefined') {
 
     // Auto-init on DOMContentLoaded
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => init());
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            initLazy();
+        });
     } else {
         init();
+        initLazy();
     }
 }
 
