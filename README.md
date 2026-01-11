@@ -35,6 +35,7 @@ Add reactivity to your Laravel Blade templates without the overhead of a full SP
 - **SPA Navigation** — Client-side routing with automatic progress bar.
 - **Server Sync** — Seamlessly persist state to Laravel backend.
 - **Shared Data** — Pass data from PHP to JavaScript globally across your app.
+- **SEO Engine** — Fluent API for managing meta tags, OpenGraph, and Twitter Cards.
 - **Toast Notifications** — Beautiful Filament-style notifications from PHP or JS.
 - **Lightweight** — ~15KB gzipped. No heavy dependencies.
 
@@ -130,6 +131,24 @@ const theme = window.Accelade.shared.get('settings.theme');
 @endaccelade
 ```
 
+### SEO Management
+```blade
+@seoTitle('My Page Title')
+@seoDescription('Page description for search engines')
+@seoKeywords('laravel, blade, reactive')
+@seoOpenGraph(['type' => 'article', 'image' => '/og-image.jpg'])
+
+{{-- In layout <head> --}}
+@seo
+```
+
+```php
+// From PHP controller
+SEO::title($post->title)
+    ->description($post->excerpt)
+    ->openGraphImage($post->featured_image);
+```
+
 ### SPA Navigation
 ```blade
 <x-accelade::link href="/dashboard">Dashboard</x-accelade::link>
@@ -169,6 +188,7 @@ ACCELADE_FRAMEWORK=vue
 | [Getting Started](docs/getting-started.md) | Installation and first steps |
 | [Components](docs/components.md) | Building reactive components |
 | [Shared Data](docs/shared-data.md) | Share data from PHP to JavaScript |
+| [SEO](docs/seo.md) | Meta tags, OpenGraph, Twitter Cards |
 | [Notifications](docs/notifications.md) | Toast notification system |
 | [SPA Navigation](docs/spa-navigation.md) | Client-side routing |
 | [Frameworks](docs/frameworks.md) | Vue, React, Svelte, Angular |

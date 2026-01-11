@@ -33,6 +33,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Reactive updates when state or shared data changes
   - `TextInterpolator` class for programmatic use
 
+- **SEO Engine** - Fluent API for managing page metadata
+  - `SEO` facade with chainable methods for title, description, keywords
+  - OpenGraph support: type, site_name, title, description, url, image, locale
+  - Twitter Cards support: card, site, creator, title, description, image
+  - Custom meta tags via `metaByName()`, `metaByProperty()`, and `meta()`
+  - Blade directives:
+    - `@seoTitle()`, `@seoDescription()`, `@seoKeywords()`
+    - `@seoCanonical()`, `@seoRobots()`, `@seoAuthor()`
+    - `@seoOpenGraph()`, `@seoTwitter()`
+    - `@seoMeta()` for custom meta tags
+    - `@seo` to output all meta tags
+  - Auto-fill OpenGraph/Twitter from main SEO values
+  - Auto-canonical URL generation from current request
+  - Configurable title separator and suffix
+  - Macroable for custom extensions
+  - Full documentation in `docs/seo.md`
+
+- **Event Binding Syntax** - Unified `@` prefix for events across all frameworks
+  - All event handlers now use `@click`, `@submit`, `@input`, etc.
+  - Works consistently across Vanilla, Vue, React, Svelte, and Angular
+  - Legacy syntax (`a-on:`, `v-on:`, etc.) still supported for backward compatibility
+
 ## [0.2.0] - 2024-01-11
 
 ### Added

@@ -21,6 +21,7 @@ abstract class TestCase extends Orchestra
         return [
             'Accelade' => \Accelade\Facades\Accelade::class,
             'Notify' => \Accelade\Facades\Notify::class,
+            'SEO' => \Accelade\Facades\SEO::class,
         ];
     }
 

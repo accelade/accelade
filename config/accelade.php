@@ -139,4 +139,93 @@ return [
     'testing' => [
         'base_url' => env('ACCELADE_TEST_URL', env('APP_URL', 'http://localhost')),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEO Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure default SEO values, title formatting, OpenGraph and Twitter
+    | card settings. These values are used by the SEO facade.
+    |
+    */
+    'seo' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Default Values
+        |--------------------------------------------------------------------------
+        |
+        | Default SEO values used when no specific values are set.
+        |
+        */
+        'defaults' => [
+            'title' => null,
+            'description' => null,
+            'keywords' => [],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Title Configuration
+        |--------------------------------------------------------------------------
+        |
+        | Configure how the page title is formatted.
+        | - title_separator: Separator between title parts (e.g., " | ")
+        | - title_prefix: Text prepended to the title (optional)
+        | - title_suffix: Text appended to the title (e.g., site name)
+        |
+        */
+        'title_separator' => ' | ',
+        'title_prefix' => null,
+        'title_suffix' => null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Canonical URL
+        |--------------------------------------------------------------------------
+        |
+        | Automatically generate canonical URL from the current request URL.
+        | Set to false to disable automatic canonical link generation.
+        |
+        */
+        'auto_canonical_link' => true,
+
+        /*
+        |--------------------------------------------------------------------------
+        | OpenGraph Configuration
+        |--------------------------------------------------------------------------
+        |
+        | Configure OpenGraph (Facebook/LinkedIn) meta tags.
+        | - auto_fill: Automatically fill OG title/description from main SEO values
+        | - defaults: Default OpenGraph values
+        |
+        */
+        'open_graph' => [
+            'auto_fill' => true,
+            'defaults' => [
+                'type' => 'website',
+                'site_name' => null,
+                'locale' => null,
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Twitter Card Configuration
+        |--------------------------------------------------------------------------
+        |
+        | Configure Twitter Card meta tags.
+        | - auto_fill: Automatically fill Twitter title/description from main SEO
+        | - defaults: Default Twitter card values
+        |
+        */
+        'twitter' => [
+            'auto_fill' => true,
+            'defaults' => [
+                'card' => 'summary_large_image',
+                'site' => null,
+                'creator' => null,
+            ],
+        ],
+    ],
 ];

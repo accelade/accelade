@@ -120,6 +120,54 @@ use Accelade\Notification\NotificationManager;
 | `defaultPosition(string)` | self | Default position |
 | `defaultDuration(int)` | self | Default duration |
 
+### SEO Facade
+
+```php
+use Accelade\Facades\SEO;
+```
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `title(?string)` | self | Set page title |
+| `getTitle()` | ?string | Get page title |
+| `description(?string)` | self | Set page description |
+| `getDescription()` | ?string | Get page description |
+| `keywords(string\|array)` | self | Set keywords |
+| `getKeywords()` | array | Get keywords |
+| `canonical(?string)` | self | Set canonical URL |
+| `getCanonical()` | ?string | Get canonical URL |
+| `robots(?string)` | self | Set robots meta |
+| `getRobots()` | ?string | Get robots meta |
+| `author(?string)` | self | Set author meta |
+| `getAuthor()` | ?string | Get author meta |
+| `openGraphType(?string)` | self | Set OG type |
+| `openGraphSiteName(?string)` | self | Set OG site name |
+| `openGraphTitle(?string)` | self | Set OG title |
+| `openGraphDescription(?string)` | self | Set OG description |
+| `openGraphUrl(?string)` | self | Set OG URL |
+| `openGraphImage(?string, ?string)` | self | Set OG image + alt |
+| `openGraphLocale(?string)` | self | Set OG locale |
+| `getOpenGraph()` | array | Get all OG values |
+| `twitterCard(?string)` | self | Set Twitter card type |
+| `twitterSite(?string)` | self | Set Twitter site |
+| `twitterCreator(?string)` | self | Set Twitter creator |
+| `twitterTitle(?string)` | self | Set Twitter title |
+| `twitterDescription(?string)` | self | Set Twitter description |
+| `twitterImage(?string, ?string)` | self | Set Twitter image + alt |
+| `getTwitter()` | array | Get all Twitter values |
+| `metaByName(string, string)` | self | Add meta by name |
+| `metaByProperty(string, string)` | self | Add meta by property |
+| `meta(array)` | self | Add custom meta |
+| `getMeta()` | array | Get all custom meta |
+| `reset()` | self | Reset all values |
+| `buildTitle()` | ?string | Build formatted title |
+| `buildDescription()` | ?string | Get effective description |
+| `buildKeywords()` | array | Get effective keywords |
+| `buildCanonical()` | ?string | Get effective canonical |
+| `toArray()` | array | Convert to array |
+| `toHtml()` | string | Generate HTML meta tags |
+| `render()` | string | Alias for toHtml() |
+
 ---
 
 ## Blade Directives
@@ -169,6 +217,50 @@ Creates a reactive component block:
 @accelade(['count' => 0], 'my-counter')
     {{-- Content --}}
 @endaccelade
+```
+
+### SEO Directives
+
+```blade
+{{-- Set page title --}}
+@seoTitle('My Page Title')
+
+{{-- Set page description --}}
+@seoDescription('Page description')
+
+{{-- Set keywords --}}
+@seoKeywords('php, laravel, accelade')
+
+{{-- Set canonical URL --}}
+@seoCanonical('https://example.com/page')
+
+{{-- Set robots meta --}}
+@seoRobots('index, follow')
+
+{{-- Set author --}}
+@seoAuthor('John Doe')
+
+{{-- Set OpenGraph data --}}
+@seoOpenGraph([
+    'type' => 'article',
+    'site_name' => 'My Site',
+    'title' => 'OG Title',
+    'description' => 'OG Description',
+    'image' => 'https://example.com/og.jpg',
+])
+
+{{-- Set Twitter Card data --}}
+@seoTwitter([
+    'card' => 'summary_large_image',
+    'site' => '@mysite',
+    'creator' => '@johndoe',
+])
+
+{{-- Add custom meta by name --}}
+@seoMeta('theme-color', '#6366f1')
+
+{{-- Output all SEO meta tags (place in <head>) --}}
+@seo
 ```
 
 ---

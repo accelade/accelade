@@ -7,6 +7,7 @@ namespace Accelade;
 use Accelade\Compilers\AcceladeTagCompiler;
 use Accelade\Console\InstallCommand;
 use Accelade\Notification\NotificationManager;
+use Accelade\SEO\SEO;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -28,6 +29,10 @@ class AcceladeServiceProvider extends ServiceProvider
             }
 
             return $manager;
+        });
+
+        $this->app->singleton('accelade.seo', function () {
+            return new SEO;
         });
     }
 
@@ -82,6 +87,81 @@ class AcceladeServiceProvider extends ServiceProvider
         // @acceladeNotifications - Render notifications container
         Blade::directive('acceladeNotifications', function () {
             return "<?php echo view('accelade::components.notifications')->render(); ?>";
+        });
+
+        // SEO Directives
+        $this->registerSeoDirectives();
+    }
+
+    protected function registerSeoDirectives(): void
+    {
+        // @seoTitle('Title') - Set the page title
+        Blade::directive('seoTitle', function ($expression) {
+            return "<?php app('accelade.seo')->title({$expression}); ?>";
+        });
+
+        // @seoDescription('Description') - Set the page description
+        Blade::directive('seoDescription', function ($expression) {
+            return "<?php app('accelade.seo')->description({$expression}); ?>";
+        });
+
+        // @seoKeywords('keyword1, keyword2') - Set the page keywords
+        Blade::directive('seoKeywords', function ($expression) {
+            return "<?php app('accelade.seo')->keywords({$expression}); ?>";
+        });
+
+        // @seoCanonical('url') - Set the canonical URL
+        Blade::directive('seoCanonical', function ($expression) {
+            return "<?php app('accelade.seo')->canonical({$expression}); ?>";
+        });
+
+        // @seoRobots('index, follow') - Set the robots meta tag
+        Blade::directive('seoRobots', function ($expression) {
+            return "<?php app('accelade.seo')->robots({$expression}); ?>";
+        });
+
+        // @seoAuthor('Author Name') - Set the author meta tag
+        Blade::directive('seoAuthor', function ($expression) {
+            return "<?php app('accelade.seo')->author({$expression}); ?>";
+        });
+
+        // @seoOpenGraph(['type' => 'article', ...]) - Set OpenGraph data
+        Blade::directive('seoOpenGraph', function ($expression) {
+            return "<?php
+                \$__seoOgData = {$expression};
+                \$__seo = app('accelade.seo');
+                if (isset(\$__seoOgData['type'])) \$__seo->openGraphType(\$__seoOgData['type']);
+                if (isset(\$__seoOgData['site_name'])) \$__seo->openGraphSiteName(\$__seoOgData['site_name']);
+                if (isset(\$__seoOgData['title'])) \$__seo->openGraphTitle(\$__seoOgData['title']);
+                if (isset(\$__seoOgData['description'])) \$__seo->openGraphDescription(\$__seoOgData['description']);
+                if (isset(\$__seoOgData['url'])) \$__seo->openGraphUrl(\$__seoOgData['url']);
+                if (isset(\$__seoOgData['image'])) \$__seo->openGraphImage(\$__seoOgData['image'], \$__seoOgData['image_alt'] ?? null);
+                if (isset(\$__seoOgData['locale'])) \$__seo->openGraphLocale(\$__seoOgData['locale']);
+            ?>";
+        });
+
+        // @seoTwitter(['card' => 'summary_large_image', ...]) - Set Twitter Card data
+        Blade::directive('seoTwitter', function ($expression) {
+            return "<?php
+                \$__seoTwitterData = {$expression};
+                \$__seo = app('accelade.seo');
+                if (isset(\$__seoTwitterData['card'])) \$__seo->twitterCard(\$__seoTwitterData['card']);
+                if (isset(\$__seoTwitterData['site'])) \$__seo->twitterSite(\$__seoTwitterData['site']);
+                if (isset(\$__seoTwitterData['creator'])) \$__seo->twitterCreator(\$__seoTwitterData['creator']);
+                if (isset(\$__seoTwitterData['title'])) \$__seo->twitterTitle(\$__seoTwitterData['title']);
+                if (isset(\$__seoTwitterData['description'])) \$__seo->twitterDescription(\$__seoTwitterData['description']);
+                if (isset(\$__seoTwitterData['image'])) \$__seo->twitterImage(\$__seoTwitterData['image'], \$__seoTwitterData['image_alt'] ?? null);
+            ?>";
+        });
+
+        // @seoMeta('name', 'content') - Add a custom meta tag by name
+        Blade::directive('seoMeta', function ($expression) {
+            return "<?php app('accelade.seo')->metaByName({$expression}); ?>";
+        });
+
+        // @seo - Output all SEO meta tags (place in <head>)
+        Blade::directive('seo', function () {
+            return "<?php echo app('accelade.seo')->toHtml(); ?>";
         });
     }
 
