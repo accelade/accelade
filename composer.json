@@ -1,16 +1,28 @@
 {
     "name": "accelade/accelade",
-    "description": "Accelerate your Blade templates with Vue.js or React.js using renderless components",
+    "description": "Reactive Blade templates with Vue, React, Svelte, Angular, or vanilla JavaScript",
     "type": "library",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Fady Mondy",
+            "email": "info@3x1.io",
+            "homepage": "https://3x1.io",
+            "role": "Developer"
+        }
+    ],
+    "homepage": "https://github.com/fadymondy/accelade",
     "keywords": [
         "laravel",
         "blade",
         "vue",
         "react",
-        "renderless",
+        "svelte",
+        "angular",
+        "reactive",
         "components",
-        "reactive"
+        "spa",
+        "notifications"
     ],
     "require": {
         "php": "^8.2",

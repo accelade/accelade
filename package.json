@@ -1,7 +1,17 @@
 {
     "name": "@accelade/accelade",
     "version": "0.2.0",
-    "description": "Accelerate Blade templates with Vue, React, Svelte, Angular, or vanilla JavaScript",
+    "description": "Reactive Blade templates with Vue, React, Svelte, Angular, or vanilla JavaScript",
+    "author": "Fady Mondy <info@3x1.io> (https://3x1.io)",
+    "license": "MIT",
+    "homepage": "https://github.com/fadymondy/accelade",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fadymondy/accelade.git"
+    },
+    "bugs": {
+        "url": "https://github.com/fadymondy/accelade/issues"
+    },
     "private": true,
     "type": "module",
     "main": "dist/accelade.js",
