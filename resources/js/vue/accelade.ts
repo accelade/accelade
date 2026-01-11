@@ -180,6 +180,23 @@ function initVueComponent(el: HTMLElement, config: AcceladeComponentConfig): voi
             } else {
                 state[key] = '';
             }
+        },
+
+        get: (key: string): unknown => {
+            return state[key];
+        },
+
+        // Aliases with $ prefix for template usage
+        $set: (key: string, value: unknown): void => {
+            state[key] = value;
+        },
+
+        $get: (key: string): unknown => {
+            return state[key];
+        },
+
+        $toggle: (key: string): void => {
+            state[key] = !state[key];
         }
     };
 

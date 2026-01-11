@@ -19,7 +19,7 @@ const VUE_BINDING_ATTRIBUTES: BindingAttributeMap = {
     class: 'v-class',
     style: 'v-style',
     bind: 'v-bind:',
-    on: 'v-on:',
+    on: '@',
     cloak: 'v-cloak',
 };
 
@@ -76,6 +76,13 @@ export class VueAdapter extends BaseAdapter {
      * Get event prefix
      */
     getEventPrefix(): string {
+        return '@';
+    }
+
+    /**
+     * Get alternate event prefix (v-on: for backward compatibility)
+     */
+    protected getAltEventPrefix(): string | null {
         return 'v-on:';
     }
 
@@ -91,13 +98,6 @@ export class VueAdapter extends BaseAdapter {
      */
     getBindingAttributes(): BindingAttributeMap {
         return VUE_BINDING_ATTRIBUTES;
-    }
-
-    /**
-     * Get shorthand event prefix (@)
-     */
-    getShorthandEventPrefix(): string {
-        return '@';
     }
 
     /**

@@ -56,19 +56,19 @@
                 <div class="flex gap-2 justify-center">
                     <button
                         class="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition shadow-lg shadow-indigo-200"
-                        a-on:click="addFive()"
+                        @click="addFive()"
                     >
                         +5
                     </button>
                     <button
                         class="px-6 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition shadow-lg shadow-purple-200"
-                        a-on:click="double()"
+                        @click="double()"
                     >
                         Double
                     </button>
                     <button
                         class="px-6 py-3 bg-slate-600 text-white rounded-xl font-medium hover:bg-slate-700 transition shadow-lg shadow-slate-200"
-                        a-on:click="reset('count')"
+                        @click="reset('count')"
                     >
                         Reset
                     </button>
@@ -468,7 +468,7 @@ Notify::success('Saved!')->message('Changes saved.');</pre>
             <div class="bg-white/10 rounded-xl p-6 backdrop-blur">
                 <div class="text-3xl mb-3">a-*</div>
                 <h3 class="font-semibold text-lg mb-2">Directives</h3>
-                <p class="text-indigo-100 text-sm">a-text, a-show, a-if, a-model, a-on:click, a-bind</p>
+                <p class="text-indigo-100 text-sm">a-text, a-show, a-if, a-model, @click, a-bind</p>
             </div>
 
             <div class="bg-white/10 rounded-xl p-6 backdrop-blur">

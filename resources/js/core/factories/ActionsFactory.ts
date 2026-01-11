@@ -26,6 +26,20 @@ export class ActionsFactory {
         setState: StateSetter,
         originalState: Record<string, unknown>
     ): AcceladeActions {
+        // Helper functions with $ prefix (common usage in templates)
+        const $set = (key: string, value: unknown): void => {
+            setState(key, value);
+        };
+
+        const $get = (key: string): unknown => {
+            return getState()[key];
+        };
+
+        const $toggle = (key: string): void => {
+            const state = getState();
+            setState(key, !state[key]);
+        };
+
         return {
             /**
              * Increment a numeric value
@@ -50,17 +64,17 @@ export class ActionsFactory {
             /**
              * Set a value directly
              */
-            set: (key: string, value: unknown): void => {
-                setState(key, value);
-            },
+            set: $set,
 
             /**
              * Toggle a boolean value
              */
-            toggle: (key: string): void => {
-                const state = getState();
-                setState(key, !state[key]);
-            },
+            toggle: $toggle,
+
+            /**
+             * Get a value (for completeness)
+             */
+            get: $get,
 
             /**
              * Reset a value to its default (based on original type)
@@ -80,6 +94,11 @@ export class ActionsFactory {
                     setState(key, '');
                 }
             },
+
+            // Aliases with $ prefix for template usage
+            $set,
+            $get,
+            $toggle,
         };
     }
 

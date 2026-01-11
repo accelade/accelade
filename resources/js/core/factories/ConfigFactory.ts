@@ -2,7 +2,7 @@
  * ConfigFactory - Parse and manage component configuration
  */
 
-import type { AcceladeComponentConfig, AcceladeConfig } from '../types';
+import type { AcceladeComponentConfig, AcceladeConfig, SharedData } from '../types';
 
 /**
  * Full config type with required properties (for internal use)
@@ -15,6 +15,7 @@ interface FullAcceladeConfig {
     batchUpdateUrl: string;
     debug: boolean;
     progress?: AcceladeConfig['progress'];
+    shared?: SharedData;
 }
 
 /**

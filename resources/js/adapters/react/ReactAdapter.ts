@@ -20,7 +20,7 @@ const REACT_BINDING_ATTRIBUTES: BindingAttributeMap = {
     class: 'data-state-class',
     style: 'data-state-style',
     bind: 'data-state-',
-    on: 'data-on-',
+    on: '@',
     cloak: 'data-accelade-cloak',
 };
 
@@ -81,6 +81,13 @@ export class ReactAdapter extends BaseAdapter {
      * Get event prefix
      */
     getEventPrefix(): string {
+        return '@';
+    }
+
+    /**
+     * Get alternate event prefix (data-on- for backward compatibility)
+     */
+    protected getAltEventPrefix(): string | null {
         return 'data-on-';
     }
 

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Accelade\Facades\Accelade;
 use Accelade\Http\Controllers\NotifyDemoController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,25 @@ Route::get('/angular', fn () => view('accelade::demo.angular', ['framework' => '
 // Backend notification demo routes
 Route::get('/notify/{type}', [NotifyDemoController::class, 'show'])
     ->name('demo.notify');
+
+// Shared data demo
+Route::get('/shared-data', function () {
+    // Share some example data
+    Accelade::share('appName', config('app.name', 'Accelade Demo'));
+    Accelade::share('currentTime', now()->toIso8601String());
+    Accelade::share('user', [
+        'id' => 1,
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+    ]);
+    Accelade::share('settings', [
+        'theme' => 'dark',
+        'language' => 'en',
+        'notifications' => true,
+    ]);
+
+    return view('accelade::demo.shared-data');
+})->name('demo.shared-data');
 
 // Default demo (redirects to vanilla)
 Route::get('/', fn () => redirect()->route('demo.vanilla'))

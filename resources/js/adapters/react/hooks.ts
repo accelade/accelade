@@ -160,6 +160,23 @@ export function useAccelade<T extends StateRecord>(
                               : '',
                 }));
             },
+
+            get: (key: string): unknown => {
+                return state[key];
+            },
+
+            // Aliases with $ prefix for template usage
+            $set: (key: string, value: unknown): void => {
+                setState((prev) => ({ ...prev, [key]: value }));
+            },
+
+            $get: (key: string): unknown => {
+                return state[key];
+            },
+
+            $toggle: (key: string): void => {
+                setState((prev) => ({ ...prev, [key]: !prev[key] }));
+            },
         }),
         []
     );

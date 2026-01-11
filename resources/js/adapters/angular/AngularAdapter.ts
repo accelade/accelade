@@ -20,7 +20,7 @@ const ANGULAR_BINDING_ATTRIBUTES: BindingAttributeMap = {
     class: 'ng-class',
     style: 'ng-style',
     bind: 'ng-bind-',
-    on: 'ng-on-',
+    on: '@',
     cloak: 'ng-cloak',
 };
 
@@ -81,6 +81,13 @@ export class AngularAdapter extends BaseAdapter {
      * Get event prefix
      */
     getEventPrefix(): string {
+        return '@';
+    }
+
+    /**
+     * Get alternate event prefix (ng-on- for backward compatibility)
+     */
+    protected getAltEventPrefix(): string | null {
         return 'ng-on-';
     }
 

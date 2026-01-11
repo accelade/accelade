@@ -41,9 +41,9 @@ Create a reactive counter in any Blade view:
 @accelade(['count' => 0])
     <div class="counter">
         <p>Count: <span a-text="count">0</span></p>
-        <button a-on:click="$set('count', count + 1)">Increment</button>
-        <button a-on:click="$set('count', count - 1)">Decrement</button>
-        <button a-on:click="$set('count', 0)">Reset</button>
+        <button @click="$set('count', count + 1)">Increment</button>
+        <button @click="$set('count', count - 1)">Decrement</button>
+        <button @click="$set('count', 0)">Reset</button>
     </div>
 @endaccelade
 ```
@@ -71,7 +71,7 @@ The `@accelade` directive creates a reactive component. Pass an array of initial
 | `a-show` | Toggle visibility | `<div a-show="isVisible">...</div>` |
 | `a-if` | Conditional render | `<div a-if="hasItems">...</div>` |
 | `a-model` | Two-way binding | `<input a-model="email">` |
-| `a-on:event` | Event handler | `<button a-on:click="save()">` |
+| `@event` | Event handler | `<button @click="save()">` |
 | `a-class` | Dynamic classes | `<div a-class="{ active: isActive }">` |
 | `a-sync` | Server sync | `<div a-sync="preferences">` |
 
@@ -81,14 +81,14 @@ Inside event handlers, you have access to these functions:
 
 ```blade
 {{-- Set a value --}}
-<button a-on:click="$set('count', count + 1)">+1</button>
+<button @click="$set('count', count + 1)">+1</button>
 
 {{-- Toggle a boolean --}}
-<button a-on:click="$toggle('isOpen')">Toggle</button>
+<button @click="$toggle('isOpen')">Toggle</button>
 
 {{-- Reset to initial state --}}
-<button a-on:click="$reset()">Reset All</button>
-<button a-on:click="$reset('count')">Reset Count</button>
+<button @click="$reset()">Reset All</button>
+<button @click="$reset('count')">Reset Count</button>
 ```
 
 ## Common Patterns
@@ -97,7 +97,7 @@ Inside event handlers, you have access to these functions:
 
 ```blade
 @accelade(['email' => '', 'submitted' => false])
-    <form a-on:submit.prevent="$set('submitted', true)">
+    <form @submit.prevent="$set('submitted', true)">
         <input
             a-model="email"
             type="email"
@@ -117,7 +117,7 @@ Inside event handlers, you have access to these functions:
 
 ```blade
 @accelade(['isOpen' => false])
-    <button a-on:click="$toggle('isOpen')">
+    <button @click="$toggle('isOpen')">
         <span a-show="!isOpen">Show Details</span>
         <span a-show="isOpen">Hide Details</span>
     </button>
@@ -134,15 +134,15 @@ Inside event handlers, you have access to these functions:
 @accelade(['activeTab' => 'home'])
     <div class="tabs">
         <button
-            a-on:click="$set('activeTab', 'home')"
+            @click="$set('activeTab', 'home')"
             a-class="{ active: activeTab === 'home' }"
         >Home</button>
         <button
-            a-on:click="$set('activeTab', 'profile')"
+            @click="$set('activeTab', 'profile')"
             a-class="{ active: activeTab === 'profile' }"
         >Profile</button>
         <button
-            a-on:click="$set('activeTab', 'settings')"
+            @click="$set('activeTab', 'settings')"
             a-class="{ active: activeTab === 'settings' }"
         >Settings</button>
     </div>

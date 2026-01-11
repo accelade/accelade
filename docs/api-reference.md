@@ -350,13 +350,15 @@ document.addEventListener('accelade:navigate-end', (event) => {
 
 ### Events
 
-| Directive | Framework | Description |
-|-----------|-----------|-------------|
-| `a-on:event` | Vanilla | Event listener |
-| `v-on:event` / `@event` | Vue | Event listener |
-| `state:onEvent` | React | Event listener |
-| `on:event` | Svelte | Event listener |
-| `ng-on-event` | Angular | Event listener |
+All frameworks use `@event` syntax for event handling:
+
+| Directive | Description | Example |
+|-----------|-------------|---------|
+| `@click` | Click event | `<button @click="increment()">` |
+| `@submit` | Form submit | `<form @submit.prevent="save()">` |
+| `@input` | Input change | `<input @input="validate()">` |
+| `@change` | Value change | `<select @change="update()">` |
+| `@keydown` | Key press | `<input @keydown.enter="submit()">` |
 
 ### Classes
 

@@ -33,6 +33,11 @@ export interface AcceladeProgressAPI {
 export type FrameworkType = 'vanilla' | 'vue' | 'react' | 'svelte' | 'angular';
 
 /**
+ * Shared data type
+ */
+export type SharedData = Record<string, unknown>;
+
+/**
  * Accelade configuration from server
  */
 export interface AcceladeConfig {
@@ -43,6 +48,7 @@ export interface AcceladeConfig {
     batchUpdateUrl?: string;
     progress?: Partial<ProgressConfig>;
     debug?: boolean;
+    shared?: SharedData;
 }
 
 /**
@@ -123,8 +129,13 @@ export interface AcceladeActions {
     increment: (key?: string, amount?: number) => void;
     decrement: (key?: string, amount?: number) => void;
     set: (key: string, value: unknown) => void;
+    get: (key: string) => unknown;
     toggle: (key: string) => void;
     reset: (key: string) => void;
+    // Aliases with $ prefix for template usage
+    $set: (key: string, value: unknown) => void;
+    $get: (key: string) => unknown;
+    $toggle: (key: string) => void;
 }
 
 /**

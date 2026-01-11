@@ -46,7 +46,7 @@ Create a quick test:
 
 ```blade
 @accelade(['count' => 0])
-    <button a-on:click="$set('count', count + 1)">
+    <button @click="$set('count', count + 1)">
         Clicked: <span a-text="count">0</span>
     </button>
 @endaccelade

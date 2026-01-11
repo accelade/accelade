@@ -17,7 +17,7 @@ Add reactivity to your Laravel Blade templates without the overhead of a full SP
 
 ```blade
 @accelade(['count' => 0])
-    <button a-on:click="$set('count', count + 1)">
+    <button @click="$set('count', count + 1)">
         Clicked <span a-text="count">0</span> times
     </button>
 @endaccelade
@@ -34,6 +34,7 @@ Add reactivity to your Laravel Blade templates without the overhead of a full SP
 - **Multi-Framework** — Use Vanilla JS, Vue, React, Svelte, or Angular syntax.
 - **SPA Navigation** — Client-side routing with automatic progress bar.
 - **Server Sync** — Seamlessly persist state to Laravel backend.
+- **Shared Data** — Pass data from PHP to JavaScript globally across your app.
 - **Toast Notifications** — Beautiful Filament-style notifications from PHP or JS.
 - **Lightweight** — ~15KB gzipped. No heavy dependencies.
 
@@ -76,7 +77,7 @@ Start building:
 ```blade
 @accelade(['items' => [], 'newItem' => ''])
     <input a-model="newItem">
-    <button a-on:click="$set('items', [...items, newItem]); $set('newItem', '')">Add</button>
+    <button @click="$set('items', [...items, newItem]); $set('newItem', '')">Add</button>
     <ul>
         <template a-for="item in items">
             <li a-text="item"></li>
@@ -106,6 +107,29 @@ Notify::success('Saved!')->body('Your changes have been saved.');
 window.Accelade.notify.success('Success!', 'Operation completed.');
 ```
 
+### Shared Data
+```php
+// Share data from PHP (controller, middleware, etc.)
+Accelade::share('user', auth()->user()->only('id', 'name'));
+Accelade::share('settings', ['theme' => 'dark']);
+```
+
+```javascript
+// Access in JavaScript anywhere
+const userName = window.Accelade.shared.get('user.name');
+const theme = window.Accelade.shared.get('settings.theme');
+```
+
+### Text Interpolation
+```blade
+@accelade(['count' => 0, 'name' => 'World'])
+    <p>Hello, @{{ name }}!</p>
+    <p>Count: @{{ count }}</p>
+    <p>User: @{{ shared.user.name }}</p>
+    <button @click="$set('count', count + 1)">Click</button>
+@endaccelade
+```
+
 ### SPA Navigation
 ```blade
 <x-accelade::link href="/dashboard">Dashboard</x-accelade::link>
@@ -115,15 +139,15 @@ window.Accelade.notify.success('Success!', 'Operation completed.');
 
 ## Choose Your Framework
 
-Accelade adapts to your preferred syntax:
+Accelade adapts to your preferred syntax. Events use `@click`, `@submit`, etc. across all frameworks:
 
 | Framework | Prefix | Example |
 |-----------|--------|---------|
-| Vanilla JS | `a-` | `<span a-text="name">` |
-| Vue | `v-` | `<span v-text="name">` |
-| React | `state:` | `<span state:text="name">` |
-| Svelte | `bind:` | `<span bind:text="name">` |
-| Angular | `ng-` | `<span ng-text="name">` |
+| Vanilla JS | `a-` | `<span a-text="name">`, `<button @click="...">` |
+| Vue | `v-` | `<span v-text="name">`, `<button @click="...">` |
+| React | `data-state-` | `<span data-state-text="name">`, `<button @click="...">` |
+| Svelte | `s-` | `<span s-text="name">`, `<button @click="...">` |
+| Angular | `ng-` | `<span ng-text="name">`, `<button @click="...">` |
 
 ```env
 ACCELADE_FRAMEWORK=vue
@@ -144,6 +168,7 @@ ACCELADE_FRAMEWORK=vue
 |-------|-------------|
 | [Getting Started](docs/getting-started.md) | Installation and first steps |
 | [Components](docs/components.md) | Building reactive components |
+| [Shared Data](docs/shared-data.md) | Share data from PHP to JavaScript |
 | [Notifications](docs/notifications.md) | Toast notification system |
 | [SPA Navigation](docs/spa-navigation.md) | Client-side routing |
 | [Frameworks](docs/frameworks.md) | Vue, React, Svelte, Angular |

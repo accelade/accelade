@@ -30,7 +30,7 @@ const DEFAULT_BINDING_ATTRIBUTES: BindingAttributeMap = {
     class: 'a-class',
     style: 'a-style',
     bind: 'a-bind:',
-    on: 'a-on:',
+    on: '@',
     cloak: 'data-accelade-cloak',
 };
 
@@ -71,7 +71,7 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
      * Get event prefix
      */
     getEventPrefix(): string {
-        return 'a-on:';
+        return '@';
     }
 
     /**

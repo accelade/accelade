@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Accelade;
 
+use Accelade\Support\SharedData;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Str;
 
@@ -15,15 +16,57 @@ class Accelade
 
     protected int $componentCounter = 0;
 
+    protected SharedData $sharedData;
+
     public function __construct(Application $app)
     {
         $this->app = $app;
+        $this->sharedData = new SharedData;
     }
 
     /**
      * Current framework override (set via setFramework method)
      */
     protected ?string $frameworkOverride = null;
+
+    /**
+     * Share data globally across the application.
+     * Data will be available in the frontend via state.shared.
+     *
+     * @param  array<string, mixed>|string  $key
+     */
+    public function share(array|string $key, mixed $value = null): self
+    {
+        $this->sharedData->share($key, $value);
+
+        return $this;
+    }
+
+    /**
+     * Get a shared value by key.
+     */
+    public function getShared(string $key, mixed $default = null): mixed
+    {
+        return $this->sharedData->get($key, $default);
+    }
+
+    /**
+     * Get all shared data.
+     *
+     * @return array<string, mixed>
+     */
+    public function allShared(): array
+    {
+        return $this->sharedData->all();
+    }
+
+    /**
+     * Get the SharedData instance.
+     */
+    public function shared(): SharedData
+    {
+        return $this->sharedData;
+    }
 
     /**
      * Set the framework to use for the current request.
@@ -70,6 +113,10 @@ class Accelade
         $progressConfig = config('accelade.progress', []);
         $progressJson = json_encode($progressConfig);
 
+        // Get shared data
+        $sharedData = $this->allShared();
+        $sharedJson = json_encode($sharedData, JSON_THROW_ON_ERROR);
+
         return <<<HTML
 <script>
     window.AcceladeConfig = {
@@ -78,7 +125,8 @@ class Accelade
         csrfToken: document.querySelector('meta[name=\"csrf-token\"]')?.content || '',
         updateUrl: '/accelade/update',
         batchUpdateUrl: '/accelade/batch-update',
-        progress: {$progressJson}
+        progress: {$progressJson},
+        shared: {$sharedJson}
     };
 </script>
 <script>

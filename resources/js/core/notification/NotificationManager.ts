@@ -92,8 +92,10 @@ export class NotificationManager {
         let container = this.containers.get(position);
 
         if (!container) {
-            container = document.getElementById(id) as HTMLElement | null;
-            if (!container) {
+            const existingContainer = document.getElementById(id);
+            if (existingContainer) {
+                container = existingContainer;
+            } else {
                 container = document.createElement('div');
                 container.id = id;
                 container.className = `accelade-notifications accelade-notifications-${position}`;

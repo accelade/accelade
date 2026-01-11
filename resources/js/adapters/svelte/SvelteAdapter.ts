@@ -20,7 +20,7 @@ const SVELTE_BINDING_ATTRIBUTES: BindingAttributeMap = {
     class: 's-class',
     style: 's-style',
     bind: 's-bind-',
-    on: 's-on-',
+    on: '@',
     cloak: 's-cloak',
 };
 
@@ -75,6 +75,13 @@ export class SvelteAdapter extends BaseAdapter {
      * Get event prefix
      */
     getEventPrefix(): string {
+        return '@';
+    }
+
+    /**
+     * Get alternate event prefix (s-on- for backward compatibility)
+     */
+    protected getAltEventPrefix(): string | null {
         return 's-on-';
     }
 

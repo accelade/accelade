@@ -12,7 +12,7 @@ Use the `@accelade` directive to create a reactive block:
         <h1>Hello, <span a-text="name">World</span>!</h1>
         <p>Count: <span a-text="count">0</span></p>
         <input a-model="name" placeholder="Enter name">
-        <button a-on:click="$set('count', count + 1)">Increment</button>
+        <button @click="$set('count', count + 1)">Increment</button>
     </div>
 @endaccelade
 ```
@@ -83,27 +83,27 @@ Creates two-way data binding for form inputs:
 <input a-model="gender" type="radio" value="female"> Female
 ```
 
-### Event Handling (`a-on:event`)
+### Event Handling (`@event`)
 
 Binds event listeners:
 
 ```blade
 {{-- Click events --}}
-<button a-on:click="handleClick()">Click me</button>
-<button a-on:click="$set('count', count + 1)">Increment</button>
+<button @click="handleClick()">Click me</button>
+<button @click="$set('count', count + 1)">Increment</button>
 
 {{-- Form events --}}
-<form a-on:submit.prevent="handleSubmit()">
-<input a-on:input="validateField()">
-<input a-on:change="onSelectionChange()">
+<form @submit.prevent="handleSubmit()">
+<input @input="validateField()">
+<input @change="onSelectionChange()">
 
 {{-- Keyboard events --}}
-<input a-on:keyup.enter="submitForm()">
-<input a-on:keydown.escape="cancel()">
+<input @keyup.enter="submitForm()">
+<input @keydown.escape="cancel()">
 
 {{-- Mouse events --}}
-<div a-on:mouseenter="showTooltip()">
-<div a-on:mouseleave="hideTooltip()">
+<div @mouseenter="showTooltip()">
+<div @mouseleave="hideTooltip()">
 ```
 
 ### Dynamic Classes (`a-class`)
@@ -138,7 +138,7 @@ Syncs property changes with the Laravel backend:
 @accelade(['count' => 0])
     <div a-sync="count">
         <span a-text="count">0</span>
-        <button a-on:click="$set('count', count + 1)">+1</button>
+        <button @click="$set('count', count + 1)">+1</button>
     </div>
 @endaccelade
 ```
@@ -154,7 +154,7 @@ Inside `@accelade` blocks, these functions are available:
 Get a state value:
 
 ```blade
-<button a-on:click="alert($get('name'))">Show Name</button>
+<button @click="alert($get('name'))">Show Name</button>
 ```
 
 ### `$set(key, value)`
@@ -162,8 +162,8 @@ Get a state value:
 Set a state value:
 
 ```blade
-<button a-on:click="$set('count', 0)">Reset</button>
-<button a-on:click="$set('items', [...items, newItem])">Add Item</button>
+<button @click="$set('count', 0)">Reset</button>
+<button @click="$set('items', [...items, newItem])">Add Item</button>
 ```
 
 ### `$toggle(key)`
@@ -171,7 +171,7 @@ Set a state value:
 Toggle a boolean value:
 
 ```blade
-<button a-on:click="$toggle('isOpen')">Toggle Menu</button>
+<button @click="$toggle('isOpen')">Toggle Menu</button>
 ```
 
 ### `$reset(key)`
@@ -179,8 +179,8 @@ Toggle a boolean value:
 Reset a property to its initial value:
 
 ```blade
-<button a-on:click="$reset('count')">Reset Count</button>
-<button a-on:click="$reset()">Reset All</button>
+<button @click="$reset('count')">Reset Count</button>
+<button @click="$reset()">Reset All</button>
 ```
 
 ## Custom Scripts
@@ -191,9 +191,9 @@ Define custom functions using `<accelade:script>`:
 @accelade(['count' => 0, 'step' => 1])
     <div>
         <span a-text="count">0</span>
-        <button a-on:click="increment()">+</button>
-        <button a-on:click="decrement()">-</button>
-        <button a-on:click="double()">Double</button>
+        <button @click="increment()">+</button>
+        <button @click="decrement()">-</button>
+        <button @click="double()">Double</button>
     </div>
 
     <accelade:script>
@@ -247,8 +247,8 @@ class Counter extends AcceladeComponent
 @accelade(['count' => $initialCount])
     <div @if($sync) a-sync="{{ $sync }}" @endif>
         <span a-text="count">{{ $initialCount }}</span>
-        <button a-on:click="$set('count', count + 1)">+</button>
-        <button a-on:click="$set('count', count - 1)">-</button>
+        <button @click="$set('count', count + 1)">+</button>
+        <button @click="$set('count', count - 1)">-</button>
     </div>
 @endaccelade
 ```

@@ -60,7 +60,7 @@ export {
     NotificationManager,
     type NotificationData,
     type NotificationConfig,
-    type NotificationType,
+    type NotificationStatus,
     type NotificationPosition,
 } from './core/notification';
 
@@ -74,6 +74,18 @@ export {
     type StateSnapshot,
     type NetworkRecord,
 } from './core/debug';
+
+// Shared data
+export {
+    SharedDataManager,
+    type SharedDataChangeCallback,
+} from './core/shared';
+
+// Text interpolation
+export {
+    TextInterpolator,
+    createTextInterpolator,
+} from './core/interpolation';
 
 // Framework registry
 export { FrameworkRegistry } from './registry/FrameworkRegistry';
@@ -114,6 +126,7 @@ import { SvelteAdapter } from './adapters/svelte';
 import { AngularAdapter } from './adapters/angular';
 import { ConfigFactory } from './core/factories/ConfigFactory';
 import { DebugManager } from './core/debug';
+import { SharedDataManager } from './core/shared';
 import { initRouter, navigate, getRouter } from './core/router';
 import {
     getProgress,
@@ -124,6 +137,7 @@ import {
 } from './core/progress';
 import { NotificationManager } from './core/notification';
 import type { FrameworkType, ComponentInstance } from './adapters/types';
+import type { SharedData } from './core/types';
 
 // Singleton notification manager
 let notificationManager: NotificationManager | null = null;
@@ -285,6 +299,57 @@ const notify = {
     instance: getNotify,
 };
 
+// Shared data API object
+const shared = {
+    /**
+     * Get a shared value by key (supports dot notation)
+     */
+    get: <T = unknown>(key: string, defaultValue?: T): T =>
+        SharedDataManager.getInstance().get(key, defaultValue),
+
+    /**
+     * Check if a shared key exists
+     */
+    has: (key: string): boolean =>
+        SharedDataManager.getInstance().has(key),
+
+    /**
+     * Get all shared data
+     */
+    all: (): SharedData =>
+        SharedDataManager.getInstance().all(),
+
+    /**
+     * Set a shared value (client-side only)
+     */
+    set: (key: string, value: unknown): void =>
+        SharedDataManager.getInstance().set(key, value),
+
+    /**
+     * Merge data into shared data
+     */
+    merge: (data: SharedData): void =>
+        SharedDataManager.getInstance().merge(data),
+
+    /**
+     * Subscribe to changes for a specific key
+     */
+    subscribe: (key: string, callback: (key: string, newValue: unknown, oldValue: unknown) => void): (() => void) =>
+        SharedDataManager.getInstance().subscribe(key, callback),
+
+    /**
+     * Subscribe to all changes
+     */
+    subscribeAll: (callback: (key: string, newValue: unknown, oldValue: unknown) => void): (() => void) =>
+        SharedDataManager.getInstance().subscribeAll(callback),
+
+    /**
+     * Get the SharedDataManager instance
+     */
+    instance: (): SharedDataManager =>
+        SharedDataManager.getInstance(),
+};
+
 /**
  * Main Accelade API
  */
@@ -310,6 +375,9 @@ const Accelade = {
     // Notifications
     notify,
 
+    // Shared data
+    shared,
+
     // Debug (set via DebugManager when enabled)
     debug: false as boolean,
     devtools: null as unknown,
@@ -324,6 +392,11 @@ if (typeof window !== 'undefined') {
     const globalConfig = ConfigFactory.getGlobalConfig();
     if (globalConfig.progress && Object.keys(globalConfig.progress).length > 0) {
         configureProgress(globalConfig.progress as ProgressConfig);
+    }
+
+    // Initialize shared data from config
+    if (globalConfig.shared) {
+        SharedDataManager.getInstance().init(globalConfig.shared as SharedData);
     }
 
     // Check for debug mode

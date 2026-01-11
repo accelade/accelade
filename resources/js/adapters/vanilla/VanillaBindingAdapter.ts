@@ -12,6 +12,7 @@ import {
     evaluateStringExpression,
     parseClassObject,
 } from '../../core/expressions';
+import { TextInterpolator } from '../../core/interpolation';
 
 /**
  * Binding cleanup record
@@ -32,6 +33,7 @@ export class VanillaBindingAdapter implements IBindingAdapter {
     private eventListeners: Array<{ element: HTMLElement; event: string; handler: EventListener }> = [];
     private ifPlaceholders: Map<HTMLElement, Comment> = new Map();
     private modelBound: WeakSet<Element> = new WeakSet();
+    private textInterpolator: TextInterpolator | null = null;
 
     /**
      * Initialize the binding adapter
@@ -39,6 +41,10 @@ export class VanillaBindingAdapter implements IBindingAdapter {
     init(element: HTMLElement, stateAdapter: IStateAdapter): void {
         this.element = element;
         this.stateAdapter = stateAdapter;
+
+        // Initialize text interpolation for {{ }} syntax
+        this.textInterpolator = new TextInterpolator(element, stateAdapter.getState());
+        this.textInterpolator.init();
 
         // Subscribe to state changes for reactive updates
         const unsubscribe = stateAdapter.subscribe(() => {
@@ -278,6 +284,11 @@ export class VanillaBindingAdapter implements IBindingAdapter {
         if (!this.stateAdapter || !this.element) return;
 
         const state = this.stateAdapter.getState();
+
+        // Update text interpolation
+        if (this.textInterpolator) {
+            this.textInterpolator.setState(state);
+        }
         const attrs = {
             text: 'a-text',
             html: 'a-html',
@@ -359,6 +370,12 @@ export class VanillaBindingAdapter implements IBindingAdapter {
      * Dispose all bindings
      */
     dispose(): void {
+        // Destroy text interpolator
+        if (this.textInterpolator) {
+            this.textInterpolator.destroy();
+            this.textInterpolator = null;
+        }
+
         // Remove event listeners
         for (const { element, event, handler } of this.eventListeners) {
             element.removeEventListener(event, handler);

@@ -18,7 +18,7 @@
                 <button
                     type="button"
                     class="w-12 h-12 flex items-center justify-center bg-red-500 text-white text-xl font-bold rounded-full hover:bg-red-600 transition shadow-md hover:shadow-lg"
-                    v-on:click="decrement('count')"
+                    @click="decrement('count')"
                 >
                     -
                 </button>
@@ -33,7 +33,7 @@
                 <button
                     type="button"
                     class="w-12 h-12 flex items-center justify-center bg-green-500 text-white text-xl font-bold rounded-full hover:bg-green-600 transition shadow-md hover:shadow-lg"
-                    v-on:click="increment('count')"
+                    @click="increment('count')"
                 >
                     +
                 </button>
@@ -53,7 +53,7 @@
                 <button
                     type="button"
                     class="w-12 h-12 flex items-center justify-center bg-red-500 text-white text-xl font-bold rounded-full hover:bg-red-600 transition shadow-md hover:shadow-lg"
-                    data-on-click="decrement('count')"
+                    @click="decrement('count')"
                 >
                     -
                 </button>
@@ -68,7 +68,7 @@
                 <button
                     type="button"
                     class="w-12 h-12 flex items-center justify-center bg-green-500 text-white text-xl font-bold rounded-full hover:bg-green-600 transition shadow-md hover:shadow-lg"
-                    data-on-click="increment('count')"
+                    @click="increment('count')"
                 >
                     +
                 </button>
@@ -86,7 +86,7 @@
                 <button
                     type="button"
                     class="w-12 h-12 flex items-center justify-center bg-red-500 text-white text-xl font-bold rounded-full hover:bg-red-600 transition shadow-md hover:shadow-lg"
-                    s-on-click="decrement('count')"
+                    @click="decrement('count')"
                 >
                     -
                 </button>
@@ -101,7 +101,7 @@
                 <button
                     type="button"
                     class="w-12 h-12 flex items-center justify-center bg-green-500 text-white text-xl font-bold rounded-full hover:bg-green-600 transition shadow-md hover:shadow-lg"
-                    s-on-click="increment('count')"
+                    @click="increment('count')"
                 >
                     +
                 </button>
@@ -121,7 +121,7 @@
                 <button
                     type="button"
                     class="w-12 h-12 flex items-center justify-center bg-red-500 text-white text-xl font-bold rounded-full hover:bg-red-600 transition shadow-md hover:shadow-lg"
-                    ng-on-click="decrement('count')"
+                    @click="decrement('count')"
                 >
                     -
                 </button>
@@ -136,7 +136,7 @@
                 <button
                     type="button"
                     class="w-12 h-12 flex items-center justify-center bg-green-500 text-white text-xl font-bold rounded-full hover:bg-green-600 transition shadow-md hover:shadow-lg"
-                    ng-on-click="increment('count')"
+                    @click="increment('count')"
                 >
                     +
                 </button>
@@ -156,7 +156,7 @@
                 <button
                     type="button"
                     class="w-12 h-12 flex items-center justify-center bg-red-500 text-white text-xl font-bold rounded-full hover:bg-red-600 transition shadow-md hover:shadow-lg"
-                    a-on:click="decrement('count')"
+                    @click="decrement('count')"
                 >
                     -
                 </button>
@@ -171,7 +171,7 @@
                 <button
                     type="button"
                     class="w-12 h-12 flex items-center justify-center bg-green-500 text-white text-xl font-bold rounded-full hover:bg-green-600 transition shadow-md hover:shadow-lg"
-                    a-on:click="increment('count')"
+                    @click="increment('count')"
                 >
                     +
                 </button>

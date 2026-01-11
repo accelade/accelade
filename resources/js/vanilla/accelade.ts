@@ -148,6 +148,23 @@ class AcceladeManager {
                 } else {
                     component.state[key] = '';
                 }
+            },
+
+            get: (key: string): unknown => {
+                return component.state[key];
+            },
+
+            // Aliases with $ prefix for template usage
+            $set: (key: string, value: unknown): void => {
+                component.state[key] = value;
+            },
+
+            $get: (key: string): unknown => {
+                return component.state[key];
+            },
+
+            $toggle: (key: string): void => {
+                component.state[key] = !component.state[key];
             }
         };
     }
@@ -288,13 +305,23 @@ class AcceladeManager {
 
         allElements.forEach((element) => {
             Array.from(element.attributes).forEach((attr) => {
-                // Handle a-on:event syntax
-                if (attr.name.startsWith('a-on:')) {
-                    const eventName = attr.name.slice(5);
-                    const actionExpr = attr.value;
+                let eventName: string | null = null;
+                let actionExpr: string | null = null;
 
+                // Handle @event syntax (primary)
+                if (attr.name.startsWith('@')) {
+                    eventName = attr.name.slice(1);
+                    actionExpr = attr.value;
+                }
+                // Handle a-on:event syntax (backward compatibility)
+                else if (attr.name.startsWith('a-on:')) {
+                    eventName = attr.name.slice(5);
+                    actionExpr = attr.value;
+                }
+
+                if (eventName && actionExpr) {
                     element.addEventListener(eventName, (e: Event) => {
-                        this.executeAction(component, actionExpr, e);
+                        this.executeAction(component, actionExpr!, e);
                     });
                 }
             });

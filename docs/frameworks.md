@@ -40,7 +40,7 @@ The default framework with zero dependencies.
     <span a-text="count">0</span>
     <input a-model="name">
     <div a-show="count > 0">Positive</div>
-    <button a-on:click="$set('count', count + 1)">+1</button>
+    <button @click="$set('count', count + 1)">+1</button>
 @endaccelade
 ```
 
@@ -53,7 +53,7 @@ The default framework with zero dependencies.
 | `a-show` | Show/hide |
 | `a-if` | Conditional |
 | `a-model` | Two-way binding |
-| `a-on:event` | Event handler |
+| `@event` | Event handler |
 | `a-class` | Dynamic classes |
 | `a-style` | Dynamic styles |
 | `a-sync` | Server sync |
@@ -86,7 +86,7 @@ For Vue.js applications using Composition API.
     <span v-text="count">0</span>
     <input v-model="name">
     <div v-show="count > 0">Positive</div>
-    <button v-on:click="count++">+1</button>
+    <button @click="count++">+1</button>
 @endaccelade
 ```
 
@@ -99,7 +99,7 @@ For Vue.js applications using Composition API.
 | `v-show` | Show/hide |
 | `v-if` | Conditional |
 | `v-model` | Two-way binding |
-| `v-on:event` | Event handler |
+| `@event` | Event handler |
 | `v-bind:class` | Dynamic classes |
 | `v-bind:style` | Dynamic styles |
 
@@ -244,7 +244,7 @@ For Angular applications using signals.
     <span ng-text="count">0</span>
     <input ng-model="name">
     <div ng-show="count > 0">Positive</div>
-    <button ng-on-click="count = count + 1">+1</button>
+    <button @click="count = count + 1">+1</button>
 @endaccelade
 ```
 
@@ -257,7 +257,7 @@ For Angular applications using signals.
 | `ng-show` | Show/hide |
 | `ng-if` | Conditional |
 | `ng-model` | Two-way binding |
-| `ng-on-click` | Click handler |
+| `@click` | Click handler |
 | `ng-class` | Dynamic classes |
 | `ng-style` | Dynamic styles |
 
@@ -279,7 +279,7 @@ effect(() => {
 
 ```blade
 {{-- Event binding with $event --}}
-<input ng-on-input="handleInput($event)">
+<input @input="handleInput($event)">
 
 {{-- Two-way binding --}}
 <input [(ngModel)]="name">

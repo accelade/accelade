@@ -19,7 +19,7 @@ const VANILLA_BINDING_ATTRIBUTES: BindingAttributeMap = {
     class: 'a-class',
     style: 'a-style',
     bind: 'a-bind:',
-    on: 'a-on:',
+    on: '@',
     cloak: 'a-cloak',
 };
 
@@ -61,6 +61,13 @@ export class VanillaAdapter extends BaseAdapter {
      * Get event prefix
      */
     getEventPrefix(): string {
+        return '@';
+    }
+
+    /**
+     * Get alternate event prefix (a-on: for backward compatibility)
+     */
+    protected getAltEventPrefix(): string | null {
         return 'a-on:';
     }
 
