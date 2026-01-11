@@ -14,23 +14,98 @@ import { getProgress, configureProgress, startProgress, doneProgress, type Progr
 type CustomMethods = Record<string, (...args: unknown[]) => unknown>;
 
 /**
+ * Global stores for shared reactive state
+ */
+const globalStores: Map<string, Record<string, unknown>> = new Map();
+
+/**
+ * Extended config with storage keys
+ */
+interface ExtendedConfig extends AcceladeComponentConfig {
+    rememberKey?: string;
+    localStorageKey?: string;
+    storeName?: string;
+}
+
+/**
+ * Load state from storage (sessionStorage or localStorage)
+ */
+function loadFromStorage(key: string, useLocalStorage: boolean): Record<string, unknown> | null {
+    try {
+        const storage = useLocalStorage ? localStorage : sessionStorage;
+        const stored = storage.getItem(`accelade:${key}`);
+        if (stored) {
+            return JSON.parse(stored) as Record<string, unknown>;
+        }
+    } catch {
+        // Storage not available or invalid data
+    }
+    return null;
+}
+
+/**
+ * Save state to storage (sessionStorage or localStorage)
+ */
+function saveToStorage(key: string, state: Record<string, unknown>, useLocalStorage: boolean): void {
+    try {
+        const storage = useLocalStorage ? localStorage : sessionStorage;
+        storage.setItem(`accelade:${key}`, JSON.stringify(state));
+    } catch {
+        // Storage not available or quota exceeded
+    }
+}
+
+/**
+ * Get or create a global store
+ */
+function getOrCreateStore(storeName: string, initialState: Record<string, unknown>): Record<string, unknown> {
+    if (globalStores.has(storeName)) {
+        return globalStores.get(storeName)!;
+    }
+
+    // Create a new store with the initial state
+    const store = { ...initialState };
+    globalStores.set(storeName, store);
+    return store;
+}
+
+/**
  * Parse Accelade element data attributes
  */
-function parseAcceladeElement(el: HTMLElement): AcceladeComponentConfig {
+function parseAcceladeElement(el: HTMLElement): ExtendedConfig {
     const id = el.dataset.acceladeId ?? `accelade-${Math.random().toString(36).slice(2, 10)}`;
     const stateStr = el.dataset.acceladeState ?? '{}';
+    const stateJsStr = el.dataset.acceladeStateJs;
     const syncStr = el.dataset.acceladeSync ?? '';
+    const rememberKey = el.dataset.acceladeRemember;
+    const localStorageKey = el.dataset.acceladeLocalStorage;
+    const storeName = el.dataset.acceladeStore;
 
     let state: Record<string, unknown> = {};
-    try {
-        state = JSON.parse(stateStr) as Record<string, unknown>;
-    } catch {
-        console.error('Accelade Vue: Invalid state JSON', stateStr);
+
+    // First try to parse JSON state
+    if (stateStr && stateStr !== '{}') {
+        try {
+            state = JSON.parse(stateStr) as Record<string, unknown>;
+        } catch {
+            console.error('Accelade Vue: Invalid state JSON', stateStr);
+        }
+    }
+
+    // If we have a JS object string (for JavaScript object notation like { count: 0 })
+    if (stateJsStr) {
+        try {
+            // Use Function to evaluate JS object notation
+            const evalFn = new Function(`return (${stateJsStr})`) as () => Record<string, unknown>;
+            state = evalFn();
+        } catch {
+            console.error('Accelade Vue: Invalid state JS object', stateJsStr);
+        }
     }
 
     const sync = syncStr ? syncStr.split(',').filter(Boolean) : [];
 
-    return { id, state, sync };
+    return { id, state, sync, rememberKey, localStorageKey, storeName };
 }
 
 /**
@@ -150,9 +225,34 @@ function processScripts(
 /**
  * Initialize an Accelade Vue component
  */
-function initVueComponent(el: HTMLElement, config: AcceladeComponentConfig): void {
+function initVueComponent(el: HTMLElement, config: ExtendedConfig): void {
+    // Determine initial state
+    let initialState = { ...config.state };
+
+    // If using a global store, get or create it
+    if (config.storeName) {
+        const store = getOrCreateStore(config.storeName, initialState);
+        initialState = { ...store };
+    }
+
+    // If remember key is set, try to load from sessionStorage
+    if (config.rememberKey) {
+        const storedState = loadFromStorage(config.rememberKey, false);
+        if (storedState) {
+            initialState = { ...initialState, ...storedState };
+        }
+    }
+
+    // If localStorage key is set, try to load from localStorage
+    if (config.localStorageKey) {
+        const storedState = loadFromStorage(config.localStorageKey, true);
+        if (storedState) {
+            initialState = { ...initialState, ...storedState };
+        }
+    }
+
     // Create reactive state
-    const state = reactive({ ...config.state }) as UnwrapNestedRefs<Record<string, unknown>>;
+    const state = reactive(initialState) as UnwrapNestedRefs<Record<string, unknown>>;
     const originalState = { ...config.state };
 
     // Create actions
@@ -197,6 +297,11 @@ function initVueComponent(el: HTMLElement, config: AcceladeComponentConfig): voi
 
         $toggle: (key: string): void => {
             state[key] = !state[key];
+        },
+
+        // Store helper - get a global store by name
+        $store: (name: string): Record<string, unknown> | null => {
+            return globalStores.get(name) ?? null;
         }
     };
 
@@ -214,6 +319,34 @@ function initVueComponent(el: HTMLElement, config: AcceladeComponentConfig): voi
     effect(() => {
         el.dataset.acceladeState = JSON.stringify(state);
     });
+
+    // Watch for storage persistence - use effect to track all state changes
+    if (config.rememberKey || config.localStorageKey || config.storeName) {
+        // Use watch on the reactive state object directly
+        watch(
+            state,
+            () => {
+                const currentState = { ...state };
+
+                // Save to sessionStorage if remember key is set
+                if (config.rememberKey) {
+                    saveToStorage(config.rememberKey, currentState, false);
+                }
+
+                // Save to localStorage if localStorage key is set
+                if (config.localStorageKey) {
+                    saveToStorage(config.localStorageKey, currentState, true);
+                }
+
+                // Update global store if this component uses one
+                if (config.storeName && globalStores.has(config.storeName)) {
+                    const store = globalStores.get(config.storeName)!;
+                    Object.assign(store, currentState);
+                }
+            },
+            { deep: true, flush: 'sync' }
+        );
+    }
 
     // Watch for sync properties
     if (config.sync.length > 0) {
@@ -526,6 +659,29 @@ const progress = {
     instance: getProgress,
 };
 
+// Stores API object for accessing global stores
+const stores = {
+    /**
+     * Get a store by name
+     */
+    get: (name: string): Record<string, unknown> | undefined => globalStores.get(name),
+
+    /**
+     * Check if a store exists
+     */
+    has: (name: string): boolean => globalStores.has(name),
+
+    /**
+     * Get all store names
+     */
+    names: (): string[] => Array.from(globalStores.keys()),
+
+    /**
+     * Get all stores
+     */
+    all: (): Map<string, Record<string, unknown>> => new Map(globalStores),
+};
+
 // Export for window
 if (typeof window !== 'undefined') {
     // Configure progress from AcceladeConfig if available
@@ -542,6 +698,6 @@ if (typeof window !== 'undefined') {
     }
 }
 
-// Export everything including progress
-export { navigate, getRouter, initRouter, configureProgress, startProgress, doneProgress, progress };
-export default { init, navigate, getRouter, initRouter, configureProgress, startProgress, doneProgress, progress };
+// Export everything including progress and stores
+export { navigate, getRouter, initRouter, configureProgress, startProgress, doneProgress, progress, stores };
+export default { init, navigate, getRouter, initRouter, configureProgress, startProgress, doneProgress, progress, stores };

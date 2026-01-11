@@ -41,12 +41,29 @@ export class ConfigFactory {
      */
     static parseElement(element: HTMLElement): AcceladeComponentConfig {
         const id = element.dataset.acceladeId ?? `accelade-${Math.random().toString(36).slice(2, 10)}`;
+        const stateStr = element.dataset.acceladeState ?? '{}';
+        const stateJsStr = element.dataset.acceladeStateJs;
 
         let state: Record<string, unknown> = {};
-        try {
-            state = JSON.parse(element.dataset.acceladeState ?? '{}') as Record<string, unknown>;
-        } catch {
-            console.error('Accelade: Invalid state JSON', element.dataset.acceladeState);
+
+        // First try to parse JSON state
+        if (stateStr && stateStr !== '{}') {
+            try {
+                state = JSON.parse(stateStr) as Record<string, unknown>;
+            } catch {
+                console.error('Accelade: Invalid state JSON', stateStr);
+            }
+        }
+
+        // If we have a JS object string (for JavaScript object notation like { count: 0 })
+        if (stateJsStr) {
+            try {
+                // Use Function to evaluate JS object notation
+                const evalFn = new Function(`return (${stateJsStr})`) as () => Record<string, unknown>;
+                state = evalFn();
+            } catch {
+                console.error('Accelade: Invalid state JS object', stateJsStr);
+            }
         }
 
         let props: Record<string, unknown> = {};
@@ -59,7 +76,12 @@ export class ConfigFactory {
         const syncStr = element.dataset.acceladeSync ?? '';
         const sync = syncStr ? syncStr.split(',').map(s => s.trim()).filter(Boolean) : [];
 
-        return { id, state, sync, props };
+        // Parse storage attributes
+        const rememberKey = element.dataset.acceladeRemember;
+        const localStorageKey = element.dataset.acceladeLocalStorage;
+        const storeName = element.dataset.acceladeStore;
+
+        return { id, state, sync, props, rememberKey, localStorageKey, storeName };
     }
 
     /**

@@ -24,7 +24,15 @@ interface ComponentInstance {
     actions: AcceladeActions;
     syncProperties: Set<string>;
     customMethods: Record<string, (...args: unknown[]) => unknown>;
+    rememberKey?: string;
+    localStorageKey?: string;
+    storeName?: string;
 }
+
+/**
+ * Global stores for shared reactive state
+ */
+const globalStores: Map<string, ReactiveState> = new Map();
 
 /**
  * Extended HTMLElement with initialization flag
@@ -43,21 +51,88 @@ class AcceladeManager {
     /**
      * Parse element configuration
      */
-    private parseAcceladeElement(el: HTMLElement): AcceladeComponentConfig {
+    private parseAcceladeElement(el: HTMLElement): AcceladeComponentConfig & {
+        rememberKey?: string;
+        localStorageKey?: string;
+        storeName?: string;
+    } {
         const id = el.dataset.acceladeId ?? `accelade-${Math.random().toString(36).slice(2, 10)}`;
         const stateStr = el.dataset.acceladeState ?? '{}';
+        const stateJsStr = el.dataset.acceladeStateJs;
         const syncStr = el.dataset.acceladeSync ?? '';
+        const rememberKey = el.dataset.acceladeRemember;
+        const localStorageKey = el.dataset.acceladeLocalStorage;
+        const storeName = el.dataset.acceladeStore;
 
         let state: Record<string, unknown> = {};
-        try {
-            state = JSON.parse(stateStr) as Record<string, unknown>;
-        } catch {
-            console.error('Accelade: Invalid state JSON', stateStr);
+
+        // First try to parse JSON state
+        if (stateStr && stateStr !== '{}') {
+            try {
+                state = JSON.parse(stateStr) as Record<string, unknown>;
+            } catch {
+                console.error('Accelade: Invalid state JSON', stateStr);
+            }
+        }
+
+        // If we have a JS object string (for JavaScript object notation like { count: 0 })
+        if (stateJsStr) {
+            try {
+                // Use Function to evaluate JS object notation
+                const evalFn = new Function(`return (${stateJsStr})`) as () => Record<string, unknown>;
+                state = evalFn();
+            } catch {
+                console.error('Accelade: Invalid state JS object', stateJsStr);
+            }
         }
 
         const sync = syncStr ? syncStr.split(',').filter(Boolean) : [];
 
-        return { id, state, sync };
+        return { id, state, sync, rememberKey, localStorageKey, storeName };
+    }
+
+    /**
+     * Load state from storage (sessionStorage or localStorage)
+     */
+    private loadFromStorage(key: string, useLocalStorage: boolean): Record<string, unknown> | null {
+        try {
+            const storage = useLocalStorage ? localStorage : sessionStorage;
+            const storageKey = `accelade:${key}`;
+            const stored = storage.getItem(storageKey);
+            if (stored) {
+                return JSON.parse(stored) as Record<string, unknown>;
+            }
+        } catch {
+            // Storage not available or invalid data
+        }
+        return null;
+    }
+
+    /**
+     * Save state to storage (sessionStorage or localStorage)
+     */
+    private saveToStorage(key: string, state: Record<string, unknown>, useLocalStorage: boolean): void {
+        try {
+            const storage = useLocalStorage ? localStorage : sessionStorage;
+            const storageKey = `accelade:${key}`;
+            storage.setItem(storageKey, JSON.stringify(state));
+        } catch {
+            // Storage not available or quota exceeded
+        }
+    }
+
+    /**
+     * Get or create a global store
+     */
+    private getOrCreateStore(storeName: string, initialState: Record<string, unknown>): ReactiveState {
+        if (globalStores.has(storeName)) {
+            return globalStores.get(storeName)!;
+        }
+
+        // Create a new store with the initial state
+        const store = { ...initialState };
+        globalStores.set(storeName, store);
+        return store;
     }
 
     /**
@@ -78,12 +153,48 @@ class AcceladeManager {
                     if (component.syncProperties.has(prop)) {
                         manager.syncToServer(component.id, prop, value);
                     }
+
+                    // Save to sessionStorage if remember key is set
+                    if (component.rememberKey) {
+                        manager.saveToStorage(component.rememberKey, { ...target }, false);
+                    }
+
+                    // Save to localStorage if localStorage key is set
+                    if (component.localStorageKey) {
+                        manager.saveToStorage(component.localStorageKey, { ...target }, true);
+                    }
+
+                    // Update global store if this component uses one
+                    if (component.storeName && globalStores.has(component.storeName)) {
+                        const store = globalStores.get(component.storeName)!;
+                        store[prop] = value;
+                        // Update all other components using this store
+                        manager.updateStoreComponents(component.storeName, component.id);
+                    }
                 }
 
                 return true;
             },
             get(target: ReactiveState, prop: string): unknown {
                 return target[prop];
+            }
+        });
+    }
+
+    /**
+     * Update all components using a specific store (except the triggering one)
+     */
+    private updateStoreComponents(storeName: string, excludeId: string): void {
+        this.components.forEach((comp) => {
+            if (comp.storeName === storeName && comp.id !== excludeId) {
+                // Sync the store state to this component
+                const store = globalStores.get(storeName);
+                if (store) {
+                    Object.keys(store).forEach((key) => {
+                        (comp.state as Record<string, unknown>)[key] = store[key];
+                    });
+                }
+                this.updateComponent(comp);
             }
         });
     }
@@ -165,6 +276,11 @@ class AcceladeManager {
 
             $toggle: (key: string): void => {
                 component.state[key] = !component.state[key];
+            },
+
+            // Store helper - get a global store by name
+            $store: (name: string): ReactiveState | null => {
+                return globalStores.get(name) ?? null;
             }
         };
     }
@@ -245,6 +361,31 @@ class AcceladeManager {
 
         const config = this.parseAcceladeElement(el);
 
+        // Determine initial state
+        let initialState = { ...config.state };
+
+        // If using a global store, get or create it
+        if (config.storeName) {
+            const store = this.getOrCreateStore(config.storeName, initialState);
+            initialState = { ...store };
+        }
+
+        // If remember key is set, try to load from sessionStorage
+        if (config.rememberKey) {
+            const storedState = this.loadFromStorage(config.rememberKey, false);
+            if (storedState) {
+                initialState = { ...initialState, ...storedState };
+            }
+        }
+
+        // If localStorage key is set, try to load from localStorage
+        if (config.localStorageKey) {
+            const storedState = this.loadFromStorage(config.localStorageKey, true);
+            if (storedState) {
+                initialState = { ...initialState, ...storedState };
+            }
+        }
+
         // Create component instance
         const component: ComponentInstance = {
             id: config.id,
@@ -254,11 +395,14 @@ class AcceladeManager {
             templates: new Map(),
             actions: {} as AcceladeActions,
             syncProperties: new Set(config.sync),
-            customMethods: {}
+            customMethods: {},
+            rememberKey: config.rememberKey,
+            localStorageKey: config.localStorageKey,
+            storeName: config.storeName
         };
 
         // Create reactive state
-        component.state = this.createReactiveProxy(component, { ...config.state });
+        component.state = this.createReactiveProxy(component, initialState);
 
         // Create actions
         component.actions = this.createActions(component);
@@ -623,6 +767,29 @@ const progress = {
     instance: getProgress,
 };
 
+// Stores API object for accessing global stores
+const stores = {
+    /**
+     * Get a store by name
+     */
+    get: (name: string): ReactiveState | undefined => globalStores.get(name),
+
+    /**
+     * Check if a store exists
+     */
+    has: (name: string): boolean => globalStores.has(name),
+
+    /**
+     * Get all store names
+     */
+    names: (): string[] => Array.from(globalStores.keys()),
+
+    /**
+     * Get all stores
+     */
+    all: (): Map<string, ReactiveState> => new Map(globalStores),
+};
+
 // Export for window
 if (typeof window !== 'undefined') {
     // Configure progress from AcceladeConfig if available
@@ -639,6 +806,6 @@ if (typeof window !== 'undefined') {
     }
 }
 
-// Export everything including progress
-export { navigate, getRouter, initRouter, configureProgress, startProgress, doneProgress, progress };
-export default { init, navigate, getRouter, initRouter, configureProgress, startProgress, doneProgress, progress };
+// Export everything including progress and stores
+export { navigate, getRouter, initRouter, configureProgress, startProgress, doneProgress, progress, stores };
+export default { init, navigate, getRouter, initRouter, configureProgress, startProgress, doneProgress, progress, stores };

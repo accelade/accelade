@@ -75,6 +75,9 @@ export interface AcceladeComponentConfig {
     state: Record<string, unknown>;
     sync: string[];
     props?: Record<string, unknown>;
+    rememberKey?: string;
+    localStorageKey?: string;
+    storeName?: string;
 }
 
 /**
@@ -136,6 +139,7 @@ export interface AcceladeActions {
     $set: (key: string, value: unknown) => void;
     $get: (key: string) => unknown;
     $toggle: (key: string) => void;
+    $store: (name: string) => Record<string, unknown> | null;
 }
 
 /**

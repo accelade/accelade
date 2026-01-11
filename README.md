@@ -169,6 +169,15 @@ SEO::title($post->title)
 <x-accelade::link href="/dashboard">Dashboard</x-accelade::link>
 ```
 
+### Content Component
+```blade
+{{-- Render pre-rendered HTML (Markdown, CMS content, etc.) --}}
+<x-accelade::content :html="$renderedMarkdown" />
+
+{{-- With custom wrapper and styling --}}
+<x-accelade::content as="article" class="prose dark:prose-invert" :html="$html" />
+```
+
 ---
 
 ## Choose Your Framework
@@ -202,8 +211,10 @@ ACCELADE_FRAMEWORK=vue
 |-------|-------------|
 | [Getting Started](docs/getting-started.md) | Installation and first steps |
 | [Components](docs/components.md) | Building reactive components |
+| [Data Component](docs/data.md) | Reactive data with storage persistence |
 | [Shared Data](docs/shared-data.md) | Share data from PHP to JavaScript |
 | [Lazy Loading](docs/lazy-loading.md) | Deferred content with shimmer |
+| [Content](docs/content.md) | Render pre-rendered HTML (Markdown, CMS) |
 | [SEO](docs/seo.md) | Meta tags, OpenGraph, Twitter Cards |
 | [Notifications](docs/notifications.md) | Toast notification system |
 | [SPA Navigation](docs/spa-navigation.md) | Client-side routing |

@@ -19,6 +19,11 @@ import { ScriptExecutor } from '../core/factories/ScriptExecutor';
 import type { CustomMethods } from '../core/factories/ScriptExecutor';
 
 /**
+ * Global stores for shared reactive state
+ */
+const globalStores: Map<string, Record<string, unknown>> = new Map();
+
+/**
  * Default binding attribute map (vanilla/base)
  */
 const DEFAULT_BINDING_ATTRIBUTES: BindingAttributeMap = {
@@ -89,12 +94,77 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
     }
 
     /**
+     * Load state from storage (sessionStorage or localStorage)
+     */
+    protected loadFromStorage(key: string, useLocalStorage: boolean): Record<string, unknown> | null {
+        try {
+            const storage = useLocalStorage ? localStorage : sessionStorage;
+            const stored = storage.getItem(`accelade:${key}`);
+            if (stored) {
+                return JSON.parse(stored) as Record<string, unknown>;
+            }
+        } catch {
+            // Storage not available or invalid data
+        }
+        return null;
+    }
+
+    /**
+     * Save state to storage (sessionStorage or localStorage)
+     */
+    protected saveToStorage(key: string, state: Record<string, unknown>, useLocalStorage: boolean): void {
+        try {
+            const storage = useLocalStorage ? localStorage : sessionStorage;
+            storage.setItem(`accelade:${key}`, JSON.stringify(state));
+        } catch {
+            // Storage not available or quota exceeded
+        }
+    }
+
+    /**
+     * Get or create a global store
+     */
+    protected getOrCreateStore(storeName: string, initialState: Record<string, unknown>): Record<string, unknown> {
+        if (globalStores.has(storeName)) {
+            return globalStores.get(storeName)!;
+        }
+        const store = { ...initialState };
+        globalStores.set(storeName, store);
+        return store;
+    }
+
+    /**
      * Initialize a component
      */
     initComponent(element: HTMLElement, config: AcceladeComponentConfig): ComponentInstance {
+        // Determine initial state (with storage loading)
+        let initialState = { ...config.state };
+
+        // If using a global store, get or create it
+        if (config.storeName) {
+            const store = this.getOrCreateStore(config.storeName, initialState);
+            initialState = { ...store };
+        }
+
+        // If remember key is set, try to load from sessionStorage
+        if (config.rememberKey) {
+            const storedState = this.loadFromStorage(config.rememberKey, false);
+            if (storedState) {
+                initialState = { ...initialState, ...storedState };
+            }
+        }
+
+        // If localStorage key is set, try to load from localStorage
+        if (config.localStorageKey) {
+            const storedState = this.loadFromStorage(config.localStorageKey, true);
+            if (storedState) {
+                initialState = { ...initialState, ...storedState };
+            }
+        }
+
         // Create state adapter
         const stateAdapter = this.createStateAdapter();
-        stateAdapter.init({ ...config.state });
+        stateAdapter.init(initialState);
 
         // Store original state
         const originalState = { ...config.state };
@@ -146,6 +216,30 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
             element.dataset.acceladeState = JSON.stringify(stateAdapter.getState());
         });
         this.addCleanups(config.id, [stateAttrCleanup]);
+
+        // Setup storage persistence watchers
+        if (config.rememberKey || config.localStorageKey || config.storeName) {
+            const storageCleanup = stateAdapter.subscribe(() => {
+                const currentState = stateAdapter.getState();
+
+                // Save to sessionStorage if remember key is set
+                if (config.rememberKey) {
+                    this.saveToStorage(config.rememberKey, currentState, false);
+                }
+
+                // Save to localStorage if localStorage key is set
+                if (config.localStorageKey) {
+                    this.saveToStorage(config.localStorageKey, currentState, true);
+                }
+
+                // Update global store if this component uses one
+                if (config.storeName && globalStores.has(config.storeName)) {
+                    const store = globalStores.get(config.storeName)!;
+                    Object.assign(store, currentState);
+                }
+            });
+            this.addCleanups(config.id, [storageCleanup]);
+        }
 
         // Create component instance
         const instance: ComponentInstance = {

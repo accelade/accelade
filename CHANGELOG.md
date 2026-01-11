@@ -67,6 +67,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Events: `load`, `loaded`, `error`
   - Full documentation in `docs/lazy-loading.md`
 
+- **Content Component** - Render pre-rendered HTML without interpolation
+  - `<x-accelade::content>` Blade component for static HTML content
+  - Customizable wrapper element with `as` attribute (div, article, section, etc.)
+  - Perfect for Markdown, CMS content, or syntax-highlighted code
+  - Security: Only use with trusted content (bypasses sanitization)
+  - Full documentation in `docs/content.md`
+
+- **Data Component** - Reactive data containers with storage persistence
+  - `<x-accelade::data>` Blade component for reactive data management
+  - `default` attribute for initial state (supports arrays, collections, Eloquent models)
+  - `remember` attribute for session storage persistence (survives page refreshes)
+  - `local-storage` attribute for localStorage persistence (survives browser close)
+  - `store` attribute for global shared state across components
+  - JavaScript object notation support for initial state
+  - Reserved store names validation (data, form, toggle, state, store)
+  - JavaScript API via `window.Accelade.stores`
+    - `get(name)` - Get a store by name
+    - `has(name)` - Check if store exists
+    - `names()` - Get all store names
+    - `all()` - Get all stores
+  - `$store(name)` helper function in components
+  - Full documentation in `docs/data.md`
+
 ## [0.2.0] - 2024-01-11
 
 ### Added
