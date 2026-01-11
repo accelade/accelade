@@ -1,0 +1,151 @@
+name: Playwright E2E Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Run with debug output'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    name: E2E Tests
+    timeout-minutes: 30
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: accelade_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, mysql, pdo_mysql
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: ${{ runner.os }}-playwright-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build JavaScript assets
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Create test environment
+        run: |
+          cp .env.example .env 2>/dev/null || echo "APP_KEY=" > .env
+          echo "APP_ENV=testing" >> .env
+          echo "APP_DEBUG=true" >> .env
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_DATABASE=accelade_test" >> .env
+          echo "DB_USERNAME=root" >> .env
+          echo "DB_PASSWORD=password" >> .env
+          echo "ACCELADE_DEMO_ENABLED=true" >> .env
+
+      - name: Generate application key
+        run: php artisan key:generate 2>/dev/null || true
+
+      - name: Run database migrations
+        run: php artisan migrate --force 2>/dev/null || true
+
+      - name: Start Laravel server
+        run: |
+          php artisan serve --host=127.0.0.1 --port=8000 &
+          echo $! > /tmp/laravel-server.pid
+        env:
+          APP_ENV: testing
+
+      - name: Wait for server to be ready
+        run: |
+          echo "Waiting for server..."
+          timeout 60 bash -c 'until curl -sf http://127.0.0.1:8000 > /dev/null 2>&1; do sleep 1; done'
+          echo "Server is ready!"
+
+      - name: Run Playwright tests
+        run: npx playwright test --reporter=list
+        env:
+          CI: true
+          ACCELADE_TEST_URL: http://127.0.0.1:8000
+          DEBUG: ${{ inputs.debug && 'pw:api' || '' }}
+
+      - name: Stop Laravel server
+        if: always()
+        run: |
+          if [ -f /tmp/laravel-server.pid ]; then
+            kill $(cat /tmp/laravel-server.pid) 2>/dev/null || true
+          fi
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+
+      - name: Upload test screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-screenshots
+          path: test-results
+          retention-days: 7
+
+      - name: Upload test traces
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-traces
+          path: test-results/**/*.zip
+          retention-days: 7

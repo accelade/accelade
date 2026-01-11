@@ -1,14 +1,10 @@
-name: Accelade Tests
+name: Tests
 
 on:
   push:
     branches: [main, develop]
-    paths:
-      - 'packages/accelade/**'
   pull_request:
     branches: [main, develop]
-    paths:
-      - 'packages/accelade/**'
   workflow_dispatch:
 
 jobs:
@@ -24,31 +20,28 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: packages/accelade/package-lock.json
 
       - name: Install dependencies
-        working-directory: packages/accelade
         run: npm ci
 
       - name: Build
-        working-directory: packages/accelade
         run: npm run build
 
       - name: Type check
-        working-directory: packages/accelade
         run: npm run typecheck
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: accelade-dist
-          path: packages/accelade/dist
+          path: dist
           retention-days: 1
 
   php-tests:
     runs-on: ubuntu-latest
-    name: PHP Tests
+    name: PHP ${{ matrix.php }}
     strategy:
+      fail-fast: false
       matrix:
         php: ['8.2', '8.3', '8.4']
 
@@ -70,20 +63,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('packages/accelade/composer.lock') }}
+          key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('composer.lock') }}
           restore-keys: ${{ runner.os }}-php${{ matrix.php }}-composer-
 
       - name: Install dependencies
-        working-directory: packages/accelade
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Run PEST tests
-        working-directory: packages/accelade
         run: ./vendor/bin/pest --colors=always
 
-  mago:
+  code-quality:
     runs-on: ubuntu-latest
-    name: Mago Analysis
+    name: Code Quality
 
     steps:
       - uses: actions/checkout@v4
@@ -95,53 +86,6 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip
           coverage: none
 
-      - name: Install Mago
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/carthage-software/mago/main/scripts/install.sh | bash
-          echo "$HOME/.mago/bin" >> $GITHUB_PATH
-
-      - name: Run Mago
-        working-directory: packages/accelade
-        run: mago lint src/
-
-  e2e-tests:
-    runs-on: ubuntu-latest
-    name: E2E Tests
-    needs: build
-
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: testing
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, mysql, pdo_mysql
-          coverage: none
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: packages/accelade/package-lock.json
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: accelade-dist
-          path: packages/accelade/dist
-
       - name: Get Composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
@@ -150,70 +94,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
-      - name: Install Composer dependencies
+      - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
-      - name: Copy .env
-        run: cp .env.example .env
+      - name: Check code formatting
+        run: ./vendor/bin/pint --test
 
-      - name: Generate key
-        run: php artisan key:generate
-
-      - name: Configure database
+      - name: Install Mago
         run: |
-          echo "DB_CONNECTION=mysql" >> .env
-          echo "DB_HOST=127.0.0.1" >> .env
-          echo "DB_PORT=3306" >> .env
-          echo "DB_DATABASE=testing" >> .env
-          echo "DB_USERNAME=root" >> .env
-          echo "DB_PASSWORD=password" >> .env
-          echo "ACCELADE_DEMO_ENABLED=true" >> .env
+          curl -sSfL https://raw.githubusercontent.com/carthage-software/mago/main/scripts/install.sh | bash
+          echo "$HOME/.mago/bin" >> $GITHUB_PATH
 
-      - name: Run migrations
-        run: php artisan migrate --force
-
-      - name: Build frontend assets
-        run: |
-          npm ci
-          npm run build
-
-      - name: Install Playwright dependencies
-        working-directory: packages/accelade
-        run: |
-          npm ci
-          npx playwright install chromium --with-deps
-
-      - name: Start Laravel server
-        run: php artisan serve --port=8000 &
-        env:
-          APP_ENV: testing
-
-      - name: Wait for server
-        run: |
-          timeout 30 bash -c 'until curl -s http://localhost:8000 > /dev/null; do sleep 1; done'
-
-      - name: Run E2E tests
-        working-directory: packages/accelade
-        run: npm run test:e2e
-        env:
-          CI: true
-          ACCELADE_TEST_URL: http://localhost:8000
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: packages/accelade/playwright-report
-          retention-days: 7
-
-      - name: Upload test screenshots
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: test-screenshots
-          path: packages/accelade/test-results
-          retention-days: 7
+      - name: Run Mago
+        run: $HOME/.mago/bin/mago lint src/

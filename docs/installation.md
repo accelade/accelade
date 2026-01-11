@@ -1,12 +1,10 @@
 # Installation
 
-This guide covers installing and setting up Accelade in your Laravel application.
-
 ## Requirements
 
 - **PHP**: 8.2 or higher
 - **Laravel**: 11.x or 12.x
-- **Node.js**: 18+ (for development/building only)
+- **Node.js**: 18+ (for development only)
 
 ## Install via Composer
 
@@ -14,30 +12,7 @@ This guide covers installing and setting up Accelade in your Laravel application
 composer require accelade/accelade
 ```
 
-The package will auto-register its service provider and facades.
-
-## Publish Configuration (Optional)
-
-```bash
-php artisan vendor:publish --tag=accelade-config
-```
-
-This publishes `config/accelade.php` for customization.
-
-## Publish Assets (Optional)
-
-If you prefer serving assets from your public directory instead of via route:
-
-```bash
-php artisan vendor:publish --tag=accelade-assets
-```
-
-Then update your config:
-
-```php
-// config/accelade.php
-'asset_mode' => 'published',
-```
+The package auto-registers its service provider and facades.
 
 ## Add to Layout
 
@@ -52,69 +27,78 @@ Include Accelade in your main layout file:
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'My App' }}</title>
 
-    {{-- Accelade styles (notifications, progress bar) --}}
     @acceladeStyles
 </head>
 <body>
     {{ $slot }}
 
-    {{-- Accelade scripts --}}
     @acceladeScripts
-
-    {{-- Notifications container --}}
     @acceladeNotifications
 </body>
 </html>
 ```
 
+**Note:** The CSRF token meta tag is required for server sync functionality.
+
 ## Verify Installation
 
-Create a test route:
-
-```php
-// routes/web.php
-Route::get('/accelade-test', function () {
-    return view('accelade-test');
-});
-```
-
-Create the view:
+Create a quick test:
 
 ```blade
-{{-- resources/views/accelade-test.blade.php --}}
-@extends('layouts.app')
-
-@section('content')
-    @accelade(['count' => 0])
-        <div style="text-align: center; padding: 2rem;">
-            <h1>Accelade Test</h1>
-            <p>Count: <span a-text="count" style="font-size: 2rem; font-weight: bold;">0</span></p>
-            <button a-on:click="$set('count', count + 1)">Increment</button>
-            <button a-on:click="$set('count', count - 1)">Decrement</button>
-        </div>
-    @endaccelade
-@endsection
+@accelade(['count' => 0])
+    <button a-on:click="$set('count', count + 1)">
+        Clicked: <span a-text="count">0</span>
+    </button>
+@endaccelade
 ```
 
-Visit `/accelade-test` - you should see a working counter.
+If the counter increments on click, you're ready to go!
 
-## Using the Install Command
-
-For a guided setup with framework selection:
+## Optional: Publish Config
 
 ```bash
-php artisan accelade:install --framework=vue
+php artisan vendor:publish --tag=accelade-config
 ```
 
-Options:
-- `--framework=vue` - Use Vue.js adapter
-- `--framework=react` - Use React adapter
+Creates `config/accelade.php` for customization.
+
+## Optional: Publish Assets
+
+For production, serve assets from your public directory:
+
+```bash
+php artisan vendor:publish --tag=accelade-assets
+```
+
+Then update config:
+
+```php
+'asset_mode' => 'published',
+```
+
+## Optional: Publish Views
+
+Customize notification templates:
+
+```bash
+php artisan vendor:publish --tag=accelade-views
+```
+
+## Enable Demo
+
+For development, enable the built-in demo pages:
+
+```env
+ACCELADE_DEMO_ENABLED=true
+```
+
+Visit `/demo/vanilla` to explore all features.
 
 ## Troubleshooting
 
 ### Scripts Not Loading
 
-Ensure you have the CSRF token meta tag:
+Ensure the CSRF token meta tag is present:
 
 ```html
 <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -122,15 +106,13 @@ Ensure you have the CSRF token meta tag:
 
 ### Reactivity Not Working
 
-Check browser console for JavaScript errors. Ensure:
-
-1. `@acceladeScripts` is placed before `</body>`
-2. No JavaScript conflicts with other libraries
-3. The `web` middleware is applied to your routes
+1. Check browser console for JavaScript errors
+2. Ensure `@acceladeScripts` is before `</body>`
+3. Verify no JavaScript conflicts
 
 ### Assets 404
 
-If using published assets mode, ensure you've published them:
+If using published mode, run:
 
 ```bash
 php artisan vendor:publish --tag=accelade-assets
@@ -138,6 +120,6 @@ php artisan vendor:publish --tag=accelade-assets
 
 ## Next Steps
 
-- [Configuration](configuration.md) - Customize Accelade settings
-- [Components](components.md) - Create reactive components
-- [Frameworks](frameworks.md) - Use Vue, React, or other frameworks
+- [Getting Started](getting-started.md) — First steps and examples
+- [Configuration](configuration.md) — All configuration options
+- [Components](components.md) — Building reactive components
