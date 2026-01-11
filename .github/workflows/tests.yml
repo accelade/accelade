@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, master, develop]
   pull_request:
-    branches: [main, develop]
+    branches: [main, master, develop]
   workflow_dispatch:
 
 jobs:
@@ -19,10 +19,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build
         run: npm run build
@@ -38,11 +37,12 @@ jobs:
           retention-days: 1
 
   php-tests:
-    runs-on: ubuntu-latest
-    name: PHP ${{ matrix.php }}
+    runs-on: ${{ matrix.os }}
+    name: PHP ${{ matrix.php }} - ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
         php: ['8.2', '8.3', '8.4']
 
     steps:
@@ -57,6 +57,7 @@ jobs:
 
       - name: Get Composer cache directory
         id: composer-cache
+        shell: bash
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer dependencies
@@ -106,4 +107,4 @@ jobs:
       - name: Install and Run Mago
         run: |
           curl -sSfL https://raw.githubusercontent.com/carthage-software/mago/main/scripts/install.sh | bash
-          $HOME/.mago/bin/mago lint src/
+          mago lint src/
