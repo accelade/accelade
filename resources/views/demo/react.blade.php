@@ -318,6 +318,9 @@ return redirect()->back();</pre>
     <!-- Data Component Section -->
     @include('accelade::demo.partials._data-component', ['prefix' => 'data-state'])
 
+    <!-- Defer Component Section -->
+    @include('accelade::demo.partials._defer-component', ['prefix' => 'data-state'])
+
     <!-- React Features -->
     <section class="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl shadow-xl p-8 text-white">
         <h2 class="text-2xl font-bold mb-8 text-center">React Features</h2>

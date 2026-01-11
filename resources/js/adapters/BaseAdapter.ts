@@ -17,6 +17,8 @@ import { SyncFactory } from '../core/factories/SyncFactory';
 import { ActionsFactory } from '../core/factories/ActionsFactory';
 import { ScriptExecutor } from '../core/factories/ScriptExecutor';
 import type { CustomMethods } from '../core/factories/ScriptExecutor';
+import { DeferFactory } from '../core/factories/DeferFactory';
+import type { DeferInstance } from '../core/factories/DeferFactory';
 
 /**
  * Global stores for shared reactive state
@@ -210,6 +212,12 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
 
         // Setup reactive bindings
         this.setupReactiveBindings(element, stateAdapter, bindingAdapter);
+
+        // Setup defer component if applicable
+        let deferInstance: DeferInstance | undefined;
+        if (element.hasAttribute('data-accelade-defer')) {
+            deferInstance = this.setupDefer(element, config.id, stateAdapter, customMethods);
+        }
 
         // Setup state attribute sync for lazy loading conditional triggers
         const stateAttrCleanup = stateAdapter.subscribe(() => {
@@ -406,6 +414,70 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
                 }
             });
         });
+    }
+
+    /**
+     * Setup defer component
+     */
+    protected setupDefer(
+        element: HTMLElement,
+        componentId: string,
+        stateAdapter: IStateAdapter,
+        customMethods: CustomMethods
+    ): DeferInstance | undefined {
+        const config = DeferFactory.parseConfig(element);
+        if (!config) {
+            return undefined;
+        }
+
+        // Create setState function
+        const setState = (key: string, value: unknown): void => {
+            stateAdapter.set(key, value);
+        };
+
+        // Create getState function
+        const getState = (): Record<string, unknown> => {
+            return stateAdapter.getState();
+        };
+
+        // Create dispatchEvent function
+        const dispatchEvent = (name: string, detail: unknown): void => {
+            const event = new CustomEvent(`accelade:defer:${name}`, {
+                detail,
+                bubbles: true,
+                cancelable: true,
+            });
+            element.dispatchEvent(event);
+        };
+
+        // Create defer instance
+        const instance = DeferFactory.create(
+            componentId,
+            config,
+            setState,
+            getState,
+            dispatchEvent
+        );
+
+        // Add reload to customMethods
+        customMethods.reload = instance.reload;
+
+        // Setup watch if configured
+        if (config.watchValue) {
+            const unsubscribe = stateAdapter.subscribeKey(config.watchValue, () => {
+                DeferFactory.triggerReloadDebounced(
+                    componentId,
+                    config.watchDebounce ?? 150,
+                    instance.reload
+                );
+            });
+            this.addCleanups(componentId, [unsubscribe]);
+        }
+
+        // Add cleanup for defer instance
+        this.addCleanups(componentId, [() => DeferFactory.dispose(componentId)]);
+
+        return instance;
     }
 
     /**

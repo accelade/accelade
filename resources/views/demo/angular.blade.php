@@ -310,6 +310,9 @@ return redirect()->back();</pre>
     <!-- Data Component Section -->
     @include('accelade::demo.partials._data-component', ['prefix' => 'ng'])
 
+    <!-- Defer Component Section -->
+    @include('accelade::demo.partials._defer-component', ['prefix' => 'ng'])
+
     <!-- Angular Features -->
     <section class="bg-gradient-to-r from-red-600 to-pink-600 rounded-2xl shadow-xl p-8 text-white">
         <h2 class="text-2xl font-bold mb-8 text-center">Angular Features</h2>

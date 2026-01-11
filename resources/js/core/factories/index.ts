@@ -9,3 +9,5 @@ export { ActionsFactory } from './ActionsFactory';
 export type { ExtendedActions, StateGetter, StateSetter } from './ActionsFactory';
 export { ScriptExecutor } from './ScriptExecutor';
 export type { CustomMethods, ScriptHelpers, ScriptContext, FrameworkType } from './ScriptExecutor';
+export { DeferFactory } from './DeferFactory';
+export type { DeferConfig, DeferState, DeferResult, DeferInstance } from './DeferFactory';
