@@ -1,10 +1,20 @@
 @props([
     'data' => false,
+    'animation' => null,
 ])
 
 @php
     $framework = config('accelade.framework', 'vanilla');
     $id = $attributes->get('id', 'toggle-' . uniqid());
+
+    // Get animation preset if specified
+    $animationConfig = null;
+    if ($animation) {
+        $preset = app('accelade.animation')->get($animation);
+        if ($preset) {
+            $animationConfig = $preset->toArray();
+        }
+    }
 
     // Parse data attribute to determine keys and default value
     $keys = [];
@@ -68,6 +78,7 @@
     data-toggle-id="{{ $id }}"
     @if($toggleData) data-toggle-data="{{ $toggleData }}" @endif
     data-toggle-default="{{ $defaultValue ? 'true' : 'false' }}"
+    @if($animationConfig) data-toggle-animation="{{ json_encode($animationConfig) }}" @endif
     data-accelade-state="{{ json_encode($initialState) }}"
-    {{ $attributes->except(['id', 'data']) }}
+    {{ $attributes->except(['id', 'data', 'animation']) }}
 >{{ $slot }}</div>

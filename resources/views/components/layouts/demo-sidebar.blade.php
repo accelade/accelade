@@ -33,6 +33,7 @@
         ['id' => 'state', 'label' => 'State Component', 'icon' => '🔀'],
         ['id' => 'teleport', 'label' => 'Teleport', 'icon' => '🚀'],
         ['id' => 'toggle', 'label' => 'Toggle', 'icon' => '🔘'],
+        ['id' => 'transition', 'label' => 'Transition', 'icon' => '✨'],
     ];
 @endphp
 <!DOCTYPE html>

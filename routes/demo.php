@@ -42,7 +42,7 @@ $prefixMap = [
 
 // Valid frameworks and sections
 $validFrameworks = ['vanilla', 'vue', 'react', 'svelte', 'angular'];
-$validSections = ['counter', 'scripts', 'navigation', 'progress', 'notifications', 'shared-data', 'lazy', 'content', 'data', 'defer', 'rehydrate', 'errors', 'event', 'flash', 'link', 'modal', 'state', 'teleport', 'toggle'];
+$validSections = ['counter', 'scripts', 'navigation', 'progress', 'notifications', 'shared-data', 'lazy', 'content', 'data', 'defer', 'rehydrate', 'errors', 'event', 'flash', 'link', 'modal', 'state', 'teleport', 'toggle', 'transition'];
 
 // Section-based demo routes (new structure)
 Route::get('/{framework}/{section}', function (string $framework, string $section) use ($shareData, $prefixMap, $validFrameworks, $validSections) {

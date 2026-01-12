@@ -33,6 +33,26 @@ interface ElementBinding {
 }
 
 /**
+ * Animation configuration for show bindings
+ */
+interface AnimationConfig {
+    enter: string;
+    enterFrom: string;
+    enterTo: string;
+    leave: string;
+    leaveFrom: string;
+    leaveTo: string;
+}
+
+/**
+ * Show binding with optional animation
+ */
+interface ShowBinding extends ElementBinding {
+    originalDisplay: string;
+    animation?: AnimationConfig;
+}
+
+/**
  * VanillaBindingAdapter - Handles DOM bindings with manual updates
  */
 export class VanillaBindingAdapter implements IBindingAdapter {
@@ -46,7 +66,7 @@ export class VanillaBindingAdapter implements IBindingAdapter {
 
     // Element bindings storage for teleport support (elements tracked regardless of DOM position)
     private textBindings: ElementBinding[] = [];
-    private showBindings: Array<ElementBinding & { originalDisplay: string }> = [];
+    private showBindings: ShowBinding[] = [];
     private classBindings: ElementBinding[] = [];
     private styleBindings: ElementBinding[] = [];
     private attrBindings: Array<{ element: HTMLElement; attr: string; expression: string }> = [];
@@ -113,15 +133,34 @@ export class VanillaBindingAdapter implements IBindingAdapter {
         // Get computed display style if no inline style is set
         const originalDisplay = element.style.display || '';
 
+        // Check for animation config from parent toggle
+        let animation: AnimationConfig | undefined;
+        const toggleParent = element.closest('[data-toggle-animation]');
+        if (toggleParent) {
+            try {
+                const animData = toggleParent.getAttribute('data-toggle-animation');
+                if (animData) {
+                    animation = JSON.parse(animData);
+                }
+            } catch {
+                // Invalid JSON, skip animation
+            }
+        }
+
         // Store binding for teleport support
-        this.showBindings.push({ element, expression, originalDisplay });
+        this.showBindings.push({ element, expression, originalDisplay, animation });
 
         // Initial update (no animation on first render)
         if (this.stateAdapter) {
             const visible = evaluateBooleanExpression(expression, this.stateAdapter.getState());
             if (visible) {
                 element.style.display = originalDisplay;
-                element.classList.add('accelade-visible');
+                if (animation) {
+                    // Apply enterTo classes immediately for initial visible state
+                    this.addClasses(element, animation.enterTo);
+                } else {
+                    element.classList.add('accelade-visible');
+                }
             } else {
                 // Hide immediately on initial render (no animation)
                 element.style.display = 'none';
@@ -129,6 +168,31 @@ export class VanillaBindingAdapter implements IBindingAdapter {
         }
 
         this.bindings.push({ element, type: 'show', cleanup: () => {} });
+    }
+
+    /**
+     * Helper to add space-separated classes
+     */
+    private addClasses(element: HTMLElement, classes: string): void {
+        classes.split(/\s+/).filter(c => c).forEach(c => element.classList.add(c));
+    }
+
+    /**
+     * Helper to remove space-separated classes
+     */
+    private removeClasses(element: HTMLElement, classes: string): void {
+        classes.split(/\s+/).filter(c => c).forEach(c => element.classList.remove(c));
+    }
+
+    /**
+     * Extract duration from Tailwind duration class
+     */
+    private getAnimationDuration(classes: string): number {
+        const match = classes.match(/duration-(\d+)/);
+        if (match) {
+            return parseInt(match[1], 10);
+        }
+        return 200; // Default fallback
     }
 
     /**
@@ -391,31 +455,71 @@ export class VanillaBindingAdapter implements IBindingAdapter {
         }
 
         // Update show bindings using stored references with smooth transitions
-        for (const { element, expression, originalDisplay } of this.showBindings) {
+        for (const { element, expression, originalDisplay, animation } of this.showBindings) {
             const visible = evaluateBooleanExpression(expression, state);
             const isCurrentlyHidden = element.style.display === 'none';
 
-            if (visible) {
-                // Show: first set display, then animate in
-                if (isCurrentlyHidden) {
+            if (animation) {
+                // Use custom animation classes
+                if (visible && isCurrentlyHidden) {
+                    // Enter animation
                     element.style.display = originalDisplay;
-                    // Force reflow to ensure transition works
+                    this.addClasses(element, animation.enter);
+                    this.addClasses(element, animation.enterFrom);
+                    // Force reflow
                     void element.offsetHeight;
-                }
-                element.classList.remove('accelade-hiding');
-                element.classList.add('accelade-visible');
-            } else {
-                // Hide: animate out, then set display:none after transition
-                if (!isCurrentlyHidden) {
-                    element.classList.add('accelade-hiding');
-                    element.classList.remove('accelade-visible');
-                    // Set display:none after transition completes
+                    // Transition to enterTo
+                    this.removeClasses(element, animation.enterFrom);
+                    this.addClasses(element, animation.enterTo);
+                    // Cleanup after animation
+                    const duration = this.getAnimationDuration(animation.enter);
                     setTimeout(() => {
-                        // Only hide if still supposed to be hidden
-                        if (element.classList.contains('accelade-hiding')) {
+                        this.removeClasses(element, animation.enter);
+                    }, duration);
+                } else if (!visible && !isCurrentlyHidden) {
+                    // Leave animation
+                    this.removeClasses(element, animation.enterTo);
+                    this.addClasses(element, animation.leave);
+                    this.addClasses(element, animation.leaveFrom);
+                    // Force reflow
+                    void element.offsetHeight;
+                    // Transition to leaveTo
+                    this.removeClasses(element, animation.leaveFrom);
+                    this.addClasses(element, animation.leaveTo);
+                    // Hide after animation
+                    const duration = this.getAnimationDuration(animation.leave);
+                    setTimeout(() => {
+                        if (element.classList.contains(animation.leaveTo.split(/\s+/)[0])) {
                             element.style.display = 'none';
+                            this.removeClasses(element, animation.leave);
+                            this.removeClasses(element, animation.leaveTo);
                         }
-                    }, 200); // Match CSS transition duration
+                    }, duration);
+                }
+            } else {
+                // Default simple animation
+                if (visible) {
+                    // Show: first set display, then animate in
+                    if (isCurrentlyHidden) {
+                        element.style.display = originalDisplay;
+                        // Force reflow to ensure transition works
+                        void element.offsetHeight;
+                    }
+                    element.classList.remove('accelade-hiding');
+                    element.classList.add('accelade-visible');
+                } else {
+                    // Hide: animate out, then set display:none after transition
+                    if (!isCurrentlyHidden) {
+                        element.classList.add('accelade-hiding');
+                        element.classList.remove('accelade-visible');
+                        // Set display:none after transition completes
+                        setTimeout(() => {
+                            // Only hide if still supposed to be hidden
+                            if (element.classList.contains('accelade-hiding')) {
+                                element.style.display = 'none';
+                            }
+                        }, 200); // Match CSS transition duration
+                    }
                 }
             }
         }

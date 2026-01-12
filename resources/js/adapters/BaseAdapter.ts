@@ -29,6 +29,8 @@ import { createState } from '../core/state/StateFactory';
 import type { StateInstance } from '../core/state/StateFactory';
 import { createToggle, createToggleMethods } from '../core/toggle/ToggleFactory';
 import type { ToggleInstance } from '../core/toggle/ToggleFactory';
+import { createTransition } from '../core/transition/TransitionFactory';
+import type { TransitionInstance } from '../core/transition/types';
 
 /**
  * Global stores for shared reactive state
@@ -258,6 +260,9 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         if (element.hasAttribute('data-accelade-state-component')) {
             stateInstance = this.setupState(element, config.id, stateAdapter);
         }
+
+        // Setup Transition elements inside this component
+        this.setupTransitions(element, config.id, stateAdapter);
 
         // Setup state attribute sync for lazy loading conditional triggers
         const stateAttrCleanup = stateAdapter.subscribe(() => {
@@ -619,6 +624,28 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         this.addCleanups(componentId, [() => instance.dispose()]);
 
         return instance;
+    }
+
+    /**
+     * Setup Transition elements inside a component
+     */
+    protected setupTransitions(
+        element: HTMLElement,
+        componentId: string,
+        stateAdapter: IStateAdapter
+    ): TransitionInstance[] {
+        const instances: TransitionInstance[] = [];
+        const transitionElements = element.querySelectorAll<HTMLElement>('[data-accelade-transition]');
+
+        transitionElements.forEach((transitionEl) => {
+            const instance = createTransition(componentId, transitionEl, stateAdapter);
+            instances.push(instance);
+
+            // Add cleanup for Transition instance
+            this.addCleanups(componentId, [() => instance.dispose()]);
+        });
+
+        return instances;
     }
 
     /**

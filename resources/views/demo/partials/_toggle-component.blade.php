@@ -308,6 +308,54 @@
         </div>
     </div>
 
+    <!-- Animation Presets -->
+    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200 mb-6">
+        <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
+            <span class="text-xs px-2 py-1 bg-green-500 text-white rounded">Animation</span>
+            Toggle with Animation
+        </h3>
+        <p class="text-sm text-slate-600 mb-4">
+            Add smooth animations with <code class="bg-slate-100 px-1 rounded">animation="preset"</code>.
+            All <code class="bg-slate-100 px-1 rounded">{{ $showAttr }}</code> elements automatically animate.
+        </p>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <x-accelade::toggle animation="fade">
+                <div class="space-y-2">
+                    <button @click.prevent="toggle()" class="w-full px-3 py-2 bg-green-500 text-white text-sm rounded hover:bg-green-600">fade</button>
+                    <div {{ $showAttr }}="toggled" class="p-2 bg-white rounded border text-center text-sm">Fades</div>
+                </div>
+            </x-accelade::toggle>
+
+            <x-accelade::toggle animation="scale">
+                <div class="space-y-2">
+                    <button @click.prevent="toggle()" class="w-full px-3 py-2 bg-emerald-500 text-white text-sm rounded hover:bg-emerald-600">scale</button>
+                    <div {{ $showAttr }}="toggled" class="p-2 bg-white rounded border text-center text-sm">Scales</div>
+                </div>
+            </x-accelade::toggle>
+
+            <x-accelade::toggle animation="slide-up">
+                <div class="space-y-2">
+                    <button @click.prevent="toggle()" class="w-full px-3 py-2 bg-teal-500 text-white text-sm rounded hover:bg-teal-600">slide-up</button>
+                    <div class="overflow-hidden">
+                        <div {{ $showAttr }}="toggled" class="p-2 bg-white rounded border text-center text-sm">Slides</div>
+                    </div>
+                </div>
+            </x-accelade::toggle>
+
+            <x-accelade::toggle animation="slide-down">
+                <div class="space-y-2">
+                    <button @click.prevent="toggle()" class="w-full px-3 py-2 bg-cyan-500 text-white text-sm rounded hover:bg-cyan-600">slide-down</button>
+                    <div class="overflow-hidden">
+                        <div {{ $showAttr }}="toggled" class="p-2 bg-white rounded border text-center text-sm">Slides</div>
+                    </div>
+                </div>
+            </x-accelade::toggle>
+        </div>
+
+        <p class="text-xs text-slate-500">Available: <code class="bg-slate-100 px-1 rounded">default</code>, <code class="bg-slate-100 px-1 rounded">fade</code>, <code class="bg-slate-100 px-1 rounded">scale</code>, <code class="bg-slate-100 px-1 rounded">collapse</code>, <code class="bg-slate-100 px-1 rounded">slide-up</code>, <code class="bg-slate-100 px-1 rounded">slide-down</code>, <code class="bg-slate-100 px-1 rounded">slide-left</code>, <code class="bg-slate-100 px-1 rounded">slide-right</code></p>
+    </div>
+
     <!-- All Props -->
     <div class="bg-slate-50 rounded-xl p-6 border border-slate-100 mb-6">
         <h3 class="font-medium text-slate-700 mb-4">Component Props & Methods</h3>
@@ -322,11 +370,17 @@
                     </tr>
                 </thead>
                 <tbody class="text-slate-600">
-                    <tr>
+                    <tr class="border-b border-slate-100">
                         <td class="py-2 px-3"><code class="text-indigo-600">data</code></td>
                         <td class="py-2 px-3">bool|string</td>
                         <td class="py-2 px-3">false</td>
                         <td class="py-2 px-3">Default value (bool) or comma-separated keys (string)</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 px-3"><code class="text-indigo-600">animation</code></td>
+                        <td class="py-2 px-3">string</td>
+                        <td class="py-2 px-3">null</td>
+                        <td class="py-2 px-3">Animation preset for show/hide (fade, scale, slide-*)</td>
                     </tr>
                 </tbody>
             </table>
@@ -363,24 +417,25 @@
 {{-- Basic toggle --}}
 &lt;x-accelade::toggle&gt;
     &lt;button @click.prevent="toggle()"&gt;Show/Hide&lt;/button&gt;
-    &lt;div a-show="toggled"&gt;
-        &lt;p&gt;Toggled content&lt;/p&gt;
-        &lt;button @click.prevent="setToggle(false)"&gt;Hide&lt;/button&gt;
-    &lt;/div&gt;
+    &lt;div a-show="toggled"&gt;Toggled content&lt;/div&gt;
 &lt;/x-accelade::toggle&gt;
 
-{{-- Default true --}}
-&lt;x-accelade::toggle :data="true"&gt;
-    &lt;div a-show="toggled"&gt;Visible by default&lt;/div&gt;
+{{-- With animation (recommended!) --}}
+&lt;x-accelade::toggle animation="fade"&gt;
+    &lt;button @click.prevent="toggle()"&gt;Toggle&lt;/button&gt;
+    &lt;div a-show="toggled"&gt;Animated content!&lt;/div&gt;
+&lt;/x-accelade::toggle&gt;
+
+{{-- Collapse animation for accordions (no overlap) --}}
+&lt;x-accelade::toggle animation="collapse"&gt;
+    &lt;button @click.prevent="toggle()"&gt;Accordion Header&lt;/button&gt;
+    &lt;div a-show="toggled"&gt;Accordion content...&lt;/div&gt;
 &lt;/x-accelade::toggle&gt;
 
 {{-- Multiple toggles --}}
-&lt;x-accelade::toggle data="isCompany, hasVatNumber"&gt;
+&lt;x-accelade::toggle data="isCompany, hasVat" animation="scale"&gt;
     &lt;button @click.prevent="toggle('isCompany')"&gt;Company&lt;/button&gt;
     &lt;div a-show="isCompany"&gt;Company fields...&lt;/div&gt;
-
-    &lt;button @click.prevent="setToggle('hasVatNumber', true)"&gt;Enable VAT&lt;/button&gt;
-    &lt;div a-show="hasVatNumber"&gt;VAT fields...&lt;/div&gt;
 &lt;/x-accelade::toggle&gt;
     </x-accelade::code-block>
 </section>

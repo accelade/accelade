@@ -415,6 +415,59 @@ HTML;
     }
 
     /* ========================================
+       Animation Preset Utility Classes
+       (Tailwind-compatible for animation presets)
+       ======================================== */
+
+    /* Transitions */
+    .transition { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-opacity { transition-property: opacity; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-transform { transition-property: transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+
+    /* Durations */
+    .duration-100 { transition-duration: 100ms; }
+    .duration-150 { transition-duration: 150ms; }
+    .duration-200 { transition-duration: 200ms; }
+    .duration-300 { transition-duration: 300ms; }
+    .duration-500 { transition-duration: 500ms; }
+
+    /* Easing */
+    .ease-in { transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+    .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+    .ease-in-out { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* Opacity */
+    .opacity-0 { opacity: 0; }
+    .opacity-100 { opacity: 1; }
+
+    /* Scale */
+    .scale-0 { transform: scale(0); }
+    .scale-95 { transform: scale(0.95); }
+    .scale-100 { transform: scale(1); }
+
+    /* Translate X */
+    .translate-x-0 { transform: translateX(0); }
+    .translate-x-full { transform: translateX(100%); }
+    .-translate-x-full { transform: translateX(-100%); }
+
+    /* Translate Y */
+    .translate-y-0 { transform: translateY(0); }
+    .translate-y-full { transform: translateY(100%); }
+    .-translate-y-full { transform: translateY(-100%); }
+
+    /* Combined transforms (for animations that use multiple) */
+    .opacity-0.scale-95 { opacity: 0; transform: scale(0.95); }
+    .opacity-100.scale-100 { opacity: 1; transform: scale(1); }
+    .opacity-0.scale-0 { opacity: 0; transform: scale(0); }
+    .opacity-0.-translate-x-full { opacity: 0; transform: translateX(-100%); }
+    .opacity-100.translate-x-0 { opacity: 1; transform: translateX(0); }
+    .opacity-0.translate-x-full { opacity: 0; transform: translateX(100%); }
+    .opacity-0.translate-y-full { opacity: 0; transform: translateY(100%); }
+    .opacity-100.translate-y-0 { opacity: 1; transform: translateY(0); }
+    .opacity-0.-translate-y-full { opacity: 0; transform: translateY(-100%); }
+
+    /* ========================================
        Accelade Lazy Loading
        ======================================== */
     .accelade-lazy-wrapper {

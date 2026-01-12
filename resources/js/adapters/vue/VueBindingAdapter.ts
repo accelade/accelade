@@ -24,6 +24,18 @@ interface BindingRecord {
 }
 
 /**
+ * Animation configuration for show bindings
+ */
+interface AnimationConfig {
+    enter: string;
+    enterFrom: string;
+    enterTo: string;
+    leave: string;
+    leaveFrom: string;
+    leaveTo: string;
+}
+
+/**
  * VueBindingAdapter - Uses Vue's effect() for reactive bindings
  */
 export class VueBindingAdapter implements IBindingAdapter {
@@ -98,33 +110,93 @@ export class VueBindingAdapter implements IBindingAdapter {
         const originalDisplay = element.style.display || '';
         let isFirstRun = true;
 
+        // Check for animation config from parent toggle
+        let animation: AnimationConfig | undefined;
+        const toggleParent = element.closest('[data-toggle-animation]');
+        if (toggleParent) {
+            try {
+                const animData = toggleParent.getAttribute('data-toggle-animation');
+                if (animData) {
+                    animation = JSON.parse(animData);
+                }
+            } catch {
+                // Invalid JSON, skip animation
+            }
+        }
+
         const runner = effect(() => {
             const visible = evaluateBooleanExpression(expression, state);
             const isCurrentlyHidden = element.style.display === 'none';
 
-            if (visible) {
-                // Show: first set display, then animate in
-                if (isCurrentlyHidden) {
+            if (animation) {
+                // Use custom animation classes
+                if (visible && isCurrentlyHidden) {
+                    // Enter animation
                     element.style.display = originalDisplay;
-                    // Force reflow to ensure transition works
+                    this.addClasses(element, animation.enter);
+                    this.addClasses(element, animation.enterFrom);
+                    // Force reflow
                     void element.offsetHeight;
-                }
-                element.classList.remove('accelade-hiding');
-                element.classList.add('accelade-visible');
-            } else {
-                if (isFirstRun) {
-                    // Skip transition on initial hide - just hide immediately
-                    element.style.display = 'none';
-                } else if (!isCurrentlyHidden) {
-                    // Animate out, then set display:none after transition
-                    element.classList.add('accelade-hiding');
-                    element.classList.remove('accelade-visible');
+                    // Transition to enterTo
+                    this.removeClasses(element, animation.enterFrom);
+                    this.addClasses(element, animation.enterTo);
+                    // Cleanup after animation
+                    const duration = this.getAnimationDuration(animation.enter);
                     setTimeout(() => {
-                        // Only hide if still supposed to be hidden
-                        if (element.classList.contains('accelade-hiding')) {
+                        this.removeClasses(element, animation.enter);
+                    }, duration);
+                } else if (!visible && !isCurrentlyHidden) {
+                    // Leave animation
+                    this.removeClasses(element, animation.enterTo);
+                    this.addClasses(element, animation.leave);
+                    this.addClasses(element, animation.leaveFrom);
+                    // Force reflow
+                    void element.offsetHeight;
+                    // Transition to leaveTo
+                    this.removeClasses(element, animation.leaveFrom);
+                    this.addClasses(element, animation.leaveTo);
+                    // Hide after animation
+                    const duration = this.getAnimationDuration(animation.leave);
+                    setTimeout(() => {
+                        if (element.classList.contains(animation.leaveTo.split(/\s+/)[0])) {
                             element.style.display = 'none';
+                            this.removeClasses(element, animation.leave);
+                            this.removeClasses(element, animation.leaveTo);
                         }
-                    }, 200); // Match CSS transition duration
+                    }, duration);
+                } else if (isFirstRun && !visible) {
+                    // Initial hide without animation
+                    element.style.display = 'none';
+                } else if (isFirstRun && visible) {
+                    // Initial show without animation
+                    this.addClasses(element, animation.enterTo);
+                }
+            } else {
+                // Default simple animation
+                if (visible) {
+                    // Show: first set display, then animate in
+                    if (isCurrentlyHidden) {
+                        element.style.display = originalDisplay;
+                        // Force reflow to ensure transition works
+                        void element.offsetHeight;
+                    }
+                    element.classList.remove('accelade-hiding');
+                    element.classList.add('accelade-visible');
+                } else {
+                    if (isFirstRun) {
+                        // Skip transition on initial hide - just hide immediately
+                        element.style.display = 'none';
+                    } else if (!isCurrentlyHidden) {
+                        // Animate out, then set display:none after transition
+                        element.classList.add('accelade-hiding');
+                        element.classList.remove('accelade-visible');
+                        setTimeout(() => {
+                            // Only hide if still supposed to be hidden
+                            if (element.classList.contains('accelade-hiding')) {
+                                element.style.display = 'none';
+                            }
+                        }, 200); // Match CSS transition duration
+                    }
                 }
             }
             isFirstRun = false;
@@ -136,6 +208,31 @@ export class VueBindingAdapter implements IBindingAdapter {
             type: 'show',
             cleanup: () => runner.effect.stop(),
         });
+    }
+
+    /**
+     * Helper to add space-separated classes
+     */
+    private addClasses(element: HTMLElement, classes: string): void {
+        classes.split(/\s+/).filter(c => c).forEach(c => element.classList.add(c));
+    }
+
+    /**
+     * Helper to remove space-separated classes
+     */
+    private removeClasses(element: HTMLElement, classes: string): void {
+        classes.split(/\s+/).filter(c => c).forEach(c => element.classList.remove(c));
+    }
+
+    /**
+     * Extract duration from Tailwind duration class
+     */
+    private getAnimationDuration(classes: string): number {
+        const match = classes.match(/duration-(\d+)/);
+        if (match) {
+            return parseInt(match[1], 10);
+        }
+        return 200; // Default fallback
     }
 
     /**

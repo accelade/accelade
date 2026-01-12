@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Accelade;
 
+use Accelade\Animation\AnimationManager;
 use Accelade\Compilers\AcceladeTagCompiler;
 use Accelade\Console\InstallCommand;
 use Accelade\Notification\NotificationManager;
@@ -33,6 +34,10 @@ class AcceladeServiceProvider extends ServiceProvider
 
         $this->app->singleton('accelade.seo', function () {
             return new SEO;
+        });
+
+        $this->app->singleton('accelade.animation', function () {
+            return new AnimationManager;
         });
     }
 
