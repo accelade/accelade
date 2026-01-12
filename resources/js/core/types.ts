@@ -126,6 +126,11 @@ export interface BatchSyncUpdatePayload {
 }
 
 /**
+ * Event callback type for event bus
+ */
+export type EventCallback<T = unknown> = (data: T) => void;
+
+/**
  * Accelade actions for state manipulation
  */
 export interface AcceladeActions {
@@ -140,6 +145,11 @@ export interface AcceladeActions {
     $get: (key: string) => unknown;
     $toggle: (key: string) => void;
     $store: (name: string) => Record<string, unknown> | null;
+    // Event bus methods
+    $emit: <T = unknown>(event: string, data?: T) => void;
+    $on: <T = unknown>(event: string, callback: EventCallback<T>) => () => void;
+    $once: <T = unknown>(event: string, callback: EventCallback<T>) => () => void;
+    $off: <T = unknown>(event: string, callback: EventCallback<T>) => void;
 }
 
 /**

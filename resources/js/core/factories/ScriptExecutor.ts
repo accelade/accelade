@@ -12,6 +12,11 @@ import { navigate } from '../router';
 export type CustomMethods = Record<string, (...args: unknown[]) => unknown>;
 
 /**
+ * Event callback type
+ */
+export type EventCallback<T = unknown> = (data: T) => void;
+
+/**
  * Script helper functions
  */
 export interface ScriptHelpers {
@@ -19,6 +24,10 @@ export interface ScriptHelpers {
     $get: (key: string) => unknown;
     $toggle: (key: string) => void;
     $watch?: (key: string, callback: (newVal: unknown, oldVal: unknown) => void) => void;
+    $emit?: <T = unknown>(event: string, data?: T) => void;
+    $on?: <T = unknown>(event: string, callback: EventCallback<T>) => () => void;
+    $once?: <T = unknown>(event: string, callback: EventCallback<T>) => () => void;
+    $off?: <T = unknown>(event: string, callback: EventCallback<T>) => void;
 }
 
 /**
@@ -101,7 +110,7 @@ export class ScriptExecutor {
      */
     static executeScript(code: string, context: ScriptContext): CustomMethods | void {
         const { state, actions, helpers, originalState } = context;
-        const { $set, $get, $toggle, $watch } = helpers;
+        const { $set, $get, $toggle, $watch, $emit, $on, $once, $off } = helpers;
 
         // Build function parameters based on available helpers
         const paramNames = [
@@ -112,6 +121,10 @@ export class ScriptExecutor {
             '$toggle',
             '$navigate',
             'originalState',
+            '$emit',
+            '$on',
+            '$once',
+            '$off',
         ];
 
         const paramValues: unknown[] = [
@@ -122,6 +135,10 @@ export class ScriptExecutor {
             $toggle,
             navigate,
             originalState,
+            $emit,
+            $on,
+            $once,
+            $off,
         ];
 
         // Add $watch if available (Vue-specific)
@@ -137,6 +154,28 @@ export class ScriptExecutor {
 
         // Execute and return the result
         return scriptFn(...paramValues);
+    }
+
+    /**
+     * Event bus methods interface
+     */
+    static eventBusMethods?: {
+        emit: <T = unknown>(event: string, data?: T) => void;
+        on: <T = unknown>(event: string, callback: EventCallback<T>) => () => void;
+        once: <T = unknown>(event: string, callback: EventCallback<T>) => () => void;
+        off: <T = unknown>(event: string, callback: EventCallback<T>) => void;
+    };
+
+    /**
+     * Set event bus methods (called once during initialization)
+     */
+    static setEventBusMethods(methods: {
+        emit: <T = unknown>(event: string, data?: T) => void;
+        on: <T = unknown>(event: string, callback: EventCallback<T>) => () => void;
+        once: <T = unknown>(event: string, callback: EventCallback<T>) => () => void;
+        off: <T = unknown>(event: string, callback: EventCallback<T>) => void;
+    }): void {
+        this.eventBusMethods = methods;
     }
 
     /**
@@ -158,6 +197,14 @@ export class ScriptExecutor {
 
         if (watchFn) {
             helpers.$watch = watchFn;
+        }
+
+        // Add event bus methods if available
+        if (this.eventBusMethods) {
+            helpers.$emit = this.eventBusMethods.emit;
+            helpers.$on = this.eventBusMethods.on;
+            helpers.$once = this.eventBusMethods.once;
+            helpers.$off = this.eventBusMethods.off;
         }
 
         return helpers;

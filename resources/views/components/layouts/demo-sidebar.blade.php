@@ -27,6 +27,7 @@
         ['id' => 'rehydrate', 'label' => 'Rehydrate', 'icon' => '🔄'],
         ['id' => 'errors', 'label' => 'Errors Component', 'icon' => '⚠️'],
         ['id' => 'event', 'label' => 'Event (Echo)', 'icon' => '📡'],
+        ['id' => 'event-bus', 'label' => 'Event Bus', 'icon' => '🔊'],
         ['id' => 'flash', 'label' => 'Flash Data', 'icon' => '⚡'],
         ['id' => 'link', 'label' => 'Link Component', 'icon' => '🔗'],
         ['id' => 'modal', 'label' => 'Modal/Slideover', 'icon' => '🪟'],

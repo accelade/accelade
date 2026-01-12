@@ -133,6 +133,17 @@ export {
     type TeleportEventDetail,
 } from './core/teleport';
 
+// Event Bus
+export {
+    EventBus,
+    getEventBus,
+    emit as eventEmit,
+    on as eventOn,
+    once as eventOnce,
+    off as eventOff,
+    type EventCallback,
+} from './core/events';
+
 // Toggle
 export {
     ToggleFactory,
@@ -182,6 +193,7 @@ import { ReactAdapter } from './adapters/react';
 import { SvelteAdapter } from './adapters/svelte';
 import { AngularAdapter } from './adapters/angular';
 import { ConfigFactory } from './core/factories/ConfigFactory';
+import { ScriptExecutor } from './core/factories/ScriptExecutor';
 import { DebugManager } from './core/debug';
 import { SharedDataManager } from './core/shared';
 import { initRouter, navigate, getRouter } from './core/router';
@@ -198,6 +210,7 @@ import type { SharedData } from './core/types';
 import { initLazy, getLazyLoader, registerLazy, loadLazy, configureLazy, type LazyConfig } from './core/lazy';
 import { rehydrateManager, initRehydrate, initRehydrateSystem, emit as rehydrateEmit } from './core/rehydrate';
 import { teleportManager, initTeleport, registerTeleport } from './core/teleport';
+import { getEventBus, emit as eventBusEmit, on as eventBusOn, once as eventBusOnce, off as eventBusOff, type EventCallback } from './core/events';
 
 // Singleton notification manager
 let notificationManager: NotificationManager | null = null;
@@ -550,6 +563,56 @@ const teleport = {
     instance: () => teleportManager,
 };
 
+// Event Bus API object
+const events = {
+    /**
+     * Emit an event with optional data
+     */
+    emit: eventBusEmit,
+
+    /**
+     * Listen for an event
+     * @returns Unsubscribe function
+     */
+    on: eventBusOn,
+
+    /**
+     * Listen for an event once (auto-removes after first call)
+     * @returns Unsubscribe function
+     */
+    once: eventBusOnce,
+
+    /**
+     * Remove a specific listener
+     */
+    off: eventBusOff,
+
+    /**
+     * Remove all listeners for an event (or all events if no name provided)
+     */
+    clear: (event?: string) => getEventBus().clear(event),
+
+    /**
+     * Check if an event has listeners
+     */
+    hasListeners: (event: string) => getEventBus().hasListeners(event),
+
+    /**
+     * Get the number of listeners for an event
+     */
+    listenerCount: (event: string) => getEventBus().listenerCount(event),
+
+    /**
+     * Get all registered event names
+     */
+    eventNames: () => getEventBus().eventNames(),
+
+    /**
+     * Get the EventBus instance
+     */
+    instance: getEventBus,
+};
+
 /**
  * Main Accelade API
  */
@@ -587,8 +650,14 @@ const Accelade = {
     // Teleport
     teleport,
 
-    // Emit (shorthand for rehydrate.emit)
-    emit: rehydrateEmit,
+    // Event Bus
+    events,
+
+    // Convenience event bus methods (Splade-compatible API)
+    emit: eventBusEmit,
+    on: eventBusOn,
+    once: eventBusOnce,
+    off: eventBusOff,
 
     // Debug (set via DebugManager when enabled)
     debug: false as boolean,
@@ -599,6 +668,14 @@ const Accelade = {
 if (typeof window !== 'undefined') {
     // Register all adapters
     registerAdapters();
+
+    // Initialize event bus methods for ScriptExecutor
+    ScriptExecutor.setEventBusMethods({
+        emit: eventBusEmit,
+        on: eventBusOn,
+        once: eventBusOnce,
+        off: eventBusOff,
+    });
 
     // Configure progress from AcceladeConfig if available
     const globalConfig = ConfigFactory.getGlobalConfig();

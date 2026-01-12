@@ -3,6 +3,7 @@
  */
 
 import type { AcceladeActions } from '../types';
+import { emit as eventBusEmit, on as eventBusOn, once as eventBusOnce, off as eventBusOff, type EventCallback } from '../events';
 
 /**
  * State getter function type
@@ -99,6 +100,12 @@ export class ActionsFactory {
             $set,
             $get,
             $toggle,
+
+            // Event bus methods
+            $emit: eventBusEmit,
+            $on: eventBusOn,
+            $once: eventBusOnce,
+            $off: eventBusOff,
         };
     }
 

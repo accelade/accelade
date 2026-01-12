@@ -248,6 +248,7 @@ ACCELADE_FRAMEWORK=vue
 | [Shared Data](docs/shared-data.md) | Share data from PHP to JavaScript |
 | [Lazy Loading](docs/lazy-loading.md) | Deferred content with shimmer |
 | [Persistent Layout](docs/persistent-layout.md) | Keep elements active during navigation |
+| [Event Bus](docs/event-bus.md) | Decoupled component communication |
 | [Content](docs/content.md) | Render pre-rendered HTML (Markdown, CMS) |
 | [SEO](docs/seo.md) | Meta tags, OpenGraph, Twitter Cards |
 | [Notifications](docs/notifications.md) | Toast notification system |

@@ -143,6 +143,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic save/restore during SPA transitions
   - Full documentation in `docs/persistent-layout.md`
 
+- **Event Bus** - Global event bus for decoupled component communication
+  - Global API: `Accelade.emit()`, `Accelade.on()`, `Accelade.once()`, `Accelade.off()`
+  - Component context: `$emit()`, `$on()`, `$once()`, `$off()`
+  - Data payload support for passing information with events
+  - Automatic unsubscribe function returned from `on()` and `once()`
+  - `events.clear()` to remove all listeners for an event
+  - `events.hasListeners()`, `events.listenerCount()`, `events.eventNames()`
+  - Full documentation in `docs/event-bus.md`
+
 ## [0.2.0] - 2024-01-11
 
 ### Added
