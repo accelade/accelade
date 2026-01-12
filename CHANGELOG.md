@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Animation System** - CSS class-based enter/leave animations
+  - `Animation` facade for registering custom animation presets
+  - Built-in presets: `default`, `fade`, `opacity`, `scale`, `collapse`, `slide-up`, `slide-down`, `slide-left`, `slide-right`
+  - `AnimationManager` class for managing animation presets
+  - `AnimationPreset` value object for animation configuration
+  - Animation utility CSS classes included in `@acceladeStyles`
+
+- **Transition Component** - Standalone CSS transition wrapper
+  - `<x-accelade::transition>` Blade component for animated show/hide
+  - `show` attribute for reactive visibility expression
+  - `animation` attribute for preset selection
+  - Custom class props: `enter`, `enter-from`, `enter-to`, `leave`, `leave-from`, `leave-to`
+  - Works with any animation preset or custom Tailwind classes
+
+- **Toggle Animation** - Animation prop for toggle component
+  - `animation` attribute on `<x-accelade::toggle>` component
+  - Automatically animates all `a-show` elements inside the toggle
+  - Simplest usage: `<x-accelade::toggle animation="fade">`
+  - All built-in presets available: fade, scale, collapse, slide-*
+
 - **Shared Data** - Share data from Laravel backend to JavaScript frontend
   - `Accelade::share()` method to share data globally from PHP
   - `Accelade::getShared()` and `Accelade::allShared()` helper methods
@@ -89,6 +109,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `all()` - Get all stores
   - `$store(name)` helper function in components
   - Full documentation in `docs/data.md`
+
+- **Event Component** - Laravel Echo broadcast event integration
+  - `<x-accelade::event>` Blade component for real-time event listening
+  - Support for public, private, and presence channels
+  - Comma-separated event names with `listen` attribute
+  - Exposed reactive state: `subscribed` (boolean), `events` (array)
+  - Automatic action handling from broadcast events:
+    - `Accelade::redirectOnEvent($url)` - Navigate to URL
+    - `Accelade::refreshOnEvent()` - Refresh page (with optional scroll preservation)
+    - `Accelade::toastOnEvent($message, $type)` - Show toast notification
+  - `EventResponse` class for building broadcast payloads
+  - Custom event dispatch: `accelade:echo` for advanced usage
+  - Graceful degradation when Laravel Echo is not configured
+  - Full documentation in `docs/event.md`
+
+- **Navigation Keep-Alive** - Page state caching for SPA navigation
+  - Configurable via `config/accelade.php` navigation settings
+  - `max_keep_alive` - Maximum pages to cache (default: 10, 0 to disable)
+  - `transition_duration` - Page transition animation duration in ms
+  - `preserve_scroll` - Default scroll behavior after navigation
+  - Automatic state restoration when navigating back/forward
+  - Component states preserved across navigation
+  - Cache automatically clears oldest entries when limit reached
+  - JavaScript API: `router.clearCache()`, `router.getCacheSize()`
+
+- **Persistent Layout** - Keep elements active during SPA navigation
+  - `<x-accelade::persistent>` Blade component for persistent regions
+  - `PersistentComponent` PHP class for custom persistent layouts
+  - Media players continue playing across navigation
+  - Elements matched by `id` attribute between pages
+  - Preserves DOM state (form inputs, playback position, etc.)
+  - Automatic save/restore during SPA transitions
+  - Full documentation in `docs/persistent-layout.md`
 
 ## [0.2.0] - 2024-01-11
 

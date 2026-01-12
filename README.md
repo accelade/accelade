@@ -35,7 +35,9 @@ Add reactivity to your Laravel Blade templates without the overhead of a full SP
 - **SPA Navigation** — Client-side routing with automatic progress bar.
 - **Server Sync** — Seamlessly persist state to Laravel backend.
 - **Shared Data** — Pass data from PHP to JavaScript globally across your app.
+- **Animations** — Built-in animation presets for smooth transitions.
 - **Lazy Loading** — Defer content with beautiful shimmer placeholders.
+- **Persistent Layout** — Keep media players and widgets active during navigation.
 - **SEO Engine** — Fluent API for managing meta tags, OpenGraph, and Twitter Cards.
 - **Toast Notifications** — Beautiful Filament-style notifications from PHP or JS.
 - **Lightweight** — ~28KB gzipped. No heavy dependencies.
@@ -132,6 +134,36 @@ const theme = window.Accelade.shared.get('settings.theme');
 @endaccelade
 ```
 
+### Animations & Transitions
+```blade
+{{-- Simple toggle with animation --}}
+<x-accelade::toggle animation="fade">
+    <button @click="toggle()">Toggle</button>
+    <div a-show="toggled">Fades in and out!</div>
+</x-accelade::toggle>
+
+{{-- Accordion with collapse animation --}}
+<x-accelade::toggle animation="collapse">
+    <button @click="toggle()">FAQ Question</button>
+    <div a-show="toggled">Answer content...</div>
+</x-accelade::toggle>
+
+{{-- Available presets: fade, scale, collapse, slide-up, slide-down, slide-left, slide-right --}}
+```
+
+```php
+// Register custom animation preset
+Animation::new(
+    name: 'bounce',
+    enter: 'transition ease-bounce duration-300',
+    enterFrom: 'opacity-0 scale-50',
+    enterTo: 'opacity-100 scale-100',
+    leave: 'transition ease-in duration-200',
+    leaveFrom: 'opacity-100 scale-100',
+    leaveTo: 'opacity-0 scale-50',
+);
+```
+
 ### Lazy Loading with Shimmer
 ```blade
 <x-accelade::lazy :shimmer="true">
@@ -211,9 +243,11 @@ ACCELADE_FRAMEWORK=vue
 |-------|-------------|
 | [Getting Started](docs/getting-started.md) | Installation and first steps |
 | [Components](docs/components.md) | Building reactive components |
+| [Animations](docs/animations.md) | Animation presets and transitions |
 | [Data Component](docs/data.md) | Reactive data with storage persistence |
 | [Shared Data](docs/shared-data.md) | Share data from PHP to JavaScript |
 | [Lazy Loading](docs/lazy-loading.md) | Deferred content with shimmer |
+| [Persistent Layout](docs/persistent-layout.md) | Keep elements active during navigation |
 | [Content](docs/content.md) | Render pre-rendered HTML (Markdown, CMS) |
 | [SEO](docs/seo.md) | Meta tags, OpenGraph, Twitter Cards |
 | [Notifications](docs/notifications.md) | Toast notification system |

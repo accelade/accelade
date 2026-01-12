@@ -22,6 +22,8 @@ export interface NavigationOptions {
     target?: string;
     /** Skip progress bar for this navigation */
     skipProgress?: boolean;
+    /** Try to restore from cache (default: false, true for back/forward) */
+    useCache?: boolean;
 }
 
 export interface RouterConfig {
@@ -37,6 +39,10 @@ export interface RouterConfig {
     progress?: ProgressConfig;
     /** Page transition duration in ms (default: 150) */
     transitionDuration?: number;
+    /** Max pages to keep in memory (default: 10, 0 = disabled) */
+    maxKeepAlive?: number;
+    /** Default preserve scroll behavior (default: false) */
+    defaultPreserveScroll?: boolean;
     /** Callback before navigation starts */
     onBeforeNavigate?: (url: string) => boolean | void;
     /** Callback after navigation completes */
@@ -49,13 +55,54 @@ export interface RouterConfig {
     onFinish?: (url: string, success: boolean) => void;
 }
 
+/**
+ * Cached page entry for keep-alive feature
+ */
+interface CachedPage {
+    /** The HTML content of the page container */
+    html: string;
+    /** The page title */
+    title: string;
+    /** Scroll position */
+    scrollX: number;
+    scrollY: number;
+    /** Component states */
+    states: Map<string, Record<string, unknown>>;
+    /** Timestamp when cached */
+    timestamp: number;
+}
+
 const defaultConfig: RouterConfig = {
     linkSelector: 'a[data-accelade-link], a[a-link], [data-spa-link]',
     pageSelector: '[data-accelade-page], main, body',
     loadingClass: 'accelade-loading',
     showProgress: true,
     transitionDuration: 150,
+    maxKeepAlive: 10,
+    defaultPreserveScroll: false,
 };
+
+/**
+ * Get navigation config from AcceladeConfig
+ */
+function getNavigationConfig(): Partial<RouterConfig> {
+    const config: Partial<RouterConfig> = {};
+
+    if (typeof window !== 'undefined' && (window as any).AcceladeConfig?.navigation) {
+        const nav = (window as any).AcceladeConfig.navigation;
+        if (typeof nav.max_keep_alive === 'number') {
+            config.maxKeepAlive = nav.max_keep_alive;
+        }
+        if (typeof nav.transition_duration === 'number') {
+            config.transitionDuration = nav.transition_duration;
+        }
+        if (typeof nav.preserve_scroll === 'boolean') {
+            config.defaultPreserveScroll = nav.preserve_scroll;
+        }
+    }
+
+    return config;
+}
 
 /** Selector for modal/slideover/bottom-sheet links */
 const modalLinkSelector = 'a[data-modal], a[data-slideover], a[data-bottom-sheet]';
@@ -67,14 +114,162 @@ export class AcceladeRouter {
     private config: RouterConfig;
     private abortController: AbortController | null = null;
     private initialized = false;
+    /** Page cache for keep-alive feature */
+    private pageCache: Map<string, CachedPage> = new Map();
 
     constructor(config: Partial<RouterConfig> = {}) {
-        this.config = { ...defaultConfig, ...config };
+        // Merge: defaults -> AcceladeConfig -> user config
+        const navConfig = getNavigationConfig();
+        this.config = { ...defaultConfig, ...navConfig, ...config };
 
         // Configure progress bar if provided
         if (this.config.progress) {
             getProgress(this.config.progress);
         }
+    }
+
+    /**
+     * Get the max keep-alive limit
+     */
+    get maxKeepAlive(): number {
+        return this.config.maxKeepAlive ?? 10;
+    }
+
+    /**
+     * Cache the current page state
+     */
+    private cachePage(url: string, container: HTMLElement): void {
+        if (this.maxKeepAlive <= 0) return;
+
+        // Normalize URL
+        const normalizedUrl = this.normalizeUrl(url);
+
+        // Capture component states
+        const states = new Map<string, Record<string, unknown>>();
+        const components = container.querySelectorAll<HTMLElement>('[data-accelade]');
+        components.forEach((el, index) => {
+            const id = el.dataset.acceladeId ?? `component-${index}`;
+            const stateStr = el.dataset.acceladeState;
+            if (stateStr) {
+                try {
+                    states.set(id, JSON.parse(stateStr));
+                } catch {
+                    // Ignore parse errors
+                }
+            }
+        });
+
+        // Create cache entry
+        const entry: CachedPage = {
+            html: container.innerHTML,
+            title: document.title,
+            scrollX: window.scrollX,
+            scrollY: window.scrollY,
+            states,
+            timestamp: Date.now(),
+        };
+
+        // Add to cache
+        this.pageCache.set(normalizedUrl, entry);
+
+        // Enforce cache size limit (remove oldest entries)
+        if (this.pageCache.size > this.maxKeepAlive) {
+            const entriesToRemove = this.pageCache.size - this.maxKeepAlive;
+            const keys = Array.from(this.pageCache.keys());
+            for (let i = 0; i < entriesToRemove; i++) {
+                this.pageCache.delete(keys[i]);
+            }
+        }
+    }
+
+    /**
+     * Get a cached page
+     */
+    private getCachedPage(url: string): CachedPage | undefined {
+        return this.pageCache.get(this.normalizeUrl(url));
+    }
+
+    /**
+     * Normalize URL for cache key
+     */
+    private normalizeUrl(url: string): string {
+        const parsed = new URL(url, window.location.origin);
+        return parsed.pathname + parsed.search;
+    }
+
+    /**
+     * Clear the page cache
+     */
+    clearCache(): void {
+        this.pageCache.clear();
+    }
+
+    /**
+     * Get cache size
+     */
+    getCacheSize(): number {
+        return this.pageCache.size;
+    }
+
+    /**
+     * Saved persistent elements during navigation
+     */
+    private persistentElements: Map<string, HTMLElement> = new Map();
+
+    /**
+     * Save persistent elements before navigation
+     */
+    private savePersistentElements(): void {
+        this.persistentElements.clear();
+
+        const elements = document.querySelectorAll<HTMLElement>('[data-accelade-persistent]');
+        elements.forEach((el) => {
+            const id = el.getAttribute('data-accelade-persistent') || `persistent-${this.persistentElements.size}`;
+            // Clone the element to preserve its state
+            const clone = el.cloneNode(true) as HTMLElement;
+            this.persistentElements.set(id, clone);
+
+            // Store reference to original for state preservation (media playback, etc.)
+            (clone as any)._originalElement = el;
+        });
+    }
+
+    /**
+     * Restore persistent elements after navigation
+     */
+    private restorePersistentElements(container: HTMLElement): void {
+        if (this.persistentElements.size === 0) return;
+
+        // Find placeholder elements in the new content
+        const placeholders = container.querySelectorAll<HTMLElement>('[data-accelade-persistent]');
+
+        placeholders.forEach((placeholder) => {
+            const id = placeholder.getAttribute('data-accelade-persistent');
+            if (!id) return;
+
+            const saved = this.persistentElements.get(id);
+            if (saved) {
+                // Get the original element if it still exists in DOM
+                const original = (saved as any)._originalElement as HTMLElement | undefined;
+
+                if (original && original.isConnected) {
+                    // Move the original element (preserves media playback state)
+                    placeholder.replaceWith(original);
+                } else {
+                    // Use the cloned element
+                    placeholder.replaceWith(saved);
+                }
+            }
+        });
+
+        this.persistentElements.clear();
+    }
+
+    /**
+     * Check if page has persistent elements
+     */
+    hasPersistentElements(): boolean {
+        return document.querySelectorAll('[data-accelade-persistent]').length > 0;
     }
 
     /**
@@ -204,7 +399,8 @@ export class AcceladeRouter {
      * Handle browser back/forward navigation
      */
     private handlePopState(_event: PopStateEvent): void {
-        void this.navigate(window.location.href, { pushState: false });
+        // Try to restore from cache for back/forward navigation
+        void this.navigate(window.location.href, { pushState: false, useCache: true });
     }
 
     /**
@@ -213,17 +409,72 @@ export class AcceladeRouter {
     private savedStates: Map<string, Record<string, unknown>> = new Map();
 
     /**
+     * Restore a page from cache
+     */
+    private async restoreFromCache(
+        cached: CachedPage,
+        container: HTMLElement,
+        transitionDuration: number
+    ): Promise<boolean> {
+        // Remove leaving class, add entering class
+        container.classList.remove('accelade-leaving');
+        container.classList.add('accelade-entering');
+
+        // Restore the HTML
+        container.innerHTML = cached.html;
+
+        // Restore persistent elements (media players, etc.)
+        this.restorePersistentElements(container);
+
+        // Restore component states
+        const components = container.querySelectorAll<HTMLElement>('[data-accelade]');
+        components.forEach((el, index) => {
+            const id = el.dataset.acceladeId ?? `component-${index}`;
+            const savedState = cached.states.get(id);
+            if (savedState) {
+                el.dataset.acceladeState = JSON.stringify(savedState);
+            }
+        });
+
+        // Update page title
+        document.title = cached.title;
+
+        // Re-initialize Accelade components
+        await this.wait(10);
+        if ((window as any).Accelade?.init) {
+            (window as any).Accelade.init();
+        }
+
+        // Remove entering class
+        await this.wait(20);
+        container.classList.remove('accelade-entering');
+
+        // Re-bind SPA links
+        this.bindLinks(container);
+
+        // Restore scroll position
+        window.scrollTo({
+            top: cached.scrollY,
+            left: cached.scrollX,
+            behavior: 'instant'
+        });
+
+        return true;
+    }
+
+    /**
      * Navigate to a URL
      */
     async navigate(url: string, options: NavigationOptions = {}): Promise<boolean> {
         const {
             pushState = true,
             scrollToTop = true,
-            preserveScroll = false,
+            preserveScroll = this.config.defaultPreserveScroll ?? false,
             preserveState = false,
             headers = {},
             target,
             skipProgress = false,
+            useCache = false,
         } = options;
 
         const showProgress = this.config.showProgress && !skipProgress;
@@ -275,8 +526,16 @@ export class AcceladeRouter {
             return false;
         }
 
-        // Start progress bar
-        if (showProgress) {
+        // Cache current page before navigating (for keep-alive)
+        if (this.maxKeepAlive > 0) {
+            this.cachePage(window.location.href, container);
+        }
+
+        // Check if we can restore from cache
+        const cachedPage = useCache ? this.getCachedPage(url) : undefined;
+
+        // Start progress bar (skip if restoring from cache)
+        if (showProgress && !cachedPage) {
             startProgress();
         }
 
@@ -284,6 +543,9 @@ export class AcceladeRouter {
         if (this.config.onStart) {
             this.config.onStart(url);
         }
+
+        // Save persistent elements before navigation
+        this.savePersistentElements();
 
         // Add leaving class for exit animation
         container.classList.add('accelade-leaving');
@@ -294,6 +556,30 @@ export class AcceladeRouter {
         let success = false;
 
         try {
+            // Try to restore from cache first (for back/forward navigation)
+            if (cachedPage) {
+                success = await this.restoreFromCache(cachedPage, container, transitionDuration);
+
+                // Update browser history
+                if (pushState) {
+                    window.history.pushState({ url }, cachedPage.title, url);
+                }
+
+                // Callback: onAfterNavigate
+                if (this.config.onAfterNavigate) {
+                    this.config.onAfterNavigate(url);
+                }
+
+                // Callback: onFinish
+                if (this.config.onFinish) {
+                    this.config.onFinish(url, true);
+                }
+
+                this.abortController = null;
+                return true;
+            }
+
+            // Fetch the page from server
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -325,6 +611,9 @@ export class AcceladeRouter {
 
             // Update the page content (components will have data-accelade-cloak)
             container.innerHTML = newContent;
+
+            // Restore persistent elements (media players, etc.)
+            this.restorePersistentElements(container);
 
             // Execute inline scripts in the new content
             this.executeScripts(container);

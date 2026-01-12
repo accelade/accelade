@@ -88,6 +88,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Navigation Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure SPA navigation behavior including page state caching.
+    |
+    | Available options:
+    | - max_keep_alive: Maximum number of pages to keep in memory (default: 10)
+    |   Set to 0 to disable page state caching
+    | - transition_duration: Page transition animation duration in ms (default: 150)
+    | - preserve_scroll: Default scroll behavior after navigation (default: false)
+    |
+    */
+    'navigation' => [
+        'max_keep_alive' => env('ACCELADE_MAX_KEEP_ALIVE', 10),
+        'transition_duration' => env('ACCELADE_TRANSITION_DURATION', 150),
+        'preserve_scroll' => env('ACCELADE_PRESERVE_SCROLL', false),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Progress Bar Configuration
     |--------------------------------------------------------------------------
     |

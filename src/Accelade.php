@@ -114,6 +114,10 @@ class Accelade
         $progressConfig = config('accelade.progress', []);
         $progressJson = json_encode($progressConfig);
 
+        // Get navigation config
+        $navigationConfig = config('accelade.navigation', []);
+        $navigationJson = json_encode($navigationConfig);
+
         // Get shared data
         $sharedData = $this->allShared();
         $sharedJson = json_encode($sharedData, JSON_THROW_ON_ERROR);
@@ -127,6 +131,7 @@ class Accelade
         updateUrl: '/accelade/update',
         batchUpdateUrl: '/accelade/batch-update',
         progress: {$progressJson},
+        navigation: {$navigationJson},
         shared: {$sharedJson}
     };
 </script>
