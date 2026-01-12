@@ -99,6 +99,17 @@ export {
     type LazyInstance,
 } from './core/lazy';
 
+// Rehydrate
+export {
+    rehydrateManager,
+    initRehydrate,
+    initRehydrateSystem,
+    emit,
+    type RehydrateConfig,
+    type RehydrateInstance,
+    type RehydrateEventDetail,
+} from './core/rehydrate';
+
 // Framework registry
 export { FrameworkRegistry } from './registry/FrameworkRegistry';
 
@@ -151,6 +162,7 @@ import { NotificationManager } from './core/notification';
 import type { FrameworkType, ComponentInstance } from './adapters/types';
 import type { SharedData } from './core/types';
 import { initLazy, getLazyLoader, registerLazy, loadLazy, configureLazy, type LazyConfig } from './core/lazy';
+import { rehydrateManager, initRehydrate, initRehydrateSystem, emit as rehydrateEmit } from './core/rehydrate';
 
 // Singleton notification manager
 let notificationManager: NotificationManager | null = null;
@@ -417,6 +429,49 @@ const lazy = {
     instance: getLazyLoader,
 };
 
+// Rehydrate API object
+const rehydrate = {
+    /**
+     * Initialize all rehydrate components on the page
+     */
+    init: initRehydrate,
+
+    /**
+     * Emit an event that can trigger rehydration
+     */
+    emit: rehydrateEmit,
+
+    /**
+     * Trigger rehydration by event name
+     */
+    trigger: (eventName: string) => rehydrateManager.triggerByEvent(eventName),
+
+    /**
+     * Get a rehydrate instance by ID
+     */
+    get: (id: string) => rehydrateManager.get(id),
+
+    /**
+     * Get all rehydrate instances
+     */
+    getAll: () => rehydrateManager.getAll(),
+
+    /**
+     * Manually rehydrate a component by ID
+     */
+    reload: (id: string) => rehydrateManager.rehydrate(id),
+
+    /**
+     * Rehydrate all components
+     */
+    reloadAll: () => rehydrateManager.rehydrateAll(),
+
+    /**
+     * Get the RehydrateManager instance
+     */
+    instance: () => rehydrateManager,
+};
+
 /**
  * Main Accelade API
  */
@@ -448,6 +503,12 @@ const Accelade = {
     // Lazy loading
     lazy,
 
+    // Rehydrate
+    rehydrate,
+
+    // Emit (shorthand for rehydrate.emit)
+    emit: rehydrateEmit,
+
     // Debug (set via DebugManager when enabled)
     debug: false as boolean,
     devtools: null as unknown,
@@ -478,15 +539,20 @@ if (typeof window !== 'undefined') {
     // Expose on window
     (window as unknown as Record<string, unknown>).Accelade = Accelade;
 
+    // Initialize rehydrate system
+    initRehydrateSystem();
+
     // Auto-init on DOMContentLoaded
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             init();
             initLazy();
+            initRehydrate();
         });
     } else {
         init();
         initLazy();
+        initRehydrate();
     }
 }
 

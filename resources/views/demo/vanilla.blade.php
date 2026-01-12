@@ -475,6 +475,9 @@ Notify::success('Saved!')->message('Changes saved.');</pre>
     <!-- Defer Component Section -->
     @include('accelade::demo.partials._defer-component', ['prefix' => 'a'])
 
+    <!-- Rehydrate Component Section -->
+    @include('accelade::demo.partials._rehydrate-component', ['prefix' => 'a'])
+
     <!-- Errors Component Section -->
     @include('accelade::demo.partials._errors-component', ['prefix' => 'a'])
 

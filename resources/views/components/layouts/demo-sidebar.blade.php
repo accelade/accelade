@@ -24,6 +24,7 @@
         ['id' => 'content', 'label' => 'Content', 'icon' => '📄'],
         ['id' => 'data', 'label' => 'Data Component', 'icon' => '💾'],
         ['id' => 'defer', 'label' => 'Defer Component', 'icon' => '⏱️'],
+        ['id' => 'rehydrate', 'label' => 'Rehydrate', 'icon' => '🔄'],
         ['id' => 'errors', 'label' => 'Errors Component', 'icon' => '⚠️'],
         ['id' => 'event', 'label' => 'Event (Echo)', 'icon' => '📡'],
         ['id' => 'flash', 'label' => 'Flash Data', 'icon' => '⚡'],

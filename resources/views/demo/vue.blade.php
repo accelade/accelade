@@ -324,6 +324,9 @@ return redirect()->back();</pre>
     <!-- Defer Component Section -->
     @include('accelade::demo.partials._defer-component', ['prefix' => 'v'])
 
+    <!-- Rehydrate Component Section -->
+    @include('accelade::demo.partials._rehydrate-component', ['prefix' => 'v'])
+
     <!-- Errors Component Section -->
     @include('accelade::demo.partials._errors-component', ['prefix' => 'v'])
 

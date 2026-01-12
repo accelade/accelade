@@ -434,6 +434,38 @@ Access Laravel's session flash data in your templates:
 
 The component exposes a `flash` object with `.has()` method and direct property access. See [Flash Component](flash.md) for full documentation.
 
+### Rehydrate Component (Selective Reloading)
+
+Reload specific sections without full page refresh:
+
+```blade
+{{-- Event-triggered reload --}}
+<x-accelade::rehydrate on="item-created">
+    <ul>
+        @foreach($items as $item)
+            <li>{{ $item->name }}</li>
+        @endforeach
+    </ul>
+</x-accelade::rehydrate>
+
+{{-- Emit event to trigger reload --}}
+<script>
+    Accelade.emit('item-created');
+</script>
+
+{{-- Multiple events --}}
+<x-accelade::rehydrate :on="['created', 'updated', 'deleted']">
+    ...
+</x-accelade::rehydrate>
+
+{{-- Auto-polling every 5 seconds --}}
+<x-accelade::rehydrate :poll="5000">
+    Current score: {{ $score }}
+</x-accelade::rehydrate>
+```
+
+The component supports event-triggered reloading, automatic polling, and JavaScript API for manual control. See [Rehydrate Component](rehydrate.md) for full documentation.
+
 ## Nested Components
 
 Components can be nested:
@@ -486,5 +518,6 @@ component.setState('count', 5);
 - [Modal Component](modal.md) - Dialogs and slideovers
 - [Event Component](event.md) - Laravel Echo integration
 - [Flash Component](flash.md) - Session flash data
+- [Rehydrate Component](rehydrate.md) - Selective section reloading
 - [SPA Navigation](spa-navigation.md) - Client-side routing
 - [Notifications](notifications.md) - Toast notifications
