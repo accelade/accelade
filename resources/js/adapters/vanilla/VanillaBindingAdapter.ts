@@ -107,21 +107,27 @@ export class VanillaBindingAdapter implements IBindingAdapter {
     }
 
     /**
-     * Bind visibility
+     * Bind visibility with smooth transitions
      */
     bindShow(element: HTMLElement, expression: string): void {
-        const originalDisplay = element.style.display;
+        // Get computed display style if no inline style is set
+        const originalDisplay = element.style.display || '';
 
         // Store binding for teleport support
         this.showBindings.push({ element, expression, originalDisplay });
 
-        const update = () => {
-            if (!this.stateAdapter) return;
+        // Initial update (no animation on first render)
+        if (this.stateAdapter) {
             const visible = evaluateBooleanExpression(expression, this.stateAdapter.getState());
-            element.style.display = visible ? originalDisplay : 'none';
-        };
+            if (visible) {
+                element.style.display = originalDisplay;
+                element.classList.add('accelade-visible');
+            } else {
+                // Hide immediately on initial render (no animation)
+                element.style.display = 'none';
+            }
+        }
 
-        update();
         this.bindings.push({ element, type: 'show', cleanup: () => {} });
     }
 
@@ -256,8 +262,49 @@ export class VanillaBindingAdapter implements IBindingAdapter {
         actions: AcceladeActions,
         customMethods: CustomMethods
     ): void {
+        // Parse event modifiers (e.g., click.prevent.stop -> click with prevent and stop modifiers)
+        const parts = event.split('.');
+        const eventName = parts[0];
+        const modifiers = new Set(parts.slice(1));
+
         const listener = (e: Event) => {
             if (!this.stateAdapter) return;
+
+            // Apply modifiers
+            if (modifiers.has('prevent')) {
+                e.preventDefault();
+            }
+            if (modifiers.has('stop')) {
+                e.stopPropagation();
+            }
+
+            // Handle keyboard modifiers for keydown/keyup events
+            if (e instanceof KeyboardEvent) {
+                if (modifiers.has('enter') && e.key !== 'Enter') return;
+                if (modifiers.has('escape') && e.key !== 'Escape') return;
+                if (modifiers.has('tab') && e.key !== 'Tab') return;
+                if (modifiers.has('space') && e.key !== ' ') return;
+                if (modifiers.has('up') && e.key !== 'ArrowUp') return;
+                if (modifiers.has('down') && e.key !== 'ArrowDown') return;
+                if (modifiers.has('left') && e.key !== 'ArrowLeft') return;
+                if (modifiers.has('right') && e.key !== 'ArrowRight') return;
+            }
+
+            // Handle mouse button modifiers
+            if (e instanceof MouseEvent) {
+                if (modifiers.has('left') && e.button !== 0) return;
+                if (modifiers.has('middle') && e.button !== 1) return;
+                if (modifiers.has('right') && e.button !== 2) return;
+            }
+
+            // Handle modifier key requirements
+            if (e instanceof KeyboardEvent || e instanceof MouseEvent) {
+                if (modifiers.has('ctrl') && !e.ctrlKey) return;
+                if (modifiers.has('alt') && !e.altKey) return;
+                if (modifiers.has('shift') && !e.shiftKey) return;
+                if (modifiers.has('meta') && !e.metaKey) return;
+            }
+
             ScriptExecutor.executeAction(
                 handler,
                 this.stateAdapter.getState(),
@@ -267,8 +314,20 @@ export class VanillaBindingAdapter implements IBindingAdapter {
             );
         };
 
-        element.addEventListener(event, listener);
-        this.eventListeners.push({ element, event, handler: listener });
+        // Handle 'once' modifier
+        const options: AddEventListenerOptions = {};
+        if (modifiers.has('once')) {
+            options.once = true;
+        }
+        if (modifiers.has('passive')) {
+            options.passive = true;
+        }
+        if (modifiers.has('capture')) {
+            options.capture = true;
+        }
+
+        element.addEventListener(eventName, listener, options);
+        this.eventListeners.push({ element, event: eventName, handler: listener });
     }
 
     /**
@@ -331,10 +390,34 @@ export class VanillaBindingAdapter implements IBindingAdapter {
             element.textContent = evaluateStringExpression(expression, state);
         }
 
-        // Update show bindings using stored references
+        // Update show bindings using stored references with smooth transitions
         for (const { element, expression, originalDisplay } of this.showBindings) {
             const visible = evaluateBooleanExpression(expression, state);
-            element.style.display = visible ? originalDisplay : 'none';
+            const isCurrentlyHidden = element.style.display === 'none';
+
+            if (visible) {
+                // Show: first set display, then animate in
+                if (isCurrentlyHidden) {
+                    element.style.display = originalDisplay;
+                    // Force reflow to ensure transition works
+                    void element.offsetHeight;
+                }
+                element.classList.remove('accelade-hiding');
+                element.classList.add('accelade-visible');
+            } else {
+                // Hide: animate out, then set display:none after transition
+                if (!isCurrentlyHidden) {
+                    element.classList.add('accelade-hiding');
+                    element.classList.remove('accelade-visible');
+                    // Set display:none after transition completes
+                    setTimeout(() => {
+                        // Only hide if still supposed to be hidden
+                        if (element.classList.contains('accelade-hiding')) {
+                            element.style.display = 'none';
+                        }
+                    }, 200); // Match CSS transition duration
+                }
+            }
         }
 
         // Update model bindings using stored references

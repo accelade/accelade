@@ -133,6 +133,17 @@ export {
     type TeleportEventDetail,
 } from './core/teleport';
 
+// Toggle
+export {
+    ToggleFactory,
+    createToggle,
+    createToggleMethods,
+    type ToggleConfig,
+    type ToggleInstance,
+    type ToggleMethods,
+    type ToggleState,
+} from './core/toggle';
+
 // Framework registry
 export { FrameworkRegistry } from './registry/FrameworkRegistry';
 

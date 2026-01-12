@@ -530,6 +530,37 @@ Relocate template sections to different DOM nodes while preserving reactivity:
 
 The component accepts CSS selectors and maintains parent component reactivity. Useful for modals, notifications, and cross-layout content. See [Teleport Component](teleport.md) for full documentation.
 
+### Toggle Component (Boolean State)
+
+Simplified boolean state management for show/hide toggles and flags:
+
+```blade
+{{-- Basic toggle --}}
+<x-accelade::toggle>
+    <button @click.prevent="toggle()">Show Content</button>
+    <div a-show="toggled">
+        <p>Toggled content!</p>
+        <button @click.prevent="setToggle(false)">Hide</button>
+    </div>
+</x-accelade::toggle>
+
+{{-- Start with toggled = true --}}
+<x-accelade::toggle :data="true">
+    <div a-show="toggled">Visible by default</div>
+</x-accelade::toggle>
+
+{{-- Multiple named toggles --}}
+<x-accelade::toggle data="isCompany, hasVatNumber">
+    <button @click.prevent="toggle('isCompany')">Company Mode</button>
+    <div a-show="isCompany">Company fields...</div>
+
+    <button @click.prevent="setToggle('hasVatNumber', true)">Enable VAT</button>
+    <div a-show="hasVatNumber">VAT fields...</div>
+</x-accelade::toggle>
+```
+
+The Toggle component exposes `toggle()`, `setToggle()`, and `toggled` (or named keys). Perfect for accordions, dropdowns, and conditional form fields. See [Toggle Component](toggle.md) for full documentation.
+
 ## Nested Components
 
 Components can be nested:
@@ -585,5 +616,6 @@ component.setState('count', 5);
 - [Rehydrate Component](rehydrate.md) - Selective section reloading
 - [State Component](state.md) - Unified errors, flash & shared data
 - [Teleport Component](teleport.md) - DOM relocation
+- [Toggle Component](toggle.md) - Boolean state management
 - [SPA Navigation](spa-navigation.md) - Client-side routing
 - [Notifications](notifications.md) - Toast notifications

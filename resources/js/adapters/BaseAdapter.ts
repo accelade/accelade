@@ -27,6 +27,8 @@ import { createModal } from '../core/modal/ModalFactory';
 import type { ModalAdapterInstance } from '../core/modal/ModalFactory';
 import { createState } from '../core/state/StateFactory';
 import type { StateInstance } from '../core/state/StateFactory';
+import { createToggle, createToggleMethods } from '../core/toggle/ToggleFactory';
+import type { ToggleInstance } from '../core/toggle/ToggleFactory';
 
 /**
  * Global stores for shared reactive state
@@ -214,6 +216,12 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
             },
             this.type
         );
+
+        // Setup Toggle component BEFORE event bindings (so toggle/setToggle are available)
+        let toggleInstance: ToggleInstance | undefined;
+        if (element.hasAttribute('data-accelade-toggle')) {
+            toggleInstance = this.setupToggle(element, config.id, stateAdapter, customMethods);
+        }
 
         // Setup event bindings
         this.setupEventBindings(element, stateAdapter, actions, customMethods, bindingAdapter);
@@ -583,6 +591,31 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         }
 
         // Add cleanup for State instance
+        this.addCleanups(componentId, [() => instance.dispose()]);
+
+        return instance;
+    }
+
+    /**
+     * Setup Toggle component
+     */
+    protected setupToggle(
+        element: HTMLElement,
+        componentId: string,
+        stateAdapter: IStateAdapter,
+        customMethods: CustomMethods
+    ): ToggleInstance | undefined {
+        const instance = createToggle(componentId, element, stateAdapter);
+        if (!instance) {
+            return undefined;
+        }
+
+        // Add toggle and setToggle methods to customMethods
+        const toggleMethods = createToggleMethods(instance);
+        customMethods.toggle = toggleMethods.toggle;
+        customMethods.setToggle = toggleMethods.setToggle;
+
+        // Add cleanup for Toggle instance
         this.addCleanups(componentId, [() => instance.dispose()]);
 
         return instance;

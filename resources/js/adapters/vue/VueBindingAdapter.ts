@@ -91,14 +91,43 @@ export class VueBindingAdapter implements IBindingAdapter {
     }
 
     /**
-     * Bind visibility with Vue effect
+     * Bind visibility with Vue effect and smooth transitions
      */
     bindShow(element: HTMLElement, expression: string): void {
         const state = this.getReactiveState();
+        const originalDisplay = element.style.display || '';
+        let isFirstRun = true;
 
         const runner = effect(() => {
-            const result = evaluateBooleanExpression(expression, state);
-            element.style.display = result ? '' : 'none';
+            const visible = evaluateBooleanExpression(expression, state);
+            const isCurrentlyHidden = element.style.display === 'none';
+
+            if (visible) {
+                // Show: first set display, then animate in
+                if (isCurrentlyHidden) {
+                    element.style.display = originalDisplay;
+                    // Force reflow to ensure transition works
+                    void element.offsetHeight;
+                }
+                element.classList.remove('accelade-hiding');
+                element.classList.add('accelade-visible');
+            } else {
+                if (isFirstRun) {
+                    // Skip transition on initial hide - just hide immediately
+                    element.style.display = 'none';
+                } else if (!isCurrentlyHidden) {
+                    // Animate out, then set display:none after transition
+                    element.classList.add('accelade-hiding');
+                    element.classList.remove('accelade-visible');
+                    setTimeout(() => {
+                        // Only hide if still supposed to be hidden
+                        if (element.classList.contains('accelade-hiding')) {
+                            element.style.display = 'none';
+                        }
+                    }, 200); // Match CSS transition duration
+                }
+            }
+            isFirstRun = false;
         });
 
         this.effects.push(runner);
@@ -243,12 +272,64 @@ export class VueBindingAdapter implements IBindingAdapter {
     ): void {
         const state = this.getReactiveState();
 
+        // Parse event modifiers (e.g., click.prevent.stop -> click with prevent and stop modifiers)
+        const parts = event.split('.');
+        const eventName = parts[0];
+        const modifiers = new Set(parts.slice(1));
+
         const listener = (e: Event) => {
+            // Apply modifiers
+            if (modifiers.has('prevent')) {
+                e.preventDefault();
+            }
+            if (modifiers.has('stop')) {
+                e.stopPropagation();
+            }
+
+            // Handle keyboard modifiers for keydown/keyup events
+            if (e instanceof KeyboardEvent) {
+                if (modifiers.has('enter') && e.key !== 'Enter') return;
+                if (modifiers.has('escape') && e.key !== 'Escape') return;
+                if (modifiers.has('tab') && e.key !== 'Tab') return;
+                if (modifiers.has('space') && e.key !== ' ') return;
+                if (modifiers.has('up') && e.key !== 'ArrowUp') return;
+                if (modifiers.has('down') && e.key !== 'ArrowDown') return;
+                if (modifiers.has('left') && e.key !== 'ArrowLeft') return;
+                if (modifiers.has('right') && e.key !== 'ArrowRight') return;
+            }
+
+            // Handle mouse button modifiers
+            if (e instanceof MouseEvent) {
+                if (modifiers.has('left') && e.button !== 0) return;
+                if (modifiers.has('middle') && e.button !== 1) return;
+                if (modifiers.has('right') && e.button !== 2) return;
+            }
+
+            // Handle modifier key requirements
+            if (e instanceof KeyboardEvent || e instanceof MouseEvent) {
+                if (modifiers.has('ctrl') && !e.ctrlKey) return;
+                if (modifiers.has('alt') && !e.altKey) return;
+                if (modifiers.has('shift') && !e.shiftKey) return;
+                if (modifiers.has('meta') && !e.metaKey) return;
+            }
+
             ScriptExecutor.executeAction(handler, state, actions, customMethods, e);
         };
 
-        element.addEventListener(event, listener);
-        this.eventListeners.push({ element, event, handler: listener });
+        // Handle 'once' modifier
+        const options: AddEventListenerOptions = {};
+        if (modifiers.has('once')) {
+            options.once = true;
+        }
+        if (modifiers.has('passive')) {
+            options.passive = true;
+        }
+        if (modifiers.has('capture')) {
+            options.capture = true;
+        }
+
+        element.addEventListener(eventName, listener, options);
+        this.eventListeners.push({ element, event: eventName, handler: listener });
     }
 
     /**

@@ -392,6 +392,29 @@ HTML;
     .accelade-notif-close svg { width: 1rem; height: 1rem; }
 
     /* ========================================
+       Accelade Show/Hide Transitions
+       ======================================== */
+    [a-show],
+    [v-show],
+    [s-show],
+    [ng-show],
+    [data-state-show] {
+        transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: top center;
+    }
+
+    .accelade-hiding {
+        opacity: 0 !important;
+        transform: scale(0.98);
+        pointer-events: none;
+    }
+
+    .accelade-visible {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* ========================================
        Accelade Lazy Loading
        ======================================== */
     .accelade-lazy-wrapper {
