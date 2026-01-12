@@ -453,6 +453,68 @@ Creates a reactive component block:
 | `flash.get(key, default)` | Get value with optional default |
 | `flash.all()` | Get all flash data as an object |
 
+### Modal Component (Dialogs & Slideovers)
+
+```blade
+{{-- Pre-loaded modal with hash link --}}
+<x-accelade::link href="#my-modal">Open Modal</x-accelade::link>
+
+<x-accelade::modal name="my-modal">
+    <h2>Modal Title</h2>
+    <p>Modal content...</p>
+    <button data-modal-close>Close</button>
+</x-accelade::modal>
+
+{{-- Async modal (load from URL) --}}
+<x-accelade::link href="/users/create" :modal="true">
+    Create User
+</x-accelade::link>
+
+{{-- Slideover panel --}}
+<x-accelade::modal name="settings" :slideover="true">
+    <nav>Settings content...</nav>
+</x-accelade::modal>
+
+{{-- Custom size and position --}}
+<x-accelade::modal name="large" max-width="4xl" position="top">
+    Large content...
+</x-accelade::modal>
+```
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `name` | string | `null` | Modal name for hash-based opening |
+| `slideover` | bool | `false` | Render as slideover instead of modal |
+| `maxWidth` | string | `2xl` / `md` | Max width (sm, md, lg, xl, 2xl, 3xl, 4xl, 5xl, 6xl, 7xl) |
+| `position` | string | `center` | Vertical position (top, center, bottom) |
+| `slideoverPosition` | string | `right` | Slideover position (left, right) |
+| `closeExplicitly` | bool | `false` | Disable ESC and outside click closing |
+| `closeButton` | bool | `true` | Show the X close button |
+| `opened` | bool | `false` | Open immediately on page load |
+
+**Link Component Modal Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `modal` | bool | `false` | Open link in modal |
+| `slideover` | bool | `false` | Open link in slideover |
+| `modalMaxWidth` | string | `null` | Override modal max-width |
+| `modalPosition` | string | `null` | Override modal position |
+| `slideoverPosition` | string | `null` | Override slideover position |
+
+**JavaScript API:**
+
+```javascript
+// Open named modal
+window.Accelade.modal.openNamed('my-modal');
+
+// Open from URL
+await window.Accelade.modal.openUrl('/form', { maxWidth: '4xl' });
+
+// Close all modals
+window.Accelade.modal.closeAll();
+```
+
 ### Link Component (Enhanced Navigation)
 
 ```blade

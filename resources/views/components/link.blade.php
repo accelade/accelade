@@ -16,6 +16,12 @@
     'confirmButton' => null,
     'cancelButton' => null,
     'confirmDanger' => false,
+    'modal' => false,
+    'slideover' => false,
+    'bottomSheet' => false,
+    'modalMaxWidth' => null,
+    'modalPosition' => null,
+    'slideoverPosition' => null,
 ])
 
 @php
@@ -37,7 +43,18 @@
     $finalConfirmText = $confirmText ?? ($confirm === true ? 'Are you sure you want to continue?' : $confirm);
 @endphp
 
-@if($spa && !$away)
+@if($modal || $slideover || $bottomSheet)
+    <a
+        href="{{ $href }}"
+        {{ $attributes->merge(['class' => trim($classes)]) }}
+        @if($modal) data-modal @endif
+        @if($slideover) data-slideover @endif
+        @if($bottomSheet) data-bottom-sheet @endif
+        @if($modalMaxWidth) data-modal-max-width="{{ $modalMaxWidth }}" @endif
+        @if($modalPosition) data-modal-position="{{ $modalPosition }}" @endif
+        @if($slideoverPosition) data-slideover-position="{{ $slideoverPosition }}" @endif
+    >{{ $slot }}</a>
+@elseif($spa && !$away)
     <a
         href="{{ $href }}"
         @if($framework === 'vanilla') a-link @elseif($framework === 'vue') data-accelade-link @else data-spa-link @endif

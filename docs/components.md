@@ -322,6 +322,55 @@ Enhanced navigation with HTTP methods, confirmation dialogs, and SPA routing:
 
 The Link component supports: GET, POST, PUT, PATCH, DELETE methods, request data and headers, confirmation dialogs, prefetching, scroll/state preservation, and history replacement. See [Link Component](link.md) for full documentation.
 
+### Modal Component
+
+Modal dialogs, slideover panels, and bottom sheets with async content loading:
+
+```blade
+{{-- Pre-loaded modal with hash link --}}
+<x-accelade::link href="#my-modal">Open Modal</x-accelade::link>
+
+<x-accelade::modal name="my-modal">
+    <h2>Welcome!</h2>
+    <p>Modal content here...</p>
+    <button data-modal-close>Close</button>
+</x-accelade::modal>
+
+{{-- Async modal (load from URL) --}}
+<x-accelade::link href="/users/create" :modal="true">
+    Create User
+</x-accelade::link>
+
+{{-- Slideover panel --}}
+<x-accelade::link href="#settings">Settings</x-accelade::link>
+
+<x-accelade::modal name="settings" :slideover="true" slideover-position="right">
+    <nav>Settings navigation...</nav>
+</x-accelade::modal>
+
+{{-- Bottom sheet (mobile-friendly) --}}
+<x-accelade::link href="#actions">Actions</x-accelade::link>
+
+<x-accelade::modal name="actions" :bottom-sheet="true">
+    <button>Option 1</button>
+    <button>Option 2</button>
+    <button data-modal-close>Cancel</button>
+</x-accelade::modal>
+
+{{-- Custom size and position --}}
+<x-accelade::modal
+    name="large-dialog"
+    max-width="4xl"
+    position="top"
+    :close-explicitly="true"
+>
+    <p>Important content...</p>
+    <button data-modal-close>I Understand</button>
+</x-accelade::modal>
+```
+
+The Modal component supports: pre-loaded content, async loading from URLs, slideover panels (left/right), bottom sheets for mobile, customizable sizes (sm to 7xl), vertical positioning (top/center/bottom), explicit close mode, and JavaScript API. See [Modal Component](modal.md) for full documentation.
+
 ### Counter Component
 
 ```blade
@@ -434,6 +483,7 @@ component.setState('count', 5);
 
 - [Frameworks](frameworks.md) - Framework-specific syntax
 - [Link Component](link.md) - Enhanced navigation
+- [Modal Component](modal.md) - Dialogs and slideovers
 - [Event Component](event.md) - Laravel Echo integration
 - [Flash Component](flash.md) - Session flash data
 - [SPA Navigation](spa-navigation.md) - Client-side routing

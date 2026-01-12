@@ -26,6 +26,12 @@ function makeLinkView(array $props = []): string
         'confirmButton' => null,
         'cancelButton' => null,
         'confirmDanger' => false,
+        'modal' => false,
+        'slideover' => false,
+        'bottomSheet' => false,
+        'modalMaxWidth' => null,
+        'modalPosition' => null,
+        'slideoverPosition' => null,
         'slot' => new HtmlString('Test Link'),
         'attributes' => new ComponentAttributeBag([]),
     ];
@@ -232,4 +238,93 @@ it('renders PATCH method link', function () {
     $html = makeLinkView(['method' => 'PATCH']);
 
     expect($html)->toContain('data-method="PATCH"');
+});
+
+it('renders modal link with data-modal attribute', function () {
+    $html = makeLinkView(['modal' => true]);
+
+    expect($html)->toContain('data-modal');
+});
+
+it('renders slideover link with data-slideover attribute', function () {
+    $html = makeLinkView(['slideover' => true]);
+
+    expect($html)->toContain('data-slideover');
+});
+
+it('renders modal link with custom max-width', function () {
+    $html = makeLinkView(['modal' => true, 'modalMaxWidth' => '4xl']);
+
+    expect($html)
+        ->toContain('data-modal')
+        ->toContain('data-modal-max-width="4xl"');
+});
+
+it('renders modal link with custom position', function () {
+    $html = makeLinkView(['modal' => true, 'modalPosition' => 'top']);
+
+    expect($html)
+        ->toContain('data-modal')
+        ->toContain('data-modal-position="top"');
+});
+
+it('renders slideover link with custom position', function () {
+    $html = makeLinkView(['slideover' => true, 'slideoverPosition' => 'left']);
+
+    expect($html)
+        ->toContain('data-slideover')
+        ->toContain('data-slideover-position="left"');
+});
+
+it('modal link does not have SPA attributes', function () {
+    $html = makeLinkView(['modal' => true]);
+
+    expect($html)
+        ->toContain('data-modal')
+        ->not->toContain('a-link')
+        ->not->toContain('data-accelade-link')
+        ->not->toContain('data-spa-link');
+});
+
+it('slideover link does not have SPA attributes', function () {
+    $html = makeLinkView(['slideover' => true]);
+
+    expect($html)
+        ->toContain('data-slideover')
+        ->not->toContain('a-link')
+        ->not->toContain('data-accelade-link')
+        ->not->toContain('data-spa-link');
+});
+
+it('renders bottom sheet link with data-bottom-sheet attribute', function () {
+    $html = makeLinkView(['bottomSheet' => true]);
+
+    expect($html)->toContain('data-bottom-sheet');
+});
+
+it('bottom sheet link does not have SPA attributes', function () {
+    $html = makeLinkView(['bottomSheet' => true]);
+
+    expect($html)
+        ->toContain('data-bottom-sheet')
+        ->not->toContain('a-link')
+        ->not->toContain('data-accelade-link')
+        ->not->toContain('data-spa-link');
+});
+
+it('renders bottom sheet link with custom max-width', function () {
+    $html = makeLinkView(['bottomSheet' => true, 'modalMaxWidth' => 'lg']);
+
+    expect($html)
+        ->toContain('data-bottom-sheet')
+        ->toContain('data-modal-max-width="lg"');
+});
+
+it('bottom sheet link does not have modal or slideover attributes', function () {
+    $html = makeLinkView(['bottomSheet' => true]);
+
+    expect($html)
+        ->toContain('data-bottom-sheet')
+        ->not->toContain('data-modal')
+        ->not->toContain('data-slideover');
 });

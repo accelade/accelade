@@ -28,6 +28,7 @@
         ['id' => 'event', 'label' => 'Event (Echo)', 'icon' => '📡'],
         ['id' => 'flash', 'label' => 'Flash Data', 'icon' => '⚡'],
         ['id' => 'link', 'label' => 'Link Component', 'icon' => '🔗'],
+        ['id' => 'modal', 'label' => 'Modal/Slideover', 'icon' => '🪟'],
     ];
 @endphp
 <!DOCTYPE html>

@@ -5,6 +5,7 @@
 
 import { getProgress, startProgress, doneProgress, type ProgressConfig } from './progress';
 import { handleLinkClick, initLinks, parseLinkConfig } from './link/LinkManager';
+import { modalManager, initModals } from './modal/ModalFactory';
 
 export interface NavigationOptions {
     /** Whether to push to browser history (default: true) */
@@ -56,6 +57,9 @@ const defaultConfig: RouterConfig = {
     transitionDuration: 150,
 };
 
+/** Selector for modal/slideover/bottom-sheet links */
+const modalLinkSelector = 'a[data-modal], a[data-slideover], a[data-bottom-sheet]';
+
 /**
  * Accelade Router class
  */
@@ -85,6 +89,9 @@ export class AcceladeRouter {
         // Handle browser back/forward
         window.addEventListener('popstate', this.handlePopState.bind(this));
 
+        // Initialize modal system
+        initModals();
+
         this.initialized = true;
     }
 
@@ -100,6 +107,18 @@ export class AcceladeRouter {
      */
     private handleClick(event: MouseEvent): void {
         const target = event.target as HTMLElement;
+
+        // Check for modal/slideover links first
+        const modalLink = target.closest<HTMLAnchorElement>(modalLinkSelector);
+        if (modalLink) {
+            // Skip if modifier keys are pressed
+            if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+
+            event.preventDefault();
+            this.handleModalLink(modalLink);
+            return;
+        }
+
         const link = target.closest<HTMLAnchorElement>(this.config.linkSelector);
 
         if (!link) return;
@@ -128,13 +147,57 @@ export class AcceladeRouter {
         const url = new URL(link.href, window.location.origin);
         if (url.origin !== window.location.origin) return;
 
-        // Skip hash-only links
-        if (url.pathname === window.location.pathname && url.hash) return;
+        // Skip hash-only links for named modals
+        if (url.pathname === window.location.pathname && url.hash) {
+            // Check if this is a named modal
+            const modalName = url.hash.slice(1);
+            if (modalManager.getByName(modalName)) {
+                event.preventDefault();
+                modalManager.openNamed(modalName);
+                return;
+            }
+            return;
+        }
 
         event.preventDefault();
 
         // Use LinkManager for enhanced handling (confirmation, methods, etc.)
         void handleLinkClick(link, event);
+    }
+
+    /**
+     * Handle modal/slideover/bottom-sheet link clicks
+     */
+    private async handleModalLink(link: HTMLAnchorElement): Promise<void> {
+        const href = link.getAttribute('href');
+        if (!href) return;
+
+        // Check for hash link (pre-loaded modal)
+        if (href.startsWith('#')) {
+            const name = href.slice(1);
+            modalManager.openNamed(name);
+            return;
+        }
+
+        // Parse options from link
+        const options = modalManager.parseLinkOptions(link);
+        if (!options) return;
+
+        // Determine modal type
+        let type: 'modal' | 'slideover' | 'bottom-sheet' = 'modal';
+        if (options.bottomSheet) {
+            type = 'bottom-sheet';
+        } else if (options.slideover) {
+            type = 'slideover';
+        }
+
+        // Open modal with URL
+        await modalManager.openUrl(href, {
+            type,
+            maxWidth: options.maxWidth,
+            position: options.position,
+            slideoverPosition: options.slideoverPosition,
+        });
     }
 
     /**
@@ -567,9 +630,14 @@ export {
 
 export type { LinkConfig, HttpMethod, ConfirmDialogOptions } from './link/types';
 
+// Re-export modal functions
+export { modalManager, initModals, initModalLinks } from './modal/ModalFactory';
+export type { ModalConfig, ModalInstance, ModalOpenOptions, ModalMaxWidth, ModalPosition, SlideoverPosition } from './modal/types';
+
 export default {
     AcceladeRouter,
     getRouter,
     initRouter,
     navigate,
+    modal: modalManager,
 };
