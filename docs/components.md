@@ -266,18 +266,61 @@ Accelade includes pre-built components:
 
 ### Link Component
 
+Enhanced navigation with HTTP methods, confirmation dialogs, and SPA routing:
+
 ```blade
+{{-- Basic SPA navigation --}}
 <x-accelade::link href="/dashboard">Dashboard</x-accelade::link>
 
+{{-- With navigation options --}}
 <x-accelade::link
     href="/settings"
     class="nav-link"
-    :preserveScroll="true"
-    :preserveState="true"
+    :preserve-scroll="true"
+    :prefetch="true"
 >
     Settings
 </x-accelade::link>
+
+{{-- HTTP methods for form-like submissions --}}
+<x-accelade::link
+    href="/api/items"
+    method="POST"
+    :data="['name' => 'New Item', 'status' => 'active']"
+>
+    Create Item
+</x-accelade::link>
+
+{{-- DELETE with confirmation dialog --}}
+<x-accelade::link
+    href="/api/items/123"
+    method="DELETE"
+    confirm-text="Delete this item permanently?"
+    confirm-button="Delete"
+    :confirm-danger="true"
+>
+    Delete Item
+</x-accelade::link>
+
+{{-- External link --}}
+<x-accelade::link href="https://example.com" :away="true">
+    Visit External Site
+</x-accelade::link>
+
+{{-- Fully customized confirmation --}}
+<x-accelade::link
+    href="/account/delete"
+    confirm-title="Delete Account"
+    confirm-text="This action cannot be undone."
+    confirm-button="Yes, delete"
+    cancel-button="No, keep my account"
+    :confirm-danger="true"
+>
+    Delete Account
+</x-accelade::link>
 ```
+
+The Link component supports: GET, POST, PUT, PATCH, DELETE methods, request data and headers, confirmation dialogs, prefetching, scroll/state preservation, and history replacement. See [Link Component](link.md) for full documentation.
 
 ### Counter Component
 
@@ -390,6 +433,7 @@ component.setState('count', 5);
 ## Next Steps
 
 - [Frameworks](frameworks.md) - Framework-specific syntax
+- [Link Component](link.md) - Enhanced navigation
 - [Event Component](event.md) - Laravel Echo integration
 - [Flash Component](flash.md) - Session flash data
 - [SPA Navigation](spa-navigation.md) - Client-side routing

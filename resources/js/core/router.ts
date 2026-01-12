@@ -4,6 +4,7 @@
  */
 
 import { getProgress, startProgress, doneProgress, type ProgressConfig } from './progress';
+import { handleLinkClick, initLinks, parseLinkConfig } from './link/LinkManager';
 
 export interface NavigationOptions {
     /** Whether to push to browser history (default: true) */
@@ -109,25 +110,31 @@ export class AcceladeRouter {
         // Skip if link has target="_blank"
         if (link.target === '_blank') return;
 
-        // Skip external links
-        const url = new URL(link.href, window.location.origin);
-        if (url.origin !== window.location.origin) return;
-
         // Skip downloads
         if (link.hasAttribute('download')) return;
+
+        // Parse link config to check for special handling
+        const linkConfig = parseLinkConfig(link);
+
+        // Handle external links (away attribute)
+        if (linkConfig.away) {
+            // Let the LinkManager handle it (may show confirmation)
+            event.preventDefault();
+            void handleLinkClick(link, event);
+            return;
+        }
+
+        // Skip external links (different origin)
+        const url = new URL(link.href, window.location.origin);
+        if (url.origin !== window.location.origin) return;
 
         // Skip hash-only links
         if (url.pathname === window.location.pathname && url.hash) return;
 
         event.preventDefault();
 
-        // Parse navigation options from link attributes
-        const options: NavigationOptions = {
-            preserveScroll: link.hasAttribute('data-preserve-scroll') || link.hasAttribute('preserve-scroll'),
-            preserveState: link.hasAttribute('data-preserve-state') || link.hasAttribute('preserve-state'),
-        };
-
-        void this.navigate(link.href, options);
+        // Use LinkManager for enhanced handling (confirmation, methods, etc.)
+        void handleLinkClick(link, event);
     }
 
     /**
@@ -407,8 +414,8 @@ export class AcceladeRouter {
      * Bind SPA behavior to links within a container
      */
     bindLinks(container: HTMLElement): void {
-        // Links are handled via event delegation, so this is mainly for future use
-        // Could be used to add visual indicators or preloading
+        // Initialize link features (prefetching, etc.)
+        initLinks(container);
     }
 
     /**
@@ -544,6 +551,21 @@ export {
     doneProgress,
     type ProgressConfig,
 } from './progress';
+
+// Re-export link functions
+export {
+    showConfirmDialog,
+    confirm,
+    confirmDanger,
+} from './link/ConfirmDialog';
+
+export {
+    parseLinkConfig,
+    handleLinkClick,
+    initLinks,
+} from './link/LinkManager';
+
+export type { LinkConfig, HttpMethod, ConfirmDialogOptions } from './link/types';
 
 export default {
     AcceladeRouter,

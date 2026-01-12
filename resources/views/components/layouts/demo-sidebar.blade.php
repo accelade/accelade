@@ -27,6 +27,7 @@
         ['id' => 'errors', 'label' => 'Errors Component', 'icon' => '⚠️'],
         ['id' => 'event', 'label' => 'Event (Echo)', 'icon' => '📡'],
         ['id' => 'flash', 'label' => 'Flash Data', 'icon' => '⚡'],
+        ['id' => 'link', 'label' => 'Link Component', 'icon' => '🔗'],
     ];
 @endphp
 <!DOCTYPE html>

@@ -453,6 +453,106 @@ Creates a reactive component block:
 | `flash.get(key, default)` | Get value with optional default |
 | `flash.all()` | Get all flash data as an object |
 
+### Link Component (Enhanced Navigation)
+
+```blade
+{{-- Basic SPA navigation --}}
+<x-accelade::link href="/dashboard">Dashboard</x-accelade::link>
+
+{{-- With HTTP methods --}}
+<x-accelade::link
+    href="/api/items"
+    method="POST"
+    :data="['name' => 'New Item']"
+>
+    Create Item
+</x-accelade::link>
+
+{{-- DELETE with confirmation --}}
+<x-accelade::link
+    href="/api/items/123"
+    method="DELETE"
+    confirm-text="Delete this item?"
+    confirm-button="Delete"
+    :confirm-danger="true"
+>
+    Delete
+</x-accelade::link>
+
+{{-- External link --}}
+<x-accelade::link href="https://example.com" :away="true">
+    External Site
+</x-accelade::link>
+
+{{-- With navigation options --}}
+<x-accelade::link
+    href="/page"
+    :preserve-scroll="true"
+    :prefetch="true"
+>
+    Navigate
+</x-accelade::link>
+```
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `href` | string | - | Target URL (required) |
+| `method` | string | `GET` | HTTP method (GET, POST, PUT, PATCH, DELETE) |
+| `data` | array | `null` | Request payload data |
+| `headers` | array | `null` | Custom HTTP headers |
+| `spa` | bool | `true` | Enable SPA navigation |
+| `away` | bool | `false` | Treat as external link (full page navigation) |
+| `activeClass` | string | `active` | CSS class added when on current URL |
+| `prefetch` | bool | `false` | Prefetch page on hover |
+| `preserveScroll` | bool | `false` | Keep scroll position after navigation |
+| `preserveState` | bool | `false` | Preserve component state |
+| `replace` | bool | `false` | Replace history instead of push |
+| `confirm` | bool/string | `null` | Show confirmation dialog |
+| `confirmText` | string | `null` | Custom confirmation message |
+| `confirmTitle` | string | `null` | Confirmation dialog title |
+| `confirmButton` | string | `Confirm` | Confirm button label |
+| `cancelButton` | string | `Cancel` | Cancel button label |
+| `confirmDanger` | bool | `false` | Render confirm button in red (danger) style |
+
+**Framework-Specific Attributes:**
+
+| Framework | Attribute |
+|-----------|-----------|
+| Vanilla | `a-link` |
+| Vue | `data-accelade-link` |
+| React | `data-spa-link` |
+| Svelte | `data-spa-link` |
+| Angular | `data-spa-link` |
+
+**JavaScript Events:**
+
+| Event | Description |
+|-------|-------------|
+| `accelade:link-before` | Fired before link is handled. Set `e.detail.cancelled = true` to prevent navigation |
+| `accelade:link-response` | Fired after response received |
+| `accelade:link-error` | Fired on navigation error |
+
+**Programmatic Confirmation:**
+
+```javascript
+import { confirm, confirmDanger, showConfirmDialog } from 'accelade';
+
+// Simple confirm
+const result = await confirm('Are you sure?');
+
+// Danger confirm
+const deleted = await confirmDanger('Delete this item?', 'Delete');
+
+// Full options
+const result = await showConfirmDialog({
+    title: 'Confirm Action',
+    text: 'This will modify your data.',
+    confirmButton: 'Proceed',
+    cancelButton: 'Cancel',
+    danger: false,
+});
+```
+
 ---
 
 ## JavaScript API
