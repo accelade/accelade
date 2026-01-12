@@ -58,6 +58,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Flash Data Sharing
+    |--------------------------------------------------------------------------
+    |
+    | Automatically share Laravel's session flash data with the frontend.
+    | When enabled, flash data is available via the <x-accelade::flash>
+    | component and Accelade::shared()->get('flash').
+    |
+    | Options:
+    | - enabled: Enable/disable automatic flash data sharing (default: true)
+    | - keys: Array of flash keys to share, or null for all (default: null)
+    |
+    */
+    'flash' => [
+        'enabled' => env('ACCELADE_FLASH_ENABLED', true),
+        'keys' => null, // null = all keys, or ['message', 'success', 'error', etc.]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Sync Debounce
     |--------------------------------------------------------------------------
     |

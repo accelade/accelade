@@ -286,6 +286,62 @@ Accelade includes pre-built components:
 <x-accelade::counter :initial-count="10" sync="count" framework="vue" />
 ```
 
+### Event Component (Laravel Echo)
+
+Listen to Laravel Echo broadcast events in real-time:
+
+```blade
+{{-- Basic event listener --}}
+<x-accelade::event channel="orders" listen="OrderCreated">
+    <p a-if="subscribed">Listening for orders...</p>
+    <p a-if="!subscribed">Connecting...</p>
+</x-accelade::event>
+
+{{-- Private channel --}}
+<x-accelade::event
+    channel="user.{{ auth()->id() }}"
+    :private="true"
+    listen="MessageReceived"
+>
+    <span a-text="events.length"></span> new messages
+</x-accelade::event>
+
+{{-- Auto-refresh on event --}}
+<x-accelade::event
+    channel="dashboard"
+    listen="DataUpdated"
+    :preserve-scroll="true"
+/>
+```
+
+The component exposes `subscribed` (boolean) and `events` (array) state. See [Event Component](event.md) for full documentation.
+
+### Flash Component (Session Flash Data)
+
+Access Laravel's session flash data in your templates:
+
+```blade
+{{-- Basic flash message display --}}
+<x-accelade::flash>
+    <div a-if="flash.has('success')" class="alert alert-success">
+        <span a-text="flash.success"></span>
+    </div>
+
+    <div a-if="flash.has('error')" class="alert alert-danger">
+        <span a-text="flash.error"></span>
+    </div>
+</x-accelade::flash>
+
+{{-- Notification-style positioning --}}
+<x-accelade::flash class="fixed top-4 right-4 z-50">
+    <div a-show="flash.has('message')" class="p-4 bg-white shadow-lg rounded">
+        <p a-text="flash.message"></p>
+    </div>
+</x-accelade::flash>
+```
+
+The component exposes a `flash` object with `.has()` method and direct property access. See [Flash Component](flash.md) for full documentation.
+
 ## Nested Components
 
 Components can be nested:
@@ -334,5 +390,7 @@ component.setState('count', 5);
 ## Next Steps
 
 - [Frameworks](frameworks.md) - Framework-specific syntax
+- [Event Component](event.md) - Laravel Echo integration
+- [Flash Component](flash.md) - Session flash data
 - [SPA Navigation](spa-navigation.md) - Client-side routing
 - [Notifications](notifications.md) - Toast notifications

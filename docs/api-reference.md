@@ -120,6 +120,43 @@ use Accelade\Notification\NotificationManager;
 | `defaultPosition(string)` | self | Default position |
 | `defaultDuration(int)` | self | Default duration |
 
+### Event Response (Broadcasting)
+
+```php
+use Accelade\Broadcasting\EventResponse;
+```
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `redirect(string $url)` | EventResponse | Create redirect action |
+| `redirectToRoute(string $route, array $params)` | EventResponse | Redirect to named route |
+| `refresh()` | EventResponse | Create page refresh action |
+| `toast(string $message, string $type)` | EventResponse | Create toast notification |
+| `success(string $message)` | EventResponse | Success toast shorthand |
+| `info(string $message)` | EventResponse | Info toast shorthand |
+| `warning(string $message)` | EventResponse | Warning toast shorthand |
+| `danger(string $message)` | EventResponse | Danger toast shorthand |
+| `->withTitle(string $title)` | self | Add title to toast |
+| `->with(array $data)` | self | Add custom data |
+| `->toArray()` | array | Convert for broadcasting |
+
+#### Accelade Event Helpers
+
+```php
+use Accelade\Facades\Accelade;
+```
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `redirectOnEvent(string $url)` | EventResponse | Create redirect action |
+| `redirectToRouteOnEvent(string $route, array $params)` | EventResponse | Redirect to named route |
+| `refreshOnEvent()` | EventResponse | Create page refresh action |
+| `toastOnEvent(string $message, string $type)` | EventResponse | Create toast notification |
+| `successOnEvent(string $message)` | EventResponse | Success toast shorthand |
+| `infoOnEvent(string $message)` | EventResponse | Info toast shorthand |
+| `warningOnEvent(string $message)` | EventResponse | Warning toast shorthand |
+| `dangerOnEvent(string $message)` | EventResponse | Danger toast shorthand |
+
 ### SEO Facade
 
 ```php
@@ -323,6 +360,99 @@ Creates a reactive component block:
 | `show` | bool/string | `true` | Condition for loading |
 | `name` | string | null | Component name |
 
+### Event Component (Laravel Echo)
+
+```blade
+{{-- Basic event listener --}}
+<x-accelade::event channel="orders" listen="OrderCreated">
+    <p a-if="subscribed">Listening for orders...</p>
+</x-accelade::event>
+
+{{-- Private channel --}}
+<x-accelade::event
+    channel="user.{{ auth()->id() }}"
+    :private="true"
+    listen="MessageReceived,NotificationReceived"
+>
+    <span a-text="events.length"></span> new events
+</x-accelade::event>
+
+{{-- Presence channel --}}
+<x-accelade::event
+    channel="chat.room.1"
+    :presence="true"
+    listen="UserJoined,UserLeft"
+/>
+
+{{-- With scroll preservation --}}
+<x-accelade::event
+    channel="dashboard"
+    listen="DataUpdated"
+    :preserve-scroll="true"
+/>
+```
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `channel` | string | null | Channel name to subscribe to |
+| `private` | bool | `false` | Use private (authenticated) channel |
+| `presence` | bool | `false` | Use presence channel |
+| `listen` | string | '' | Comma-separated event names |
+| `preserve-scroll` | bool | `false` | Preserve scroll on refresh |
+
+**Exposed State:**
+
+| State | Type | Description |
+|-------|------|-------------|
+| `subscribed` | boolean | Whether connected to channel |
+| `events` | array | Received events with `name`, `data`, `timestamp` |
+
+### Flash Component (Session Flash Data)
+
+```blade
+{{-- Basic flash message display --}}
+<x-accelade::flash>
+    <div a-if="flash.has('success')" class="alert alert-success">
+        <span a-text="flash.success"></span>
+    </div>
+
+    <div a-if="flash.has('error')" class="alert alert-danger">
+        <span a-text="flash.error"></span>
+    </div>
+</x-accelade::flash>
+
+{{-- With custom styling --}}
+<x-accelade::flash class="fixed top-4 right-4 z-50">
+    <div a-show="flash.has('message')" class="p-4 bg-white shadow-lg rounded">
+        <p a-text="flash.message"></p>
+    </div>
+</x-accelade::flash>
+
+{{-- Disable global sharing --}}
+<x-accelade::flash :shared="false">
+    <p a-text="flash.info"></p>
+</x-accelade::flash>
+```
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `shared` | bool | `true` | Share flash data globally via `Accelade::share()` |
+
+**Exposed State:**
+
+| State | Type | Description |
+|-------|------|-------------|
+| `flash` | object | Flash data object with `.has()` method and direct property access |
+
+**Flash Object Methods:**
+
+| Method | Description |
+|--------|-------------|
+| `flash.has(key)` | Check if a flash key exists and has a truthy value |
+| `flash.key` | Access flash value directly by key |
+| `flash.get(key, default)` | Get value with optional default |
+| `flash.all()` | Get all flash data as an object |
+
 ---
 
 ## JavaScript API
@@ -437,6 +567,7 @@ interface Component {
 | `accelade:state-change` | `{ componentId, key, value }` | State changed |
 | `accelade:notification-show` | `{ notification }` | Notification shown |
 | `accelade:notification-close` | `{ id }` | Notification closed |
+| `accelade:echo` | `{ name, data }` | Laravel Echo event received |
 
 ### Listening to Events
 
@@ -552,6 +683,12 @@ return [
 
     // Sync debounce (milliseconds)
     'sync_debounce' => env('ACCELADE_SYNC_DEBOUNCE', 300),
+
+    // Flash data sharing
+    'flash' => [
+        'enabled' => env('ACCELADE_FLASH_ENABLED', true),
+        'keys' => null, // null = common keys, or ['message', 'success', 'error']
+    ],
 
     // Progress bar options
     'progress' => [

@@ -21,6 +21,8 @@ import { DeferFactory } from '../core/factories/DeferFactory';
 import type { DeferInstance } from '../core/factories/DeferFactory';
 import { EchoFactory } from '../core/echo/EchoFactory';
 import type { EchoInstance } from '../core/echo/EchoFactory';
+import { FlashFactory } from '../core/flash/FlashFactory';
+import type { FlashInstance } from '../core/flash/FlashFactory';
 
 /**
  * Global stores for shared reactive state
@@ -225,6 +227,12 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         let echoInstance: EchoInstance | undefined;
         if (element.hasAttribute('data-accelade-echo')) {
             echoInstance = this.setupEcho(element, config.id, stateAdapter);
+        }
+
+        // Setup Flash data if applicable
+        let flashInstance: FlashInstance | undefined;
+        if (element.hasAttribute('data-accelade-flash')) {
+            flashInstance = this.setupFlash(element, config.id, stateAdapter);
         }
 
         // Setup state attribute sync for lazy loading conditional triggers
@@ -503,6 +511,25 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
 
         // Add cleanup for Echo instance
         this.addCleanups(componentId, [() => EchoFactory.dispose(instance)]);
+
+        return instance;
+    }
+
+    /**
+     * Setup Flash data
+     */
+    protected setupFlash(
+        element: HTMLElement,
+        componentId: string,
+        stateAdapter: IStateAdapter
+    ): FlashInstance | undefined {
+        const instance = FlashFactory.create(componentId, element, stateAdapter);
+        if (!instance) {
+            return undefined;
+        }
+
+        // Add cleanup for Flash instance
+        this.addCleanups(componentId, [() => instance.dispose()]);
 
         return instance;
     }

@@ -26,6 +26,7 @@
         ['id' => 'defer', 'label' => 'Defer Component', 'icon' => '⏱️'],
         ['id' => 'errors', 'label' => 'Errors Component', 'icon' => '⚠️'],
         ['id' => 'event', 'label' => 'Event (Echo)', 'icon' => '📡'],
+        ['id' => 'flash', 'label' => 'Flash Data', 'icon' => '⚡'],
     ];
 @endphp
 <!DOCTYPE html>
