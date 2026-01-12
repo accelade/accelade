@@ -105,8 +105,8 @@
         </x-accelade::lazy>
     </div>
 
-    <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-        <pre class="text-sm font-mono text-slate-700 whitespace-pre-wrap">&lt;!-- Basic shimmer --&gt;
+    <x-accelade::code-block language="blade" filename="lazy.blade.php">
+&lt;!-- Basic shimmer --&gt;
 &lt;x-accelade::lazy :shimmer="true"&gt;
     Content here
 &lt;/x-accelade::lazy&gt;
@@ -119,6 +119,6 @@
 &lt;!-- Conditional loading --&gt;
 &lt;x-accelade::lazy show="showContent" :shimmer="true"&gt;
     Content loads when showContent is true
-&lt;/x-accelade::lazy&gt;</pre>
-    </div>
+&lt;/x-accelade::lazy&gt;
+    </x-accelade::code-block>
 </section>

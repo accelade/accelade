@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Accelade;
 
+use Accelade\Broadcasting\EventResponse;
 use Accelade\Support\SharedData;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Str;
@@ -712,5 +713,83 @@ HTML;
     public function framework(): string
     {
         return config('accelade.framework', 'vue');
+    }
+
+    /**
+     * Create a redirect action for broadcast events.
+     *
+     * When this payload is broadcast, the client will redirect to the given URL.
+     *
+     * @param  string  $url  The URL to redirect to
+     */
+    public static function redirectOnEvent(string $url): EventResponse
+    {
+        return EventResponse::redirect($url);
+    }
+
+    /**
+     * Create a redirect to route action for broadcast events.
+     *
+     * @param  string  $route  The route name
+     * @param  array  $parameters  Route parameters
+     */
+    public static function redirectToRouteOnEvent(string $route, array $parameters = []): EventResponse
+    {
+        return EventResponse::redirectToRoute($route, $parameters);
+    }
+
+    /**
+     * Create a refresh action for broadcast events.
+     *
+     * When this payload is broadcast, the client will refresh the page.
+     */
+    public static function refreshOnEvent(): EventResponse
+    {
+        return EventResponse::refresh();
+    }
+
+    /**
+     * Create a toast notification action for broadcast events.
+     *
+     * When this payload is broadcast, the client will show a toast notification.
+     *
+     * @param  string  $message  The toast message
+     * @param  string  $type  The toast type (success, info, warning, danger)
+     */
+    public static function toastOnEvent(string $message, string $type = 'info'): EventResponse
+    {
+        return EventResponse::toast($message, $type);
+    }
+
+    /**
+     * Create a success toast action for broadcast events.
+     */
+    public static function successOnEvent(string $message): EventResponse
+    {
+        return EventResponse::success($message);
+    }
+
+    /**
+     * Create an info toast action for broadcast events.
+     */
+    public static function infoOnEvent(string $message): EventResponse
+    {
+        return EventResponse::info($message);
+    }
+
+    /**
+     * Create a warning toast action for broadcast events.
+     */
+    public static function warningOnEvent(string $message): EventResponse
+    {
+        return EventResponse::warning($message);
+    }
+
+    /**
+     * Create a danger toast action for broadcast events.
+     */
+    public static function dangerOnEvent(string $message): EventResponse
+    {
+        return EventResponse::danger($message);
     }
 }

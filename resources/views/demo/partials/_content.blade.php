@@ -82,8 +82,8 @@ class PostController extends Controller
         />
     </div>
 
-    <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-        <pre class="text-sm font-mono text-slate-700 whitespace-pre-wrap">&lt;!-- Basic usage --&gt;
+    <x-accelade::code-block language="blade" filename="content.blade.php">
+&lt;!-- Basic usage --&gt;
 &lt;x-accelade::content :html="$renderedMarkdown" /&gt;
 
 &lt;!-- With custom wrapper and styling --&gt;
@@ -98,6 +98,6 @@ class PostController extends Controller
     as="blockquote"
     class="border-l-4 pl-4"
     :html="$quote"
-/&gt;</pre>
-    </div>
+/&gt;
+    </x-accelade::code-block>
 </section>

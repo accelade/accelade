@@ -475,6 +475,9 @@ Notify::success('Saved!')->message('Changes saved.');</pre>
     <!-- Defer Component Section -->
     @include('accelade::demo.partials._defer-component', ['prefix' => 'a'])
 
+    <!-- Errors Component Section -->
+    @include('accelade::demo.partials._errors-component', ['prefix' => 'a'])
+
     <!-- Vanilla JS Features -->
     <section class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 text-white">
         <h2 class="text-2xl font-bold mb-8 text-center">Vanilla JS Features</h2>

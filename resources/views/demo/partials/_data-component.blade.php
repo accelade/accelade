@@ -229,8 +229,8 @@
         </x-accelade::data>
     </div>
 
-    <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-        <pre class="text-sm font-mono text-slate-700 whitespace-pre-wrap">&lt;!-- Basic data container --&gt;
+    <x-accelade::code-block language="blade" filename="data.blade.php">
+&lt;!-- Basic data container --&gt;
 &lt;x-accelade::data :default="['count' => 0]"&gt;
     &lt;button @click="$set('count', count + 1)"&gt;
         Count: &lt;span {{ $textAttr }}="count"&gt;0&lt;/span&gt;
@@ -250,6 +250,6 @@
 &lt;!-- With global store (shared state) --&gt;
 &lt;x-accelade::data :default="['count' => 0]" store="cart"&gt;
     &lt;!-- Cart content --&gt;
-&lt;/x-accelade::data&gt;</pre>
-    </div>
+&lt;/x-accelade::data&gt;
+    </x-accelade::code-block>
 </section>

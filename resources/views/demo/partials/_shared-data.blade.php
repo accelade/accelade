@@ -66,8 +66,8 @@
         @endaccelade
     </div>
 
-    <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-        <pre class="text-sm font-mono text-slate-700 whitespace-pre-wrap">// PHP
+    <x-accelade::code-block language="php" filename="shared-data.php">
+// PHP
 Accelade::share('user', ['name' => 'John']);
 Accelade::share('settings', ['theme' => 'dark']);
 
@@ -76,8 +76,8 @@ window.Accelade.shared.get('user.name');
 window.Accelade.shared.set('settings.theme', 'light');
 
 // Blade Template ({{ $prefix }}-* syntax)
-&lt;span {{ $textAttr }}="shared.user.name"&gt;&lt;/span&gt;</pre>
-    </div>
+&lt;span {{ $textAttr }}="shared.user.name"&gt;&lt;/span&gt;
+    </x-accelade::code-block>
 </section>
 
 <script>

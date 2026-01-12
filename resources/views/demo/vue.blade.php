@@ -324,6 +324,9 @@ return redirect()->back();</pre>
     <!-- Defer Component Section -->
     @include('accelade::demo.partials._defer-component', ['prefix' => 'v'])
 
+    <!-- Errors Component Section -->
+    @include('accelade::demo.partials._errors-component', ['prefix' => 'v'])
+
     <!-- Vue.js Features -->
     <section class="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl shadow-xl p-8 text-white">
         <h2 class="text-2xl font-bold mb-8 text-center">Vue.js Features</h2>

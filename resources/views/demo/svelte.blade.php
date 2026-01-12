@@ -316,6 +316,9 @@ return redirect()->back();</pre>
     <!-- Defer Component Section -->
     @include('accelade::demo.partials._defer-component', ['prefix' => 's'])
 
+    <!-- Errors Component Section -->
+    @include('accelade::demo.partials._errors-component', ['prefix' => 's'])
+
     <!-- Svelte Features -->
     <section class="bg-gradient-to-r from-orange-600 to-red-600 rounded-2xl shadow-xl p-8 text-white">
         <h2 class="text-2xl font-bold mb-8 text-center">Svelte Features</h2>

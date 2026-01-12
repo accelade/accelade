@@ -19,6 +19,8 @@ import { ScriptExecutor } from '../core/factories/ScriptExecutor';
 import type { CustomMethods } from '../core/factories/ScriptExecutor';
 import { DeferFactory } from '../core/factories/DeferFactory';
 import type { DeferInstance } from '../core/factories/DeferFactory';
+import { EchoFactory } from '../core/echo/EchoFactory';
+import type { EchoInstance } from '../core/echo/EchoFactory';
 
 /**
  * Global stores for shared reactive state
@@ -217,6 +219,12 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         let deferInstance: DeferInstance | undefined;
         if (element.hasAttribute('data-accelade-defer')) {
             deferInstance = this.setupDefer(element, config.id, stateAdapter, customMethods);
+        }
+
+        // Setup Echo event listener if applicable
+        let echoInstance: EchoInstance | undefined;
+        if (element.hasAttribute('data-accelade-echo')) {
+            echoInstance = this.setupEcho(element, config.id, stateAdapter);
         }
 
         // Setup state attribute sync for lazy loading conditional triggers
@@ -476,6 +484,25 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
 
         // Add cleanup for defer instance
         this.addCleanups(componentId, [() => DeferFactory.dispose(componentId)]);
+
+        return instance;
+    }
+
+    /**
+     * Setup Echo event listener
+     */
+    protected setupEcho(
+        element: HTMLElement,
+        componentId: string,
+        stateAdapter: IStateAdapter
+    ): EchoInstance | undefined {
+        const instance = EchoFactory.create(componentId, element, stateAdapter);
+        if (!instance) {
+            return undefined;
+        }
+
+        // Add cleanup for Echo instance
+        this.addCleanups(componentId, [() => EchoFactory.dispose(instance)]);
 
         return instance;
     }

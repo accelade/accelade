@@ -197,8 +197,8 @@
         </x-accelade::defer>
     </div>
 
-    <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-        <pre class="text-sm font-mono text-slate-700 whitespace-pre-wrap">&lt;!-- Basic defer - auto-fetches on load --&gt;
+    <x-accelade::code-block language="blade" filename="defer.blade.php">
+&lt;!-- Basic defer - auto-fetches on load --&gt;
 &lt;x-accelade::defer url="/api/quote"&gt;
     &lt;p {{ $showAttr }}="processing"&gt;Loading...&lt;/p&gt;
     &lt;p {{ $textAttr }}="response.quote"&gt;&lt;/p&gt;
@@ -218,6 +218,6 @@
 &lt;!-- POST with request data --&gt;
 &lt;x-accelade::defer url="/api/search" method="POST" :request="['q' =&gt; '']"&gt;
     &lt;div {{ $textAttr }}="response.results"&gt;&lt;/div&gt;
-&lt;/x-accelade::defer&gt;</pre>
-    </div>
+&lt;/x-accelade::defer&gt;
+    </x-accelade::code-block>
 </section>

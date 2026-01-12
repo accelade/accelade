@@ -31,41 +31,58 @@ $shareData = function () {
     ]);
 };
 
-// Framework-specific demo pages
-Route::get('/vanilla', function () use ($shareData) {
+// Framework prefix mapping
+$prefixMap = [
+    'vanilla' => 'a',
+    'vue' => 'v',
+    'react' => 'data-state',
+    'svelte' => 's',
+    'angular' => 'ng',
+];
+
+// Valid frameworks and sections
+$validFrameworks = ['vanilla', 'vue', 'react', 'svelte', 'angular'];
+$validSections = ['counter', 'scripts', 'navigation', 'progress', 'notifications', 'shared-data', 'lazy', 'content', 'data', 'defer', 'errors', 'event'];
+
+// Section-based demo routes (new structure)
+Route::get('/{framework}/{section}', function (string $framework, string $section) use ($shareData, $prefixMap, $validFrameworks, $validSections) {
+    if (! in_array($framework, $validFrameworks)) {
+        abort(404);
+    }
+    if (! in_array($section, $validSections)) {
+        abort(404);
+    }
+
     $shareData();
 
-    return view('accelade::demo.vanilla', ['framework' => 'vanilla']);
-})->name('demo.vanilla');
+    $prefix = $prefixMap[$framework] ?? 'a';
 
-Route::get('/vue', function () use ($shareData) {
-    $shareData();
+    return view("accelade::demo.sections.{$section}", [
+        'framework' => $framework,
+        'prefix' => $prefix,
+    ]);
+})->name('demo.section');
 
-    return view('accelade::demo.vue', ['framework' => 'vue']);
-})->name('demo.vue');
+// Legacy framework-specific demo pages (redirect to new structure)
+Route::get('/vanilla', fn () => redirect()->route('demo.section', ['framework' => 'vanilla', 'section' => 'counter']))
+    ->name('demo.vanilla');
 
-Route::get('/react', function () use ($shareData) {
-    $shareData();
+Route::get('/vue', fn () => redirect()->route('demo.section', ['framework' => 'vue', 'section' => 'counter']))
+    ->name('demo.vue');
 
-    return view('accelade::demo.react', ['framework' => 'react']);
-})->name('demo.react');
+Route::get('/react', fn () => redirect()->route('demo.section', ['framework' => 'react', 'section' => 'counter']))
+    ->name('demo.react');
 
-Route::get('/svelte', function () use ($shareData) {
-    $shareData();
+Route::get('/svelte', fn () => redirect()->route('demo.section', ['framework' => 'svelte', 'section' => 'counter']))
+    ->name('demo.svelte');
 
-    return view('accelade::demo.svelte', ['framework' => 'svelte']);
-})->name('demo.svelte');
-
-Route::get('/angular', function () use ($shareData) {
-    $shareData();
-
-    return view('accelade::demo.angular', ['framework' => 'angular']);
-})->name('demo.angular');
+Route::get('/angular', fn () => redirect()->route('demo.section', ['framework' => 'angular', 'section' => 'counter']))
+    ->name('demo.angular');
 
 // Backend notification demo routes
 Route::get('/notify/{type}', [NotifyDemoController::class, 'show'])
     ->name('demo.notify');
 
-// Default demo (redirects to vanilla)
-Route::get('/', fn () => redirect()->route('demo.vanilla'))
+// Default demo (redirects to vanilla counter)
+Route::get('/', fn () => redirect()->route('demo.section', ['framework' => 'vanilla', 'section' => 'counter']))
     ->name('demo.index');
