@@ -123,6 +123,16 @@ export {
     type SharedData as StateSharedData,
 } from './core/state/index';
 
+// Teleport
+export {
+    teleportManager,
+    initTeleport,
+    registerTeleport,
+    type TeleportConfig,
+    type TeleportInstance,
+    type TeleportEventDetail,
+} from './core/teleport';
+
 // Framework registry
 export { FrameworkRegistry } from './registry/FrameworkRegistry';
 
@@ -176,6 +186,7 @@ import type { FrameworkType, ComponentInstance } from './adapters/types';
 import type { SharedData } from './core/types';
 import { initLazy, getLazyLoader, registerLazy, loadLazy, configureLazy, type LazyConfig } from './core/lazy';
 import { rehydrateManager, initRehydrate, initRehydrateSystem, emit as rehydrateEmit } from './core/rehydrate';
+import { teleportManager, initTeleport, registerTeleport } from './core/teleport';
 
 // Singleton notification manager
 let notificationManager: NotificationManager | null = null;
@@ -485,6 +496,49 @@ const rehydrate = {
     instance: () => rehydrateManager,
 };
 
+// Teleport API object
+const teleport = {
+    /**
+     * Initialize all teleport components on the page
+     */
+    init: initTeleport,
+
+    /**
+     * Register a teleport element
+     */
+    register: registerTeleport,
+
+    /**
+     * Get a teleport instance by ID
+     */
+    get: (id: string) => teleportManager.get(id),
+
+    /**
+     * Get all teleport instances
+     */
+    getAll: () => teleportManager.getAll(),
+
+    /**
+     * Teleport content by ID
+     */
+    teleport: (id: string) => teleportManager.teleport(id),
+
+    /**
+     * Return teleported content by ID
+     */
+    return: (id: string) => teleportManager.return(id),
+
+    /**
+     * Update target for a teleport instance
+     */
+    updateTarget: (id: string, selector: string) => teleportManager.updateTarget(id, selector),
+
+    /**
+     * Get the TeleportManager instance
+     */
+    instance: () => teleportManager,
+};
+
 /**
  * Main Accelade API
  */
@@ -518,6 +572,9 @@ const Accelade = {
 
     // Rehydrate
     rehydrate,
+
+    // Teleport
+    teleport,
 
     // Emit (shorthand for rehydrate.emit)
     emit: rehydrateEmit,
@@ -561,11 +618,13 @@ if (typeof window !== 'undefined') {
             init();
             initLazy();
             initRehydrate();
+            initTeleport();
         });
     } else {
         init();
         initLazy();
         initRehydrate();
+        initTeleport();
     }
 }
 

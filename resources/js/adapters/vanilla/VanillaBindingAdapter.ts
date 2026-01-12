@@ -24,6 +24,15 @@ interface BindingRecord {
 }
 
 /**
+ * Element binding with expression for reactive updates
+ * This allows tracking elements regardless of DOM position (for teleport support)
+ */
+interface ElementBinding {
+    element: HTMLElement;
+    expression: string;
+}
+
+/**
  * VanillaBindingAdapter - Handles DOM bindings with manual updates
  */
 export class VanillaBindingAdapter implements IBindingAdapter {
@@ -34,6 +43,14 @@ export class VanillaBindingAdapter implements IBindingAdapter {
     private ifPlaceholders: Map<HTMLElement, Comment> = new Map();
     private modelBound: WeakSet<Element> = new WeakSet();
     private textInterpolator: TextInterpolator | null = null;
+
+    // Element bindings storage for teleport support (elements tracked regardless of DOM position)
+    private textBindings: ElementBinding[] = [];
+    private showBindings: Array<ElementBinding & { originalDisplay: string }> = [];
+    private classBindings: ElementBinding[] = [];
+    private styleBindings: ElementBinding[] = [];
+    private attrBindings: Array<{ element: HTMLElement; attr: string; expression: string }> = [];
+    private modelBindings: Array<{ element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement; property: string }> = [];
 
     /**
      * Initialize the binding adapter
@@ -62,6 +79,9 @@ export class VanillaBindingAdapter implements IBindingAdapter {
      * Bind text content
      */
     bindText(element: HTMLElement, expression: string): void {
+        // Store binding for teleport support
+        this.textBindings.push({ element, expression });
+
         const update = () => {
             if (!this.stateAdapter) return;
             const value = evaluateStringExpression(expression, this.stateAdapter.getState());
@@ -91,6 +111,9 @@ export class VanillaBindingAdapter implements IBindingAdapter {
      */
     bindShow(element: HTMLElement, expression: string): void {
         const originalDisplay = element.style.display;
+
+        // Store binding for teleport support
+        this.showBindings.push({ element, expression, originalDisplay });
 
         const update = () => {
             if (!this.stateAdapter) return;
@@ -143,6 +166,9 @@ export class VanillaBindingAdapter implements IBindingAdapter {
         if (this.modelBound.has(element)) return;
         this.modelBound.add(element);
 
+        // Store binding for teleport support
+        this.modelBindings.push({ element, property });
+
         const inputElement = element as HTMLInputElement;
         const isCheckbox = inputElement.type === 'checkbox';
         const isRadio = inputElement.type === 'radio';
@@ -192,6 +218,9 @@ export class VanillaBindingAdapter implements IBindingAdapter {
      * Bind attribute
      */
     bindAttribute(element: HTMLElement, attr: string, expression: string): void {
+        // Store binding for teleport support
+        this.attrBindings.push({ element, attr, expression });
+
         const update = () => {
             if (!this.stateAdapter) return;
             const value = evaluateExpression(expression, this.stateAdapter.getState());
@@ -246,6 +275,9 @@ export class VanillaBindingAdapter implements IBindingAdapter {
      * Bind class object
      */
     bindClass(element: HTMLElement, expression: string): void {
+        // Store binding for teleport support
+        this.classBindings.push({ element, expression });
+
         const update = () => {
             if (!this.stateAdapter) return;
             const classObj = parseClassObject(expression, this.stateAdapter.getState());
@@ -262,6 +294,9 @@ export class VanillaBindingAdapter implements IBindingAdapter {
      * Bind style object
      */
     bindStyle(element: HTMLElement, expression: string): void {
+        // Store binding for teleport support
+        this.styleBindings.push({ element, expression });
+
         const update = () => {
             if (!this.stateAdapter) return;
             const value = evaluateExpression(expression, this.stateAdapter.getState());
@@ -279,9 +314,10 @@ export class VanillaBindingAdapter implements IBindingAdapter {
 
     /**
      * Update all bindings
+     * Uses stored element references to support teleported content (elements moved outside container)
      */
     update(): void {
-        if (!this.stateAdapter || !this.element) return;
+        if (!this.stateAdapter) return;
 
         const state = this.stateAdapter.getState();
 
@@ -289,81 +325,66 @@ export class VanillaBindingAdapter implements IBindingAdapter {
         if (this.textInterpolator) {
             this.textInterpolator.setState(state);
         }
-        const attrs = {
-            text: 'a-text',
-            html: 'a-html',
-            show: 'a-show',
-            model: 'a-model',
-            class: 'a-class',
-            style: 'a-style',
-        };
 
-        // Update text bindings
-        this.element.querySelectorAll<HTMLElement>(`[${attrs.text}]`).forEach((el) => {
-            const expr = el.getAttribute(attrs.text);
-            if (expr) {
-                el.textContent = evaluateStringExpression(expr, state);
+        // Update text bindings using stored references (supports teleported elements)
+        for (const { element, expression } of this.textBindings) {
+            element.textContent = evaluateStringExpression(expression, state);
+        }
+
+        // Update show bindings using stored references
+        for (const { element, expression, originalDisplay } of this.showBindings) {
+            const visible = evaluateBooleanExpression(expression, state);
+            element.style.display = visible ? originalDisplay : 'none';
+        }
+
+        // Update model bindings using stored references
+        for (const { element, property } of this.modelBindings) {
+            const value = state[property];
+            const inputElement = element as HTMLInputElement;
+
+            if (inputElement.type === 'checkbox') {
+                inputElement.checked = Boolean(value);
+            } else if (inputElement.type === 'radio') {
+                inputElement.checked = inputElement.value === value;
+            } else if (element.value !== String(value ?? '')) {
+                element.value = value !== undefined ? String(value) : '';
             }
-        });
+        }
 
-        // Update show bindings
-        this.element.querySelectorAll<HTMLElement>(`[${attrs.show}]`).forEach((el) => {
-            const expr = el.getAttribute(attrs.show);
-            if (expr) {
-                const visible = evaluateBooleanExpression(expr, state);
-                el.style.display = visible ? '' : 'none';
-            }
-        });
+        // Update class bindings using stored references
+        for (const { element, expression } of this.classBindings) {
+            const classObj = parseClassObject(expression, state);
+            Object.entries(classObj).forEach(([className, condition]) => {
+                element.classList.toggle(className, Boolean(condition));
+            });
+        }
 
-        // Update model bindings
-        this.element.querySelectorAll<HTMLInputElement>(`[${attrs.model}]`).forEach((el) => {
-            const prop = el.getAttribute(attrs.model);
-            if (!prop) return;
-
-            const value = state[prop];
-            if (el.type === 'checkbox') {
-                el.checked = Boolean(value);
-            } else if (el.type === 'radio') {
-                el.checked = el.value === value;
-            } else if (el.value !== String(value ?? '')) {
-                el.value = value !== undefined ? String(value) : '';
-            }
-        });
-
-        // Update class bindings
-        this.element.querySelectorAll<HTMLElement>(`[${attrs.class}]`).forEach((el) => {
-            const expr = el.getAttribute(attrs.class);
-            if (expr) {
-                const classObj = parseClassObject(expr, state);
-                Object.entries(classObj).forEach(([className, condition]) => {
-                    el.classList.toggle(className, Boolean(condition));
+        // Update style bindings using stored references
+        for (const { element, expression } of this.styleBindings) {
+            const value = evaluateExpression(expression, state);
+            if (typeof value === 'object' && value !== null) {
+                Object.entries(value as Record<string, string>).forEach(([prop, val]) => {
+                    element.style.setProperty(prop, val);
                 });
             }
-        });
+        }
 
-        // Update attribute bindings
-        this.element.querySelectorAll<HTMLElement>('*').forEach((el) => {
-            Array.from(el.attributes).forEach((attr) => {
-                if (attr.name.startsWith('a-bind:') || (attr.name.startsWith(':') && !attr.name.startsWith('::'))) {
-                    const attrName = attr.name.startsWith(':')
-                        ? attr.name.slice(1)
-                        : attr.name.slice(7);
-                    const value = evaluateExpression(attr.value, state);
+        // Update attribute bindings using stored references
+        for (const { element, attr, expression } of this.attrBindings) {
+            const value = evaluateExpression(expression, state);
 
-                    if (attrName === 'class' && typeof value === 'object' && value !== null) {
-                        Object.entries(value as Record<string, boolean>).forEach(([className, condition]) => {
-                            el.classList.toggle(className, Boolean(condition));
-                        });
-                    } else if (value === false || value === null || value === undefined) {
-                        el.removeAttribute(attrName);
-                    } else if (value === true) {
-                        el.setAttribute(attrName, '');
-                    } else {
-                        el.setAttribute(attrName, String(value));
-                    }
-                }
-            });
-        });
+            if (attr === 'class' && typeof value === 'object' && value !== null) {
+                Object.entries(value as Record<string, boolean>).forEach(([className, condition]) => {
+                    element.classList.toggle(className, Boolean(condition));
+                });
+            } else if (value === false || value === null || value === undefined) {
+                element.removeAttribute(attr);
+            } else if (value === true) {
+                element.setAttribute(attr, '');
+            } else {
+                element.setAttribute(attr, String(value));
+            }
+        }
     }
 
     /**
@@ -387,6 +408,14 @@ export class VanillaBindingAdapter implements IBindingAdapter {
             binding.cleanup();
         }
         this.bindings = [];
+
+        // Clear element binding arrays (teleport support)
+        this.textBindings = [];
+        this.showBindings = [];
+        this.classBindings = [];
+        this.styleBindings = [];
+        this.attrBindings = [];
+        this.modelBindings = [];
 
         // Clear placeholders
         this.ifPlaceholders.clear();

@@ -31,6 +31,7 @@
         ['id' => 'link', 'label' => 'Link Component', 'icon' => '🔗'],
         ['id' => 'modal', 'label' => 'Modal/Slideover', 'icon' => '🪟'],
         ['id' => 'state', 'label' => 'State Component', 'icon' => '🔀'],
+        ['id' => 'teleport', 'label' => 'Teleport', 'icon' => '🚀'],
     ];
 @endphp
 <!DOCTYPE html>

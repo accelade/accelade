@@ -11,7 +11,6 @@ import {
     evaluateExpression,
     evaluateBooleanExpression,
     evaluateStringExpression,
-    getNestedValue,
     parseClassObject,
 } from '../../core/expressions';
 
@@ -58,8 +57,9 @@ export class VueBindingAdapter implements IBindingAdapter {
         const state = this.getReactiveState();
 
         const runner = effect(() => {
-            const value = getNestedValue(state, expression);
-            element.textContent = value !== undefined ? String(value) : '';
+            // Use evaluateStringExpression to support expressions like "name || 'default'"
+            const value = evaluateStringExpression(expression, state);
+            element.textContent = value;
         });
 
         this.effects.push(runner);
@@ -77,8 +77,9 @@ export class VueBindingAdapter implements IBindingAdapter {
         const state = this.getReactiveState();
 
         const runner = effect(() => {
-            const value = getNestedValue(state, expression);
-            element.innerHTML = value !== undefined ? String(value) : '';
+            // Use evaluateStringExpression to support expressions
+            const value = evaluateStringExpression(expression, state);
+            element.innerHTML = value;
         });
 
         this.effects.push(runner);

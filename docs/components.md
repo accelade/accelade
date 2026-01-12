@@ -499,6 +499,37 @@ Unified access to validation errors, flash messages, and shared data:
 
 The component exposes `state` object with errors/flash/shared, plus helper methods: `hasError()`, `getError()`, `getErrors()`, `hasFlash()`, `getFlash()`, `hasShared()`, `getShared()`. See [State Component](state.md) for full documentation.
 
+### Teleport Component (DOM Relocation)
+
+Relocate template sections to different DOM nodes while preserving reactivity:
+
+```blade
+{{-- Content teleports to footer --}}
+<x-accelade::teleport to="#footer">
+    <p>This content appears in the footer</p>
+</x-accelade::teleport>
+
+<div id="footer"></div>
+
+{{-- Reactive content in teleport --}}
+<div data-accelade data-accelade-state='{"search": ""}'>
+    <input a-model="search" placeholder="Search...">
+
+    <x-accelade::teleport to="#search-preview">
+        <p>Searching for: <span a-text="search"></span></p>
+    </x-accelade::teleport>
+</div>
+
+<div id="search-preview"></div>
+
+{{-- Disabled teleport (stays in place) --}}
+<x-accelade::teleport to="#target" :disabled="true">
+    <p>Content stays here</p>
+</x-accelade::teleport>
+```
+
+The component accepts CSS selectors and maintains parent component reactivity. Useful for modals, notifications, and cross-layout content. See [Teleport Component](teleport.md) for full documentation.
+
 ## Nested Components
 
 Components can be nested:
@@ -553,5 +584,6 @@ component.setState('count', 5);
 - [Flash Component](flash.md) - Session flash data
 - [Rehydrate Component](rehydrate.md) - Selective section reloading
 - [State Component](state.md) - Unified errors, flash & shared data
+- [Teleport Component](teleport.md) - DOM relocation
 - [SPA Navigation](spa-navigation.md) - Client-side routing
 - [Notifications](notifications.md) - Toast notifications
