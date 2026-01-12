@@ -25,6 +25,8 @@ import { FlashFactory } from '../core/flash/FlashFactory';
 import type { FlashInstance } from '../core/flash/FlashFactory';
 import { createModal } from '../core/modal/ModalFactory';
 import type { ModalAdapterInstance } from '../core/modal/ModalFactory';
+import { createState } from '../core/state/StateFactory';
+import type { StateInstance } from '../core/state/StateFactory';
 
 /**
  * Global stores for shared reactive state
@@ -241,6 +243,12 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         let modalInstance: ModalAdapterInstance | undefined;
         if (element.hasAttribute('data-accelade-modal')) {
             modalInstance = this.setupModal(element, config.id, stateAdapter);
+        }
+
+        // Setup State component if applicable
+        let stateInstance: StateInstance | undefined;
+        if (element.hasAttribute('data-accelade-state-component')) {
+            stateInstance = this.setupState(element, config.id, stateAdapter);
         }
 
         // Setup state attribute sync for lazy loading conditional triggers
@@ -556,6 +564,25 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         }
 
         // Add cleanup for Modal instance
+        this.addCleanups(componentId, [() => instance.dispose()]);
+
+        return instance;
+    }
+
+    /**
+     * Setup State component
+     */
+    protected setupState(
+        element: HTMLElement,
+        componentId: string,
+        stateAdapter: IStateAdapter
+    ): StateInstance | undefined {
+        const instance = createState(componentId, element, stateAdapter);
+        if (!instance) {
+            return undefined;
+        }
+
+        // Add cleanup for State instance
         this.addCleanups(componentId, [() => instance.dispose()]);
 
         return instance;

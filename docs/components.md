@@ -466,6 +466,39 @@ Reload specific sections without full page refresh:
 
 The component supports event-triggered reloading, automatic polling, and JavaScript API for manual control. See [Rehydrate Component](rehydrate.md) for full documentation.
 
+### State Component (Unified Errors, Flash & Shared)
+
+Unified access to validation errors, flash messages, and shared data:
+
+```blade
+{{-- Basic validation error display --}}
+<x-accelade::state>
+    <div a-show="state.hasErrors" class="alert alert-danger">
+        Please fix the errors below.
+    </div>
+
+    <div a-show="hasError('email')" class="text-red-500">
+        <span a-text="getError('email')"></span>
+    </div>
+</x-accelade::state>
+
+{{-- Flash message display --}}
+<x-accelade::state>
+    <div a-show="hasFlash('success')" class="alert alert-success">
+        <span a-text="getFlash('success')"></span>
+    </div>
+</x-accelade::state>
+
+{{-- Shared data access --}}
+<x-accelade::state>
+    <div a-show="hasShared('user')">
+        Welcome, <span a-text="getShared('user.name')"></span>!
+    </div>
+</x-accelade::state>
+```
+
+The component exposes `state` object with errors/flash/shared, plus helper methods: `hasError()`, `getError()`, `getErrors()`, `hasFlash()`, `getFlash()`, `hasShared()`, `getShared()`. See [State Component](state.md) for full documentation.
+
 ## Nested Components
 
 Components can be nested:
@@ -519,5 +552,6 @@ component.setState('count', 5);
 - [Event Component](event.md) - Laravel Echo integration
 - [Flash Component](flash.md) - Session flash data
 - [Rehydrate Component](rehydrate.md) - Selective section reloading
+- [State Component](state.md) - Unified errors, flash & shared data
 - [SPA Navigation](spa-navigation.md) - Client-side routing
 - [Notifications](notifications.md) - Toast notifications

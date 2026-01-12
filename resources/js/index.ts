@@ -110,6 +110,19 @@ export {
     type RehydrateEventDetail,
 } from './core/rehydrate';
 
+// State Component (errors, flash, shared)
+export {
+    createState,
+    initState,
+    type StateConfig,
+    type StateInstance,
+    type StateObject,
+    type StateHelpers,
+    type ValidationErrors,
+    type FlashData,
+    type SharedData as StateSharedData,
+} from './core/state/index';
+
 // Framework registry
 export { FrameworkRegistry } from './registry/FrameworkRegistry';
 

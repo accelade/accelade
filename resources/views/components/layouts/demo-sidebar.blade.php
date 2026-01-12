@@ -30,6 +30,7 @@
         ['id' => 'flash', 'label' => 'Flash Data', 'icon' => '⚡'],
         ['id' => 'link', 'label' => 'Link Component', 'icon' => '🔗'],
         ['id' => 'modal', 'label' => 'Modal/Slideover', 'icon' => '🪟'],
+        ['id' => 'state', 'label' => 'State Component', 'icon' => '🔀'],
     ];
 @endphp
 <!DOCTYPE html>
