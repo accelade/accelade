@@ -1,16 +1,120 @@
+<p align="center">
+  <img src="/vendor/accelade/logo-dark.png" alt="Accelade" style="height: 36px; width: auto;" class="dark:hidden">
+  <img src="/vendor/accelade/logo-light.png" alt="Accelade" style="height: 36px; width: auto;" class="hidden dark:block">
+</p>
+
+<p align="center">
+  <strong>Reactive Blade Components for Laravel</strong><br>
+  Build dynamic, interactive UIs without leaving your Blade templates.
+</p>
+
+<p align="center">
+  <a href="https://github.com/accelade/accelade">GitHub</a> &bull;
+  <a href="/docs/installation">Installation</a> &bull;
+  <a href="/docs/api-reference">API Reference</a> &bull;
+  <a href="/docs/sponsor">Sponsor</a>
+</p>
+
+---
+
 # Getting Started
 
-Get up and running with Accelade in minutes.
+Welcome to Accelade — the reactive Blade template library that brings modern frontend interactivity to Laravel without the complexity of JavaScript frameworks.
 
-## Installation
+## What is Accelade?
+
+Accelade is a lightweight, powerful library that transforms your Blade templates into reactive components. It bridges the gap between traditional server-rendered Laravel applications and modern interactive UIs, letting you build dynamic interfaces using familiar Blade syntax.
+
+**Think of it as:** Alpine.js simplicity + Livewire's server integration + Inertia's SPA navigation — all unified in a single, cohesive package.
+
+---
+
+## Key Features
+
+### Reactive Components
+Create interactive UI components directly in Blade without writing JavaScript:
+
+```blade
+@accelade(['count' => 0])
+    <button @click="$set('count', count + 1)">
+        Clicked <span a-text="count">0</span> times
+    </button>
+@endaccelade
+```
+
+### Multi-Framework Support
+Works with your preferred JavaScript framework or standalone:
+
+- **Vanilla JS** — Zero dependencies, works everywhere
+- **Vue.js** — Native Vue reactivity and directives
+- **React** — JSX-compatible state bindings
+- **Svelte** — Svelte-style reactive declarations
+- **Angular** — Angular template syntax support
+
+### SPA Navigation
+Full single-page application navigation with a progress bar, prefetching, and state preservation:
+
+```blade
+<x-accelade::link href="/dashboard" :prefetch="true">
+    Dashboard
+</x-accelade::link>
+```
+
+### Server Integration
+Seamlessly sync state between frontend and backend:
+
+- **Bridge** — Call PHP methods directly from JavaScript
+- **Server Sync** — Persist component state to the server
+- **Flash Messages** — Display session flash data reactively
+- **Real-time Events** — Laravel Echo integration for WebSockets
+
+### Toast Notifications
+Beautiful, customizable notifications from PHP or JavaScript:
+
+```php
+Notify::success('Saved!')->body('Your changes have been saved.')->send();
+```
+
+### Modals & Dialogs
+Pre-built modal and slideover components with async loading:
+
+```blade
+<x-accelade::link href="/users/create" :modal="true">
+    Create User
+</x-accelade::link>
+```
+
+---
+
+## Why Accelade?
+
+| Traditional Approach | With Accelade |
+|---------------------|---------------|
+| Write separate JavaScript files | Keep logic in Blade templates |
+| Manage complex build pipelines | Works with or without build tools |
+| Learn new templating languages | Use familiar Blade syntax |
+| Handle state synchronization manually | Automatic server sync |
+| Build navigation from scratch | Built-in SPA routing |
+
+### Perfect For
+
+- **Laravel developers** who want interactivity without learning React/Vue
+- **Teams** maintaining existing Blade applications
+- **Projects** needing progressive enhancement
+- **Rapid prototyping** with instant reactivity
+- **Full-stack developers** who prefer server-side rendering
+
+---
+
+## Quick Start
+
+### 1. Install via Composer
 
 ```bash
 composer require accelade/accelade
 ```
 
-## Setup
-
-Add the Accelade directives to your layout file:
+### 2. Add Directives to Layout
 
 ```blade
 <!DOCTYPE html>
@@ -31,11 +135,9 @@ Add the Accelade directives to your layout file:
 </html>
 ```
 
-**Important:** The CSRF meta tag is required for server sync functionality.
+> **Important:** The CSRF meta tag is required for server sync functionality.
 
-## Your First Component
-
-Create a reactive counter in any Blade view:
+### 3. Create Your First Component
 
 ```blade
 @accelade(['count' => 0])
@@ -48,13 +150,15 @@ Create a reactive counter in any Blade view:
 @endaccelade
 ```
 
-That's it! The counter is now reactive without writing any JavaScript.
+That's it! The counter is now fully reactive without writing any JavaScript.
 
-## Understanding the Basics
+---
+
+## Core Concepts
 
 ### The @accelade Directive
 
-The `@accelade` directive creates a reactive component. Pass an array of initial state:
+The `@accelade` directive creates a reactive component scope. Pass an array of initial state:
 
 ```blade
 @accelade(['name' => '', 'email' => '', 'agreed' => false])
@@ -71,13 +175,14 @@ The `@accelade` directive creates a reactive component. Pass an array of initial
 | `a-show` | Toggle visibility | `<div a-show="isVisible">...</div>` |
 | `a-if` | Conditional render | `<div a-if="hasItems">...</div>` |
 | `a-model` | Two-way binding | `<input a-model="email">` |
-| `@event` | Event handler | `<button @click="save()">` |
+| `a-for` | Loop rendering | `<template a-for="item in items">` |
 | `a-class` | Dynamic classes | `<div a-class="{ active: isActive }">` |
 | `a-sync` | Server sync | `<div a-sync="preferences">` |
+| `@event` | Event handler | `<button @click="save()">` |
 
 ### State Actions
 
-Inside event handlers, you have access to these functions:
+Built-in functions available in event handlers:
 
 ```blade
 {{-- Set a value --}}
@@ -89,22 +194,23 @@ Inside event handlers, you have access to these functions:
 {{-- Reset to initial state --}}
 <button @click="$reset()">Reset All</button>
 <button @click="$reset('count')">Reset Count</button>
+
+{{-- Navigate programmatically --}}
+<button @click="$navigate('/dashboard')">Go to Dashboard</button>
 ```
+
+---
 
 ## Common Patterns
 
-### Form with Validation Feedback
+### Form with Validation
 
 ```blade
 @accelade(['email' => '', 'submitted' => false])
     <form @submit.prevent="$set('submitted', true)">
-        <input
-            a-model="email"
-            type="email"
-            placeholder="Enter email"
-        >
+        <input a-model="email" type="email" placeholder="Enter email">
 
-        <p a-show="submitted && !email" class="error">
+        <p a-show="submitted && !email" class="text-red-500">
             Email is required
         </p>
 
@@ -133,104 +239,20 @@ Inside event handlers, you have access to these functions:
 ```blade
 @accelade(['activeTab' => 'home'])
     <div class="tabs">
-        <button
-            @click="$set('activeTab', 'home')"
-            a-class="{ active: activeTab === 'home' }"
-        >Home</button>
-        <button
-            @click="$set('activeTab', 'profile')"
-            a-class="{ active: activeTab === 'profile' }"
-        >Profile</button>
-        <button
-            @click="$set('activeTab', 'settings')"
-            a-class="{ active: activeTab === 'settings' }"
-        >Settings</button>
+        <button @click="$set('activeTab', 'home')" a-class="{ active: activeTab === 'home' }">
+            Home
+        </button>
+        <button @click="$set('activeTab', 'profile')" a-class="{ active: activeTab === 'profile' }">
+            Profile
+        </button>
     </div>
 
     <div a-show="activeTab === 'home'">Home content</div>
     <div a-show="activeTab === 'profile'">Profile content</div>
-    <div a-show="activeTab === 'settings'">Settings content</div>
 @endaccelade
 ```
 
-### Search Filter
-
-```blade
-@accelade(['search' => '', 'items' => ['Apple', 'Banana', 'Cherry', 'Date']])
-    <input a-model="search" placeholder="Search...">
-
-    <ul>
-        <template a-for="item in items">
-            <li a-show="item.toLowerCase().includes(search.toLowerCase())" a-text="item"></li>
-        </template>
-    </ul>
-@endaccelade
-```
-
-## Adding Notifications
-
-Send toast notifications from your controllers:
-
-```php
-use Accelade\Facades\Notify;
-
-class UserController extends Controller
-{
-    public function update(Request $request)
-    {
-        // Update user...
-
-        Notify::success('Profile Updated')
-            ->body('Your changes have been saved.')
-            ->send();
-
-        return back();
-    }
-}
-```
-
-Or from JavaScript:
-
-```javascript
-window.Accelade.notify.success('Saved!', 'Your changes have been saved.');
-```
-
-## SPA Navigation
-
-Use the link component for client-side navigation:
-
-```blade
-<nav>
-    <x-accelade::link href="/">Home</x-accelade::link>
-    <x-accelade::link href="/about">About</x-accelade::link>
-    <x-accelade::link href="/contact">Contact</x-accelade::link>
-</nav>
-```
-
-Links automatically:
-- Intercept clicks for SPA navigation
-- Show a progress bar during loading
-- Update the browser URL
-- Preserve component state (optional)
-
-## Server State Sync
-
-Persist component state to the server with `a-sync`:
-
-```blade
-@accelade(['theme' => 'light', 'fontSize' => 16])
-    <div a-sync="theme,fontSize">
-        <select a-model="theme">
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-        </select>
-
-        <input type="range" a-model="fontSize" min="12" max="24">
-    </div>
-@endaccelade
-```
-
-Changes are automatically debounced and synced to the server.
+---
 
 ## Configuration
 
@@ -255,21 +277,27 @@ return [
 ];
 ```
 
-## Demo Pages
+---
 
-Enable the built-in demo to explore all features:
+## Documentation
+
+Enable the built-in documentation to explore all features with interactive demos:
 
 ```env
-ACCELADE_DEMO_ENABLED=true
+ACCELADE_DOCS_ENABLED=true
 ```
 
-Then visit `/demo/vanilla` (or `/demo/vue`, `/demo/react`, etc.).
+Then visit `/docs/getting-started` to browse the documentation.
+
+---
 
 ## Next Steps
 
+- [Installation](installation.md) — Detailed installation guide
 - [Components](components.md) — Advanced component patterns
+- [Custom Scripts](scripts.md) — Add custom JavaScript methods
 - [Notifications](notifications.md) — Full notification API
 - [SPA Navigation](spa-navigation.md) — Router configuration
+- [Bridge](bridge.md) — Call PHP from JavaScript
 - [Frameworks](frameworks.md) — Using with Vue, React, etc.
-- [Configuration](configuration.md) — All config options
 - [API Reference](api-reference.md) — Complete API documentation

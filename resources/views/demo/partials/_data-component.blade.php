@@ -29,22 +29,22 @@
 @endphp
 
 <!-- Demo: Data Component -->
-<section class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 mb-8 border border-slate-100">
+<section class="rounded-xl p-6 mb-6 border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">
     <div class="flex items-center gap-3 mb-2">
-        <span class="w-3 h-3 bg-cyan-500 rounded-full"></span>
-        <h2 class="text-2xl font-semibold text-slate-800">Data Component</h2>
+        <span class="w-2.5 h-2.5 bg-cyan-500 rounded-full"></span>
+        <h3 class="text-lg font-semibold" style="color: var(--docs-text);">Data Component</h3>
     </div>
-    <p class="text-slate-500 mb-6 ml-6">
-        Reactive data containers with storage persistence using <code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">&lt;x-accelade::data&gt;</code>.
+    <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
+        Reactive data containers with storage persistence using <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">&lt;x-accelade::data&gt;</code>.
     </p>
 
-    <div class="grid md:grid-cols-2 gap-6 mb-6">
+    <div class="grid md:grid-cols-2 gap-4 mb-4">
         <!-- Basic Counter -->
-        <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-cyan-100 text-cyan-700 rounded">Basic</span>
+        <div class="rounded-xl p-4 border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-cyan-500/20 text-cyan-500 rounded">Basic</span>
                 Counter with Data
-            </h3>
+            </h4>
             <x-accelade::data :default="['count' => 0]">
                 <div class="flex items-center gap-4">
                     <button
@@ -53,7 +53,7 @@
                     >
                         -
                     </button>
-                    <span class="text-2xl font-bold text-slate-700 min-w-[3rem] text-center" {{ $textAttr }}="count">0</span>
+                    <span class="text-2xl font-bold min-w-[3rem] text-center" style="color: var(--docs-text);" {{ $textAttr }}="count">0</span>
                     <button
                         @click="$set('count', count + 1)"
                         class="w-10 h-10 flex items-center justify-center bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
@@ -65,41 +65,42 @@
         </div>
 
         <!-- Session Storage (Remember) -->
-        <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded">Session</span>
+        <div class="rounded-xl p-4 border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-amber-500/20 text-amber-500 rounded">Session</span>
                 Remember State
-            </h3>
+            </h4>
             <x-accelade::data :default="['visits' => 0]" remember="demo-visits">
                 <div class="text-center">
-                    <p class="text-slate-600 mb-2">Page visits this session:</p>
-                    <span class="text-3xl font-bold text-amber-600" {{ $textAttr }}="visits">0</span>
+                    <p class="mb-2" style="color: var(--docs-text-muted);">Page visits this session:</p>
+                    <span class="text-3xl font-bold text-amber-500" {{ $textAttr }}="visits">0</span>
                     <button
                         @click="$set('visits', visits + 1)"
                         class="block mx-auto mt-4 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
                     >
                         Increment Visit
                     </button>
-                    <p class="text-xs text-slate-400 mt-2">Refresh the page - count persists!</p>
+                    <p class="text-xs mt-2" style="color: var(--docs-text-muted);">Refresh the page - count persists!</p>
                 </div>
             </x-accelade::data>
         </div>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-6 mb-6">
+    <div class="grid md:grid-cols-2 gap-4 mb-4">
         <!-- Local Storage -->
-        <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded">localStorage</span>
+        <div class="rounded-xl p-4 border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-500 rounded">localStorage</span>
                 Persistent Preferences
-            </h3>
+            </h4>
             <x-accelade::data :default="['theme' => 'light', 'fontSize' => 16]" local-storage="demo-preferences">
                 <div class="space-y-4">
                     <div>
-                        <label class="text-sm text-slate-600 block mb-1">Theme</label>
+                        <label class="text-sm block mb-1" style="color: var(--docs-text-muted);">Theme</label>
                         <select
                             {{ $modelAttr }}="theme"
-                            class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            class="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-[var(--docs-border)]"
+                            style="background: var(--docs-bg-alt); color: var(--docs-text);"
                         >
                             <option value="light">Light</option>
                             <option value="dark">Dark</option>
@@ -107,7 +108,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="text-sm text-slate-600 block mb-1">Font Size: <span {{ $textAttr }}="fontSize">16</span>px</label>
+                        <label class="text-sm block mb-1" style="color: var(--docs-text-muted);">Font Size: <span {{ $textAttr }}="fontSize">16</span>px</label>
                         <input
                             type="range"
                             {{ $modelAttr }}="fontSize"
@@ -116,22 +117,22 @@
                             class="w-full"
                         >
                     </div>
-                    <p class="text-xs text-slate-400">Close browser & reopen - settings persist!</p>
+                    <p class="text-xs" style="color: var(--docs-text-muted);">Close browser & reopen - settings persist!</p>
                 </div>
             </x-accelade::data>
         </div>
 
         <!-- Global Store -->
-        <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded">Store</span>
+        <div class="rounded-xl p-4 border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-purple-500/20 text-purple-500 rounded">Store</span>
                 Global Shared State
-            </h3>
-            <div class="space-y-4">
+            </h4>
+            <div class="space-y-3">
                 <!-- First component using the store -->
                 <x-accelade::data :default="['cartCount' => 0]" store="demoCart">
-                    <div class="p-3 bg-purple-50 rounded-lg border border-purple-100">
-                        <p class="text-sm text-purple-700">Component A - Cart: <span class="font-bold" {{ $textAttr }}="cartCount">0</span> items</p>
+                    <div class="p-3 rounded-lg border border-purple-500/30" style="background: rgba(168, 85, 247, 0.1);">
+                        <p class="text-sm text-purple-500">Component A - Cart: <span class="font-bold" {{ $textAttr }}="cartCount">0</span> items</p>
                         <button
                             @click="$set('cartCount', cartCount + 1)"
                             class="mt-2 px-3 py-1 text-sm bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
@@ -143,8 +144,8 @@
 
                 <!-- Second component using the same store -->
                 <x-accelade::data :default="['cartCount' => 0]" store="demoCart">
-                    <div class="p-3 bg-purple-50 rounded-lg border border-purple-100">
-                        <p class="text-sm text-purple-700">Component B - Cart: <span class="font-bold" {{ $textAttr }}="cartCount">0</span> items</p>
+                    <div class="p-3 rounded-lg border border-purple-500/30" style="background: rgba(168, 85, 247, 0.1);">
+                        <p class="text-sm text-purple-500">Component B - Cart: <span class="font-bold" {{ $textAttr }}="cartCount">0</span> items</p>
                         <button
                             @click="$set('cartCount', cartCount + 1)"
                             class="mt-2 px-3 py-1 text-sm bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
@@ -153,23 +154,24 @@
                         </button>
                     </div>
                 </x-accelade::data>
-                <p class="text-xs text-slate-400">Both components share the same state!</p>
+                <p class="text-xs" style="color: var(--docs-text-muted);">Both components share the same state!</p>
             </div>
         </div>
     </div>
 
     <!-- Form with Remember -->
-    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 border border-cyan-100 mb-6">
-        <h3 class="font-medium text-slate-700 mb-4">Multi-Step Form with Session Persistence</h3>
+    <div class="rounded-xl p-4 border border-[var(--docs-border)] mb-4" style="background: var(--docs-bg);">
+        <h4 class="font-medium mb-3" style="color: var(--docs-text);">Multi-Step Form with Session Persistence</h4>
         <x-accelade::data :default="['step' => 1, 'name' => '', 'email' => '']" remember="demo-form">
             <div {{ $showAttr }}="step === 1" class="space-y-4">
                 <div>
-                    <label class="text-sm text-slate-600 block mb-1">Step 1: Your Name</label>
+                    <label class="text-sm block mb-1" style="color: var(--docs-text-muted);">Step 1: Your Name</label>
                     <input
                         type="text"
                         {{ $modelAttr }}="name"
                         placeholder="Enter your name"
-                        class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        class="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-[var(--docs-border)]"
+                        style="background: var(--docs-bg-alt); color: var(--docs-text);"
                     >
                 </div>
                 <button
@@ -181,18 +183,19 @@
             </div>
             <div {{ $showAttr }}="step === 2" class="space-y-4">
                 <div>
-                    <label class="text-sm text-slate-600 block mb-1">Step 2: Your Email</label>
+                    <label class="text-sm block mb-1" style="color: var(--docs-text-muted);">Step 2: Your Email</label>
                     <input
                         type="email"
                         {{ $modelAttr }}="email"
                         placeholder="Enter your email"
-                        class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        class="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-[var(--docs-border)]"
+                        style="background: var(--docs-bg-alt); color: var(--docs-text);"
                     >
                 </div>
                 <div class="flex gap-2">
                     <button
                         @click="$set('step', 1)"
-                        class="px-4 py-2 bg-slate-400 text-white rounded-lg hover:bg-slate-500 transition-colors"
+                        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
                     >
                         Back
                     </button>
@@ -205,15 +208,15 @@
                 </div>
             </div>
             <div {{ $showAttr }}="step === 3" class="space-y-4">
-                <div class="p-4 bg-white rounded-lg border border-cyan-100">
-                    <h4 class="font-medium text-slate-700 mb-2">Review Your Info</h4>
-                    <p class="text-slate-600">Name: <span class="font-medium" {{ $textAttr }}="name"></span></p>
-                    <p class="text-slate-600">Email: <span class="font-medium" {{ $textAttr }}="email"></span></p>
+                <div class="p-4 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">
+                    <h5 class="font-medium mb-2" style="color: var(--docs-text);">Review Your Info</h5>
+                    <p style="color: var(--docs-text-muted);">Name: <span class="font-medium" style="color: var(--docs-text);" {{ $textAttr }}="name"></span></p>
+                    <p style="color: var(--docs-text-muted);">Email: <span class="font-medium" style="color: var(--docs-text);" {{ $textAttr }}="email"></span></p>
                 </div>
                 <div class="flex gap-2">
                     <button
                         @click="$set('step', 2)"
-                        class="px-4 py-2 bg-slate-400 text-white rounded-lg hover:bg-slate-500 transition-colors"
+                        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
                     >
                         Back
                     </button>
@@ -225,7 +228,7 @@
                     </button>
                 </div>
             </div>
-            <p class="text-xs text-slate-400 mt-4">Navigate away and return - your progress is saved!</p>
+            <p class="text-xs mt-4" style="color: var(--docs-text-muted);">Navigate away and return - your progress is saved!</p>
         </x-accelade::data>
     </div>
 

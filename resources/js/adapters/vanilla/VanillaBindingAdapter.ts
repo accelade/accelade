@@ -11,6 +11,7 @@ import {
     evaluateBooleanExpression,
     evaluateStringExpression,
     parseClassObject,
+    getNestedValue,
 } from '../../core/expressions';
 import { TextInterpolator } from '../../core/interpolation';
 
@@ -526,7 +527,8 @@ export class VanillaBindingAdapter implements IBindingAdapter {
 
         // Update model bindings using stored references
         for (const { element, property } of this.modelBindings) {
-            const value = state[property];
+            // Use getNestedValue to support nested paths like "props.count"
+            const value = getNestedValue(state, property);
             const inputElement = element as HTMLInputElement;
 
             if (inputElement.type === 'checkbox') {

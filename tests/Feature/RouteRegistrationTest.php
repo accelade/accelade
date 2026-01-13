@@ -18,44 +18,44 @@ describe('Core Routes', function () {
     });
 });
 
-describe('Demo Routes with Config', function () {
-    it('demo routes registration depends on config', function () {
-        // The demo routes are registered based on config at boot time
-        // By default in TestCase, demo.enabled is not set (false)
-        // This test documents the expected behavior
-        $demoEnabled = config('accelade.demo.enabled', false);
+describe('Docs Routes with Config', function () {
+    it('docs routes registration depends on config', function () {
+        // The docs routes are registered based on config at boot time
+        $docsEnabled = config('accelade.docs.enabled', false);
 
-        if ($demoEnabled) {
-            expect(Route::has('demo.vanilla'))->toBeTrue();
-            expect(Route::has('demo.vue'))->toBeTrue();
-            expect(Route::has('demo.react'))->toBeTrue();
-            expect(Route::has('demo.svelte'))->toBeTrue();
-            expect(Route::has('demo.angular'))->toBeTrue();
-            expect(Route::has('demo.notify'))->toBeTrue();
+        if ($docsEnabled) {
+            expect(Route::has('docs.section'))->toBeTrue();
+            expect(Route::has('docs.index'))->toBeTrue();
+            expect(Route::has('docs.search'))->toBeTrue();
+            expect(Route::has('docs.notify'))->toBeTrue();
         } else {
-            // When demo is disabled, routes should not exist
-            expect(Route::has('demo.vanilla'))->toBeFalse();
+            // When docs is disabled, routes should not exist
+            expect(Route::has('docs.section'))->toBeFalse();
         }
     });
 
-    it('demo is enabled in non-production environments', function () {
-        // Demo is enabled by default in non-production environments
+    it('docs is enabled in non-production environments', function () {
+        // Docs is enabled by default in non-production environments
         // env('APP_ENV') !== 'production' evaluates to true in testing
         $isProduction = app()->environment('production');
-        $demoEnabled = config('accelade.demo.enabled');
+        $docsEnabled = config('accelade.docs.enabled');
 
         if ($isProduction) {
-            expect($demoEnabled)->toBeFalse();
+            expect($docsEnabled)->toBeFalse();
         } else {
-            expect($demoEnabled)->toBeTrue();
+            expect($docsEnabled)->toBeTrue();
         }
     });
 
-    it('demo prefix defaults to demo', function () {
-        expect(config('accelade.demo.prefix', 'demo'))->toBe('demo');
+    it('docs prefix defaults to docs', function () {
+        expect(config('accelade.docs.prefix', 'docs'))->toBe('docs');
     });
 
-    it('demo middleware defaults to web', function () {
-        expect(config('accelade.demo.middleware', ['web']))->toBe(['web']);
+    it('docs middleware defaults to web', function () {
+        expect(config('accelade.docs.middleware', ['web']))->toBe(['web']);
+    });
+
+    it('docs github repo is configured', function () {
+        expect(config('accelade.docs.github_repo'))->toBe('accelade/accelade');
     });
 });

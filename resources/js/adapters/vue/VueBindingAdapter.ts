@@ -12,6 +12,7 @@ import {
     evaluateBooleanExpression,
     evaluateStringExpression,
     parseClassObject,
+    getNestedValue,
 } from '../../core/expressions';
 
 /**
@@ -286,7 +287,8 @@ export class VueBindingAdapter implements IBindingAdapter {
 
         // Update DOM from state using Vue effect
         const runner = effect(() => {
-            const value = state[property];
+            // Use getNestedValue to support nested paths like "props.count"
+            const value = getNestedValue(state as Record<string, unknown>, property);
 
             if (isCheckbox) {
                 inputElement.checked = Boolean(value);

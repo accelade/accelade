@@ -13,7 +13,7 @@
 @accelade(['count' => (int) $initialCount, 'step' => (int) $step], $sync ? $sync : null)
     @if($framework === 'vue')
         {{-- Vue.js: Uses native Vue directives --}}
-        <div class="accelade-counter p-6 bg-white rounded-xl shadow-lg border border-slate-100">
+        <div class="accelade-counter p-6 rounded-xl shadow-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
             <div class="flex items-center justify-center gap-6">
                 <button
                     type="button"
@@ -24,7 +24,8 @@
                 </button>
 
                 <span
-                    class="text-4xl font-bold min-w-[80px] text-center text-slate-800"
+                    class="text-4xl font-bold min-w-[80px] text-center"
+                    style="color: var(--docs-text);"
                     v-text="count"
                 >
                     {{ $initialCount }}
@@ -39,16 +40,16 @@
                 </button>
             </div>
 
-            <div class="mt-4 text-center text-sm text-slate-500">
-                <span v-show="count > 0" class="text-green-600 font-medium">Positive value</span>
-                <span v-show="count < 0" class="text-red-600 font-medium">Negative value</span>
-                <span v-show="count === 0" class="text-slate-400">Zero</span>
+            <div class="mt-4 text-center text-sm" style="color: var(--docs-text-muted);">
+                <span v-show="count > 0" class="text-green-500 font-medium">Positive value</span>
+                <span v-show="count < 0" class="text-red-500 font-medium">Negative value</span>
+                <span v-show="count === 0" style="color: var(--docs-text-muted);">Zero</span>
             </div>
         </div>
 
     @elseif($framework === 'react')
         {{-- React: Uses data-state-* bindings (CSS selector safe) --}}
-        <div class="accelade-counter p-6 bg-white rounded-xl shadow-lg border border-slate-100">
+        <div class="accelade-counter p-6 rounded-xl shadow-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
             <div class="flex items-center justify-center gap-6">
                 <button
                     type="button"
@@ -59,7 +60,8 @@
                 </button>
 
                 <span
-                    class="text-4xl font-bold min-w-[80px] text-center text-slate-800"
+                    class="text-4xl font-bold min-w-[80px] text-center"
+                    style="color: var(--docs-text);"
                     data-state-text="count"
                 >
                     {{ $initialCount }}
@@ -74,14 +76,14 @@
                 </button>
             </div>
 
-            <div class="mt-4 text-center text-sm text-slate-500">
+            <div class="mt-4 text-center text-sm" style="color: var(--docs-text-muted);">
                 Count value: <span data-state-text="count">{{ $initialCount }}</span>
             </div>
         </div>
 
     @elseif($framework === 'svelte')
         {{-- Svelte: Uses s-* bindings --}}
-        <div class="accelade-counter p-6 bg-white rounded-xl shadow-lg border border-slate-100">
+        <div class="accelade-counter p-6 rounded-xl shadow-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
             <div class="flex items-center justify-center gap-6">
                 <button
                     type="button"
@@ -92,7 +94,8 @@
                 </button>
 
                 <span
-                    class="text-4xl font-bold min-w-[80px] text-center text-slate-800"
+                    class="text-4xl font-bold min-w-[80px] text-center"
+                    style="color: var(--docs-text);"
                     s-text="count"
                 >
                     {{ $initialCount }}
@@ -107,16 +110,16 @@
                 </button>
             </div>
 
-            <div class="mt-4 text-center text-sm text-slate-500">
-                <span s-show="count > 0" class="text-green-600 font-medium">Positive value</span>
-                <span s-show="count < 0" class="text-red-600 font-medium">Negative value</span>
-                <span s-show="count === 0" class="text-slate-400">Zero</span>
+            <div class="mt-4 text-center text-sm" style="color: var(--docs-text-muted);">
+                <span s-show="count > 0" class="text-green-500 font-medium">Positive value</span>
+                <span s-show="count < 0" class="text-red-500 font-medium">Negative value</span>
+                <span s-show="count === 0" style="color: var(--docs-text-muted);">Zero</span>
             </div>
         </div>
 
     @elseif($framework === 'angular')
         {{-- Angular: Uses ng-* bindings --}}
-        <div class="accelade-counter p-6 bg-white rounded-xl shadow-lg border border-slate-100">
+        <div class="accelade-counter p-6 rounded-xl shadow-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
             <div class="flex items-center justify-center gap-6">
                 <button
                     type="button"
@@ -127,7 +130,8 @@
                 </button>
 
                 <span
-                    class="text-4xl font-bold min-w-[80px] text-center text-slate-800"
+                    class="text-4xl font-bold min-w-[80px] text-center"
+                    style="color: var(--docs-text);"
                     ng-text="count"
                 >
                     {{ $initialCount }}
@@ -142,16 +146,16 @@
                 </button>
             </div>
 
-            <div class="mt-4 text-center text-sm text-slate-500">
-                <span ng-show="count > 0" class="text-green-600 font-medium">Positive value</span>
-                <span ng-show="count < 0" class="text-red-600 font-medium">Negative value</span>
-                <span ng-show="count === 0" class="text-slate-400">Zero</span>
+            <div class="mt-4 text-center text-sm" style="color: var(--docs-text-muted);">
+                <span ng-show="count > 0" class="text-green-500 font-medium">Positive value</span>
+                <span ng-show="count < 0" class="text-red-500 font-medium">Negative value</span>
+                <span ng-show="count === 0" style="color: var(--docs-text-muted);">Zero</span>
             </div>
         </div>
 
     @else
         {{-- Vanilla JS: Uses a- prefix directives --}}
-        <div class="accelade-counter p-6 bg-white rounded-xl shadow-lg border border-slate-100">
+        <div class="accelade-counter p-6 rounded-xl shadow-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
             <div class="flex items-center justify-center gap-6">
                 <button
                     type="button"
@@ -162,7 +166,8 @@
                 </button>
 
                 <span
-                    class="text-4xl font-bold min-w-[80px] text-center text-slate-800"
+                    class="text-4xl font-bold min-w-[80px] text-center"
+                    style="color: var(--docs-text);"
                     a-text="count"
                 >
                     {{ $initialCount }}
@@ -177,10 +182,10 @@
                 </button>
             </div>
 
-            <div class="mt-4 text-center text-sm text-slate-500">
-                <span a-show="count > 0" class="text-green-600 font-medium">Positive value</span>
-                <span a-show="count < 0" class="text-red-600 font-medium">Negative value</span>
-                <span a-show="count === 0" class="text-slate-400">Zero</span>
+            <div class="mt-4 text-center text-sm" style="color: var(--docs-text-muted);">
+                <span a-show="count > 0" class="font-medium text-green-500">Positive value</span>
+                <span a-show="count < 0" class="font-medium text-red-500">Negative value</span>
+                <span a-show="count === 0" style="color: var(--docs-text-muted);">Zero</span>
             </div>
         </div>
     @endif

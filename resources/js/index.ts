@@ -144,6 +144,20 @@ export {
     type EventCallback,
 } from './core/events';
 
+// Error Handler
+export {
+    default as ErrorHandler,
+    init as initErrorHandler,
+    handleError,
+    handleAjaxError,
+    handleFetchError,
+    handleValidationError,
+    processResponse as processErrorResponse,
+    createErrorHandlingFetch,
+    type ErrorConfig,
+    type AcceladeErrorResponse,
+} from './core/errors/ErrorHandler';
+
 // Toggle
 export {
     ToggleFactory,
@@ -154,6 +168,19 @@ export {
     type ToggleMethods,
     type ToggleState,
 } from './core/toggle';
+
+// Bridge
+export {
+    BridgeFactory,
+    createBridge,
+    getBridge,
+    getAllBridges,
+    createMethodProxies,
+    disposeBridge,
+    type BridgeConfig,
+    type BridgeCallResponse,
+    type BridgeInstance,
+} from './core/bridge';
 
 // Framework registry
 export { FrameworkRegistry } from './registry/FrameworkRegistry';
@@ -211,6 +238,8 @@ import { initLazy, getLazyLoader, registerLazy, loadLazy, configureLazy, type La
 import { rehydrateManager, initRehydrate, initRehydrateSystem, emit as rehydrateEmit } from './core/rehydrate';
 import { teleportManager, initTeleport, registerTeleport } from './core/teleport';
 import { getEventBus, emit as eventBusEmit, on as eventBusOn, once as eventBusOnce, off as eventBusOff, type EventCallback } from './core/events';
+import { getBridge, getAllBridges } from './core/bridge';
+import ErrorHandler, { init as initErrorHandler, handleError, handleAjaxError, type ErrorConfig } from './core/errors/ErrorHandler';
 
 // Singleton notification manager
 let notificationManager: NotificationManager | null = null;
@@ -613,6 +642,42 @@ const events = {
     instance: getEventBus,
 };
 
+// Bridge API object
+const bridge = {
+    /**
+     * Get a bridge instance by ID
+     */
+    get: getBridge,
+
+    /**
+     * Get all bridge instances
+     */
+    getAll: getAllBridges,
+};
+
+// Errors API object
+const errors = {
+    /**
+     * Initialize error handling with config
+     */
+    init: initErrorHandler,
+
+    /**
+     * Handle a generic error
+     */
+    handle: handleError,
+
+    /**
+     * Handle an AJAX error response
+     */
+    handleAjax: handleAjaxError,
+
+    /**
+     * Get the ErrorHandler module
+     */
+    handler: ErrorHandler,
+};
+
 /**
  * Main Accelade API
  */
@@ -653,6 +718,12 @@ const Accelade = {
     // Event Bus
     events,
 
+    // Bridge
+    bridge,
+
+    // Errors
+    errors,
+
     // Convenience event bus methods (Splade-compatible API)
     emit: eventBusEmit,
     on: eventBusOn,
@@ -692,6 +763,25 @@ if (typeof window !== 'undefined') {
     if (globalConfig.debug) {
         const debug = DebugManager.getInstance();
         debug.setEnabled(true);
+    }
+
+    // Initialize error handler from config
+    if (globalConfig.errors) {
+        const errorConfig = globalConfig.errors as {
+            suppressErrors?: boolean;
+            showToasts?: boolean;
+            logErrors?: boolean;
+            debug?: boolean;
+        };
+        initErrorHandler({
+            suppressErrors: errorConfig.suppressErrors ?? true,
+            showToasts: errorConfig.showToasts ?? true,
+            logErrors: errorConfig.logErrors ?? true,
+            debug: errorConfig.debug ?? false,
+        });
+    } else {
+        // Default initialization
+        initErrorHandler();
     }
 
     // Expose on window

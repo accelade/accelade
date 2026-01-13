@@ -249,6 +249,7 @@ ACCELADE_FRAMEWORK=vue
 | [Lazy Loading](docs/lazy-loading.md) | Deferred content with shimmer |
 | [Persistent Layout](docs/persistent-layout.md) | Keep elements active during navigation |
 | [Event Bus](docs/event-bus.md) | Decoupled component communication |
+| [Bridge Components](docs/bridge.md) | Two-way PHP/JavaScript binding (Beta) |
 | [Content](docs/content.md) | Render pre-rendered HTML (Markdown, CMS) |
 | [SEO](docs/seo.md) | Meta tags, OpenGraph, Twitter Cards |
 | [Notifications](docs/notifications.md) | Toast notification system |

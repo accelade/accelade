@@ -29,110 +29,110 @@
 @endphp
 
 <!-- Demo: Event Component -->
-<section class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 mb-8 border border-slate-100">
+<section class="rounded-xl p-6 mb-6 border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">
     <div class="flex items-center gap-3 mb-2">
-        <span class="w-3 h-3 bg-violet-500 rounded-full"></span>
-        <h2 class="text-2xl font-semibold text-slate-800">Event Component</h2>
+        <span class="w-2.5 h-2.5 bg-violet-500 rounded-full"></span>
+        <h3 class="text-lg font-semibold" style="color: var(--docs-text);">Event Component</h3>
     </div>
-    <p class="text-slate-500 mb-6 ml-6">
-        Listen to Laravel Echo broadcast events in real-time using <code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">&lt;x-accelade::event&gt;</code>.
+    <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
+        Listen to Laravel Echo broadcast events in real-time using <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">&lt;x-accelade::event&gt;</code>.
         Supports automatic redirect, page refresh, and toast notifications.
     </p>
 
-    <div class="grid md:grid-cols-2 gap-6 mb-6">
+    <div class="space-y-4 mb-4">
         <!-- Basic Usage -->
-        <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-violet-100 text-violet-700 rounded">Basic</span>
+        <div class="rounded-xl p-4 border border-violet-500/30" style="background: rgba(139, 92, 246, 0.1);">
+            <h4 class="font-medium mb-4 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-violet-500/20 text-violet-500 rounded">Basic</span>
                 Event Listener
-            </h3>
-            <p class="text-sm text-slate-600 mb-4">
-                Subscribe to a channel and listen for events. The component exposes <code class="bg-slate-100 px-1 py-0.5 rounded text-xs">subscribed</code> (boolean) and <code class="bg-slate-100 px-1 py-0.5 rounded text-xs">events</code> (array) state.
+            </h4>
+            <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
+                Subscribe to a channel and listen for events. The component exposes <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">subscribed</code> (boolean) and <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">events</code> (array) state.
             </p>
 
-            <div class="p-4 bg-white rounded-lg border border-slate-200">
+            <div class="p-4 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
                 <div class="flex items-center gap-2 text-sm">
                     <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                    <span class="text-slate-600">Echo not connected (requires Laravel Echo setup)</span>
+                    <span style="color: var(--docs-text-muted);">Echo not connected (requires Laravel Echo setup)</span>
                 </div>
             </div>
         </div>
 
         <!-- Private Channel -->
-        <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded">Private</span>
+        <div class="rounded-xl p-4 border border-amber-500/30" style="background: rgba(245, 158, 11, 0.1);">
+            <h4 class="font-medium mb-4 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-amber-500/20 text-amber-500 rounded">Private</span>
                 Private Channel
-            </h3>
-            <p class="text-sm text-slate-600 mb-4">
-                Use the <code class="bg-slate-100 px-1 py-0.5 rounded text-xs">private</code> attribute for authenticated channels.
+            </h4>
+            <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
+                Use the <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">private</code> attribute for authenticated channels.
             </p>
 
-            <div class="p-4 bg-white rounded-lg border border-slate-200">
-                <pre class="text-xs text-slate-600 overflow-x-auto"><code>&lt;x-accelade::event
+            <div class="p-4 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+                <pre class="text-xs overflow-x-auto" style="color: var(--docs-text-muted);"><code>&lt;x-accelade::event
     channel="user.123"
     :private="true"
     listen="MessageReceived"
 /&gt;</code></pre>
             </div>
         </div>
-    </div>
 
-    <!-- Actions Section -->
-    <div class="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-6 border border-violet-100 mb-6">
-        <h3 class="font-medium text-slate-700 mb-4">Automatic Actions</h3>
-        <p class="text-sm text-slate-600 mb-4">
-            Backend events can trigger client-side actions automatically using <code class="bg-white/50 px-1 py-0.5 rounded text-xs">Accelade::redirectOnEvent()</code>,
-            <code class="bg-white/50 px-1 py-0.5 rounded text-xs">Accelade::refreshOnEvent()</code>, and <code class="bg-white/50 px-1 py-0.5 rounded text-xs">Accelade::toastOnEvent()</code>.
-        </p>
+        <!-- Actions Section -->
+        <div class="rounded-xl p-4 border border-purple-500/30" style="background: rgba(168, 85, 247, 0.1);">
+            <h4 class="font-medium mb-4" style="color: var(--docs-text);">Automatic Actions</h4>
+            <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
+                Backend events can trigger client-side actions automatically using <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">Accelade::redirectOnEvent()</code>,
+                <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">Accelade::refreshOnEvent()</code>, and <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">Accelade::toastOnEvent()</code>.
+            </p>
 
-        <div class="grid md:grid-cols-3 gap-4">
-            <!-- Redirect -->
-            <div class="bg-white rounded-lg p-4 border border-violet-200">
-                <div class="flex items-center gap-2 mb-2">
-                    <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                    </svg>
-                    <span class="font-medium text-sm text-slate-700">Redirect</span>
+            <div class="grid md:grid-cols-3 gap-4">
+                <!-- Redirect -->
+                <div class="rounded-lg p-4 border border-violet-500/50" style="background: var(--docs-bg);">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                        <span class="font-medium text-sm" style="color: var(--docs-text);">Redirect</span>
+                    </div>
+                    <p class="text-xs" style="color: var(--docs-text-muted);">Navigate to a new page when event fires</p>
                 </div>
-                <p class="text-xs text-slate-500">Navigate to a new page when event fires</p>
-            </div>
 
-            <!-- Refresh -->
-            <div class="bg-white rounded-lg p-4 border border-violet-200">
-                <div class="flex items-center gap-2 mb-2">
-                    <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                    <span class="font-medium text-sm text-slate-700">Refresh</span>
+                <!-- Refresh -->
+                <div class="rounded-lg p-4 border border-violet-500/50" style="background: var(--docs-bg);">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        <span class="font-medium text-sm" style="color: var(--docs-text);">Refresh</span>
+                    </div>
+                    <p class="text-xs" style="color: var(--docs-text-muted);">Reload the page with optional scroll preservation</p>
                 </div>
-                <p class="text-xs text-slate-500">Reload the page with optional scroll preservation</p>
-            </div>
 
-            <!-- Toast -->
-            <div class="bg-white rounded-lg p-4 border border-violet-200">
-                <div class="flex items-center gap-2 mb-2">
-                    <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                    </svg>
-                    <span class="font-medium text-sm text-slate-700">Toast</span>
+                <!-- Toast -->
+                <div class="rounded-lg p-4 border border-violet-500/50" style="background: var(--docs-bg);">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span class="font-medium text-sm" style="color: var(--docs-text);">Toast</span>
+                    </div>
+                    <p class="text-xs" style="color: var(--docs-text-muted);">Show notification when event is received</p>
                 </div>
-                <p class="text-xs text-slate-500">Show notification when event is received</p>
             </div>
         </div>
-    </div>
 
-    <!-- Exposed State -->
-    <div class="bg-slate-50 rounded-xl p-6 border border-slate-100 mb-6">
-        <h3 class="font-medium text-slate-700 mb-4">Exposed Reactive State</h3>
-        <div class="grid md:grid-cols-2 gap-4">
-            <div class="p-4 bg-white rounded-lg border border-slate-200">
-                <code class="text-sm font-mono text-violet-600">subscribed</code>
-                <p class="text-xs text-slate-500 mt-1">Boolean indicating if connected to the channel</p>
-            </div>
-            <div class="p-4 bg-white rounded-lg border border-slate-200">
-                <code class="text-sm font-mono text-violet-600">events</code>
-                <p class="text-xs text-slate-500 mt-1">Array of received events with name, data, and timestamp</p>
+        <!-- Exposed State -->
+        <div class="rounded-xl p-4 border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+            <h4 class="font-medium mb-4" style="color: var(--docs-text);">Exposed Reactive State</h4>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">
+                    <code class="text-sm font-mono text-violet-500">subscribed</code>
+                    <p class="text-xs mt-1" style="color: var(--docs-text-muted);">Boolean indicating if connected to the channel</p>
+                </div>
+                <div class="p-4 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">
+                    <code class="text-sm font-mono text-violet-500">events</code>
+                    <p class="text-xs mt-1" style="color: var(--docs-text-muted);">Array of received events with name, data, and timestamp</p>
+                </div>
             </div>
         </div>
     </div>
@@ -163,7 +163,7 @@
 /&gt;
     </x-accelade::code-block>
 
-    <div class="mt-6">
+    <div class="mt-4">
         <x-accelade::code-block language="php" filename="OrderCreated.php">
 &lt;?php
 // Broadcasting event with Accelade action

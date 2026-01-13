@@ -94,23 +94,66 @@ export class VanillaStateAdapter implements IStateAdapter {
     }
 
     /**
-     * Get a specific state value
+     * Get a specific state value (supports nested paths like "props.count")
      */
     get<T = unknown>(key: string): T | undefined {
-        return this.state[key] as T | undefined;
+        if (!key.includes('.')) {
+            return this.state[key] as T | undefined;
+        }
+
+        // Handle nested path
+        const parts = key.split('.');
+        let current: unknown = this.state;
+        for (const part of parts) {
+            if (current === null || current === undefined) {
+                return undefined;
+            }
+            current = (current as Record<string, unknown>)[part];
+        }
+        return current as T | undefined;
     }
 
     /**
-     * Set a state value
+     * Set a state value (supports nested paths like "props.count")
      */
     set(key: string, value: unknown): void {
-        if (this.proxy) {
-            this.proxy[key] = value;
-        } else {
-            const oldValue = this.state[key];
-            this.state[key] = value;
-            if (oldValue !== value) {
-                this.notifyChange(value, oldValue, key);
+        if (!key.includes('.')) {
+            // Simple key
+            if (this.proxy) {
+                this.proxy[key] = value;
+            } else {
+                const oldValue = this.state[key];
+                this.state[key] = value;
+                if (oldValue !== value) {
+                    this.notifyChange(value, oldValue, key);
+                }
+            }
+            return;
+        }
+
+        // Handle nested path
+        const parts = key.split('.');
+        const lastKey = parts.pop()!;
+        let current: Record<string, unknown> = this.state;
+
+        // Navigate to parent object, creating nested objects if needed
+        for (const part of parts) {
+            if (!(part in current) || typeof current[part] !== 'object' || current[part] === null) {
+                current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+        }
+
+        // Set the value
+        const oldValue = current[lastKey];
+        current[lastKey] = value;
+
+        if (oldValue !== value) {
+            this.notifyChange(value, oldValue, key);
+            // Also notify for the root key if it's nested
+            const rootKey = parts[0];
+            if (rootKey) {
+                this.notifyChange(this.state[rootKey], this.state[rootKey], rootKey);
             }
         }
     }

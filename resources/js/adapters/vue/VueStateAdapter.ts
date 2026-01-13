@@ -31,20 +31,53 @@ export class VueStateAdapter implements IStateAdapter {
     }
 
     /**
-     * Get a specific state value
+     * Get a specific state value (supports nested paths like "props.count")
      */
     get<T = unknown>(key: string): T | undefined {
         if (!this.state) return undefined;
-        return this.state[key] as T | undefined;
+
+        if (!key.includes('.')) {
+            return this.state[key] as T | undefined;
+        }
+
+        // Handle nested path
+        const parts = key.split('.');
+        let current: unknown = this.state;
+        for (const part of parts) {
+            if (current === null || current === undefined) {
+                return undefined;
+            }
+            current = (current as Record<string, unknown>)[part];
+        }
+        return current as T | undefined;
     }
 
     /**
-     * Set a state value (triggers Vue reactivity)
+     * Set a state value (supports nested paths like "props.count")
      */
     set(key: string, value: unknown): void {
-        if (this.state) {
+        if (!this.state) return;
+
+        if (!key.includes('.')) {
             this.state[key] = value;
+            return;
         }
+
+        // Handle nested path
+        const parts = key.split('.');
+        const lastKey = parts.pop()!;
+        let current: Record<string, unknown> = this.state;
+
+        // Navigate to parent object, creating nested objects if needed
+        for (const part of parts) {
+            if (!(part in current) || typeof current[part] !== 'object' || current[part] === null) {
+                current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+        }
+
+        // Set the value
+        current[lastKey] = value;
     }
 
     /**

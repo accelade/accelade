@@ -256,6 +256,149 @@ Creates a reactive component block:
 @endaccelade
 ```
 
+### Script Component
+
+The `<x-accelade::script>` component allows you to define custom JavaScript functions that have full access to the component's state and built-in actions.
+
+```blade
+@accelade(['count' => 0, 'items' => []])
+    <button @click="customIncrement()">Add 5</button>
+    <button @click="addItem('New Item')">Add Item</button>
+    <button @click="handleSubmit($event)">Submit</button>
+
+    <x-accelade::script>
+        return {
+            customIncrement() {
+                $set('count', $get('count') + 5);
+            },
+            addItem(name) {
+                const items = $get('items');
+                items.push({ name, id: Date.now() });
+                $set('items', items);
+            },
+            handleSubmit(event) {
+                event.preventDefault();
+                // Do something with state...
+                $navigate('/success');
+            }
+        };
+    </x-accelade::script>
+@endaccelade
+```
+
+**Available Functions Inside Script:**
+
+| Function | Description |
+|----------|-------------|
+| `$set(key, value)` | Set a state value |
+| `$get(key)` | Get a state value |
+| `$toggle(key)` | Toggle a boolean state value |
+| `$reset(key?)` | Reset state to initial (all or specific key) |
+| `$navigate(url, options?)` | Navigate to a URL using SPA |
+| `$watch(key, callback)` | Watch a state property (Vue only) |
+| `increment(key, amount?)` | Increment a numeric state value |
+| `decrement(key, amount?)` | Decrement a numeric state value |
+| `state` | Direct access to the reactive state object |
+| `actions` | Access to built-in action methods |
+
+**Framework-Specific Rendering:**
+
+The component automatically renders the correct script attribute based on your configured framework:
+
+| Framework | Output |
+|-----------|--------|
+| Vanilla | `<script a-script>...</script>` |
+| Vue | `<script v-script>...</script>` |
+| React | `<script state-script>...</script>` |
+| Svelte | `<script state-script>...</script>` |
+| Angular | `<script state-script>...</script>` |
+
+**Example: Form with Custom Validation**
+
+```blade
+@accelade(['email' => '', 'password' => '', 'errors' => []])
+    <form @submit.prevent="validate()">
+        <input a-model="email" type="email" placeholder="Email">
+        <p a-show="errors.email" a-text="errors.email" class="error"></p>
+
+        <input a-model="password" type="password" placeholder="Password">
+        <p a-show="errors.password" a-text="errors.password" class="error"></p>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <x-accelade::script>
+        return {
+            validate() {
+                const errors = {};
+                const email = $get('email');
+                const password = $get('password');
+
+                if (!email) {
+                    errors.email = 'Email is required';
+                } else if (!email.includes('@')) {
+                    errors.email = 'Invalid email format';
+                }
+
+                if (!password) {
+                    errors.password = 'Password is required';
+                } else if (password.length < 8) {
+                    errors.password = 'Password must be at least 8 characters';
+                }
+
+                $set('errors', errors);
+
+                if (Object.keys(errors).length === 0) {
+                    this.submitForm();
+                }
+            },
+            async submitForm() {
+                // Submit to server...
+                $navigate('/dashboard');
+            }
+        };
+    </x-accelade::script>
+@endaccelade
+```
+
+**Example: Async Data Loading**
+
+```blade
+@accelade(['loading' => false, 'users' => [], 'error' => null])
+    <button @click="loadUsers()" a-show="!loading">Load Users</button>
+    <span a-show="loading">Loading...</span>
+
+    <ul a-show="users.length">
+        <template a-for="user in users">
+            <li a-text="user.name"></li>
+        </template>
+    </ul>
+
+    <p a-show="error" a-text="error" class="error"></p>
+
+    <x-accelade::script>
+        return {
+            async loadUsers() {
+                $set('loading', true);
+                $set('error', null);
+
+                try {
+                    const response = await fetch('/api/users');
+                    if (!response.ok) throw new Error('Failed to load users');
+
+                    const data = await response.json();
+                    $set('users', data);
+                } catch (e) {
+                    $set('error', e.message);
+                } finally {
+                    $set('loading', false);
+                }
+            }
+        };
+    </x-accelade::script>
+@endaccelade
+```
+
 ### SEO Directives
 
 ```blade

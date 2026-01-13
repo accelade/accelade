@@ -45,23 +45,23 @@
 @endphp
 
 <!-- Demo: Errors Component -->
-<section class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 mb-8 border border-slate-100">
+<section class="rounded-xl p-6 mb-6 border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">
     <div class="flex items-center gap-3 mb-2">
-        <span class="w-3 h-3 bg-red-500 rounded-full"></span>
-        <h2 class="text-2xl font-semibold text-slate-800">Errors Component</h2>
+        <span class="w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+        <h3 class="text-lg font-semibold" style="color: var(--docs-text);">Errors Component</h3>
     </div>
-    <p class="text-slate-500 mb-6 ml-6">
-        Display Laravel validation errors with <code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">&lt;x-accelade::errors&gt;</code>.
-        Exposes <code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">errors.has()</code>, <code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">errors.first()</code>, and <code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">errors.all</code>.
+    <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
+        Display Laravel validation errors with <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">&lt;x-accelade::errors&gt;</code>.
+        Exposes <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">errors.has()</code>, <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">errors.first()</code>, and <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">errors.all</code>.
     </p>
 
-    <div class="grid md:grid-cols-2 gap-6 mb-6">
+    <div class="space-y-4 mb-4">
         <!-- Simulated Errors Display -->
-        <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-red-100 text-red-700 rounded">Demo</span>
+        <div class="rounded-xl p-4 border border-red-500/30" style="background: rgba(239, 68, 68, 0.1);">
+            <h4 class="font-medium mb-4 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-red-500/20 text-red-500 rounded">Demo</span>
                 Error Display Methods
-            </h3>
+            </h4>
 
             {{-- Simulate errors for demo purposes --}}
             <x-accelade::data :default="[
@@ -73,22 +73,22 @@
             ]">
                 <div class="space-y-4">
                     {{-- Check if field has errors --}}
-                    <div class="p-3 bg-white rounded-lg border border-red-100">
-                        <p class="text-sm font-medium text-slate-700 mb-2">errors.has('name'):</p>
-                        <span {{ $showAttr }}="demoErrors.name && demoErrors.name.length > 0" class="text-red-600 text-sm">true - Field has errors</span>
-                        <span {{ $showAttr }}="!demoErrors.name || demoErrors.name.length === 0" class="text-green-600 text-sm">false - No errors</span>
+                    <div class="p-3 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+                        <p class="text-sm font-medium mb-2" style="color: var(--docs-text);">errors.has('name'):</p>
+                        <span {{ $showAttr }}="demoErrors.name && demoErrors.name.length > 0" class="text-red-500 text-sm">true - Field has errors</span>
+                        <span {{ $showAttr }}="!demoErrors.name || demoErrors.name.length === 0" class="text-green-500 text-sm">false - No errors</span>
                     </div>
 
                     {{-- Get first error --}}
-                    <div class="p-3 bg-white rounded-lg border border-red-100">
-                        <p class="text-sm font-medium text-slate-700 mb-2">errors.first('email'):</p>
-                        <p class="text-red-600 text-sm" {{ $textAttr }}="demoErrors.email[0]"></p>
+                    <div class="p-3 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+                        <p class="text-sm font-medium mb-2" style="color: var(--docs-text);">errors.first('email'):</p>
+                        <p class="text-red-500 text-sm" {{ $textAttr }}="demoErrors.email[0]"></p>
                     </div>
 
                     {{-- Get all errors for a field --}}
-                    <div class="p-3 bg-white rounded-lg border border-red-100">
-                        <p class="text-sm font-medium text-slate-700 mb-2">All password errors:</p>
-                        <ul class="list-disc list-inside text-red-600 text-sm">
+                    <div class="p-3 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+                        <p class="text-sm font-medium mb-2" style="color: var(--docs-text);">All password errors:</p>
+                        <ul class="list-disc list-inside text-red-500 text-sm">
                             <template a-for="error in demoErrors.password">
                                 <li {{ $textAttr }}="error"></li>
                             </template>
@@ -99,11 +99,11 @@
         </div>
 
         <!-- Interactive Form Demo -->
-        <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded">Interactive</span>
+        <div class="rounded-xl p-4 border border-amber-500/30" style="background: rgba(245, 158, 11, 0.1);">
+            <h4 class="font-medium mb-4 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-amber-500/20 text-amber-500 rounded">Interactive</span>
                 Form with Client Validation
-            </h3>
+            </h4>
 
             @accelade([
                 'formData' => ['name' => '', 'email' => ''],
@@ -112,25 +112,27 @@
             ])
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                        <label class="block text-sm font-medium mb-1" style="color: var(--docs-text);">Name</label>
                         <input
                             type="text"
                             {{ $modelAttr }}="formData.name"
-                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                            class="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 border border-[var(--docs-border)]"
+                            style="background: var(--docs-bg); color: var(--docs-text);"
                             placeholder="Enter your name"
                         >
-                        <p {{ $showAttr }}="formErrors.name" class="text-red-600 text-sm mt-1" {{ $textAttr }}="formErrors.name"></p>
+                        <p {{ $showAttr }}="formErrors.name" class="text-red-500 text-sm mt-1" {{ $textAttr }}="formErrors.name"></p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <label class="block text-sm font-medium mb-1" style="color: var(--docs-text);">Email</label>
                         <input
                             type="text"
                             {{ $modelAttr }}="formData.email"
-                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                            class="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 border border-[var(--docs-border)]"
+                            style="background: var(--docs-bg); color: var(--docs-text);"
                             placeholder="Enter your email"
                         >
-                        <p {{ $showAttr }}="formErrors.email" class="text-red-600 text-sm mt-1" {{ $textAttr }}="formErrors.email"></p>
+                        <p {{ $showAttr }}="formErrors.email" class="text-red-500 text-sm mt-1" {{ $textAttr }}="formErrors.email"></p>
                     </div>
 
                     <div class="flex gap-2">
@@ -144,13 +146,14 @@
                         <button
                             type="button"
                             @click="clearErrors()"
-                            class="px-4 py-2 bg-slate-400 text-white rounded-lg hover:bg-slate-500 transition-colors text-sm"
+                            class="px-4 py-2 rounded-lg transition-colors text-sm border border-[var(--docs-border)]"
+                            style="background: var(--docs-bg); color: var(--docs-text);"
                         >
                             Clear Errors
                         </button>
                     </div>
 
-                    <p {{ $showAttr }}="submitted && !formErrors.name && !formErrors.email" class="text-green-600 text-sm">
+                    <p {{ $showAttr }}="submitted && !formErrors.name && !formErrors.email" class="text-green-500 text-sm">
                         Form submitted successfully!
                     </p>
                 </div>
@@ -185,52 +188,52 @@
                 </accelade:script>
             @endaccelade
         </div>
-    </div>
 
-    <!-- Error Summary Box -->
-    <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-6 border border-red-100 mb-6">
-        <h3 class="font-medium text-slate-700 mb-4">Error Summary Box Pattern</h3>
+        <!-- Error Summary Box -->
+        <div class="rounded-xl p-4 border border-orange-500/30" style="background: rgba(249, 115, 22, 0.1);">
+            <h4 class="font-medium mb-4" style="color: var(--docs-text);">Error Summary Box Pattern</h4>
 
-        <x-accelade::data :default="[
-            'summaryErrors' => [
-                'username' => ['The username has already been taken.'],
-                'terms' => ['You must accept the terms and conditions.'],
-                'age' => ['You must be at least 18 years old.'],
-            ]
-        ]">
-            <div {{ $showAttr }}="Object.keys(summaryErrors).length > 0" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                <div class="flex items-start gap-3">
-                    <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    <div>
-                        <h4 class="font-medium text-red-800">There were errors with your submission</h4>
-                        <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
-                            <template a-for="(errors, field) in summaryErrors">
-                                <template a-for="error in errors">
-                                    <li {{ $textAttr }}="error"></li>
+            <x-accelade::data :default="[
+                'summaryErrors' => [
+                    'username' => ['The username has already been taken.'],
+                    'terms' => ['You must accept the terms and conditions.'],
+                    'age' => ['You must be at least 18 years old.'],
+                ]
+            ]">
+                <div {{ $showAttr }}="Object.keys(summaryErrors).length > 0" class="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <div>
+                            <h4 class="font-medium text-red-500">There were errors with your submission</h4>
+                            <ul class="mt-2 text-sm text-red-400 list-disc list-inside">
+                                <template a-for="(errors, field) in summaryErrors">
+                                    <template a-for="error in errors">
+                                        <li {{ $textAttr }}="error"></li>
+                                    </template>
                                 </template>
-                            </template>
-                        </ul>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="flex gap-2">
-                <button
-                    @click="$set('summaryErrors', {})"
-                    class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
-                >
-                    Clear All Errors
-                </button>
-                <button
-                    @click="$set('summaryErrors', { username: ['Username taken'], email: ['Invalid email'] })"
-                    class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
-                >
-                    Add Errors
-                </button>
-            </div>
-        </x-accelade::data>
+                <div class="flex gap-2">
+                    <button
+                        @click="$set('summaryErrors', {})"
+                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
+                    >
+                        Clear All Errors
+                    </button>
+                    <button
+                        @click="$set('summaryErrors', { username: ['Username taken'], email: ['Invalid email'] })"
+                        class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
+                    >
+                        Add Errors
+                    </button>
+                </div>
+            </x-accelade::data>
+        </div>
     </div>
 
     <x-accelade::code-block language="blade" filename="errors.blade.php">

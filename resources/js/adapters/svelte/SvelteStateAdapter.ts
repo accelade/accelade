@@ -108,19 +108,55 @@ export class SvelteStateAdapter implements IStateAdapter {
     }
 
     /**
-     * Get a specific state value
+     * Get a specific state value (supports nested paths like "props.count")
      */
     get<T = unknown>(key: string): T | undefined {
-        return this.currentState[key] as T | undefined;
+        if (!key.includes('.')) {
+            return this.currentState[key] as T | undefined;
+        }
+
+        // Handle nested path
+        const parts = key.split('.');
+        let current: unknown = this.currentState;
+        for (const part of parts) {
+            if (current === null || current === undefined) {
+                return undefined;
+            }
+            current = (current as Record<string, unknown>)[part];
+        }
+        return current as T | undefined;
     }
 
     /**
-     * Set a state value
+     * Set a state value (supports nested paths like "props.count")
      */
     set(key: string, value: unknown): void {
-        if (this.store) {
+        if (!this.store) return;
+
+        if (!key.includes('.')) {
             this.store.update((state) => ({ ...state, [key]: value }));
+            return;
         }
+
+        // Handle nested path
+        const parts = key.split('.');
+        const lastKey = parts.pop()!;
+
+        this.store.update((state) => {
+            const newState = { ...state };
+            let current: Record<string, unknown> = newState;
+
+            for (const part of parts) {
+                if (!(part in current) || typeof current[part] !== 'object' || current[part] === null) {
+                    current[part] = {};
+                }
+                current[part] = { ...(current[part] as Record<string, unknown>) };
+                current = current[part] as Record<string, unknown>;
+            }
+
+            current[lastKey] = value;
+            return newState;
+        });
     }
 
     /**

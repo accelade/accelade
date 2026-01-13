@@ -31,6 +31,8 @@ import { createToggle, createToggleMethods } from '../core/toggle/ToggleFactory'
 import type { ToggleInstance } from '../core/toggle/ToggleFactory';
 import { createTransition } from '../core/transition/TransitionFactory';
 import type { TransitionInstance } from '../core/transition/types';
+import { createBridge, createMethodProxies, disposeBridge } from '../core/bridge';
+import type { BridgeInstance } from '../core/bridge';
 
 /**
  * Global stores for shared reactive state
@@ -223,6 +225,12 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         let toggleInstance: ToggleInstance | undefined;
         if (element.hasAttribute('data-accelade-toggle')) {
             toggleInstance = this.setupToggle(element, config.id, stateAdapter, customMethods);
+        }
+
+        // Setup Bridge component BEFORE event bindings (so PHP methods are available)
+        let bridgeInstance: BridgeInstance | undefined;
+        if (element.hasAttribute('data-accelade-bridge')) {
+            bridgeInstance = this.setupBridge(element, config.id, stateAdapter, customMethods);
         }
 
         // Setup event bindings
@@ -646,6 +654,45 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         });
 
         return instances;
+    }
+
+    /**
+     * Setup Bridge component for PHP two-way binding
+     */
+    protected setupBridge(
+        element: HTMLElement,
+        componentId: string,
+        stateAdapter: IStateAdapter,
+        customMethods: CustomMethods
+    ): BridgeInstance | undefined {
+        const instance = createBridge(
+            element,
+            componentId,
+            (key, value) => stateAdapter.set(key, value),
+            () => stateAdapter.getState()
+        );
+
+        if (!instance) {
+            return undefined;
+        }
+
+        // Note: BridgeFactory already initializes props in state via setState
+        // Do NOT store the Bridge proxy (instance.props) in state directly
+        // as it would cause infinite recursion when setting nested paths
+
+        // Add bridge method proxies to customMethods
+        const methodProxies = createMethodProxies(instance);
+        for (const [name, fn] of Object.entries(methodProxies)) {
+            customMethods[name] = fn;
+        }
+
+        // Add $bridge helper function for direct access
+        customMethods.$bridge = () => instance;
+
+        // Add cleanup for Bridge instance
+        this.addCleanups(componentId, [() => disposeBridge(instance.id)]);
+
+        return instance;
     }
 
     /**

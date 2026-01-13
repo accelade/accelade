@@ -18,9 +18,31 @@ const defaults: ConfirmDialogOptions = {
 };
 
 /**
- * CSS for the confirmation dialog
+ * CSS for the confirmation dialog (RTL and Dark mode aware)
  */
 const dialogStyles = `
+:root {
+    --accelade-confirm-bg: #ffffff;
+    --accelade-confirm-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --accelade-confirm-title-color: #1f2937;
+    --accelade-confirm-text-color: #6b7280;
+    --accelade-confirm-btn-cancel-bg: #f3f4f6;
+    --accelade-confirm-btn-cancel-color: #374151;
+    --accelade-confirm-btn-cancel-hover-bg: #e5e7eb;
+    --accelade-confirm-focus-ring: #6366f1;
+    --accelade-confirm-focus-ring-bg: white;
+}
+.dark, [data-theme="dark"] {
+    --accelade-confirm-bg: #1e293b;
+    --accelade-confirm-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    --accelade-confirm-title-color: #f1f5f9;
+    --accelade-confirm-text-color: #94a3b8;
+    --accelade-confirm-btn-cancel-bg: #334155;
+    --accelade-confirm-btn-cancel-color: #e2e8f0;
+    --accelade-confirm-btn-cancel-hover-bg: #475569;
+    --accelade-confirm-focus-ring: #818cf8;
+    --accelade-confirm-focus-ring-bg: #1e293b;
+}
 .accelade-confirm-overlay {
     position: fixed;
     inset: 0;
@@ -36,9 +58,9 @@ const dialogStyles = `
     opacity: 1;
 }
 .accelade-confirm-dialog {
-    background: white;
+    background: var(--accelade-confirm-bg);
     border-radius: 0.75rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--accelade-confirm-shadow);
     max-width: 28rem;
     width: calc(100% - 2rem);
     padding: 1.5rem;
@@ -51,12 +73,12 @@ const dialogStyles = `
 .accelade-confirm-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #1f2937;
+    color: var(--accelade-confirm-title-color);
     margin: 0 0 0.5rem 0;
 }
 .accelade-confirm-text {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--accelade-confirm-text-color);
     margin: 0 0 1.5rem 0;
     line-height: 1.5;
 }
@@ -76,14 +98,14 @@ const dialogStyles = `
 }
 .accelade-confirm-btn:focus {
     outline: none;
-    box-shadow: 0 0 0 2px white, 0 0 0 4px #6366f1;
+    box-shadow: 0 0 0 2px var(--accelade-confirm-focus-ring-bg), 0 0 0 4px var(--accelade-confirm-focus-ring);
 }
 .accelade-confirm-btn-cancel {
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--accelade-confirm-btn-cancel-bg);
+    color: var(--accelade-confirm-btn-cancel-color);
 }
 .accelade-confirm-btn-cancel:hover {
-    background: #e5e7eb;
+    background: var(--accelade-confirm-btn-cancel-hover-bg);
 }
 .accelade-confirm-btn-confirm {
     background: #6366f1;

@@ -61,9 +61,35 @@ const maxWidthClasses: Record<ModalMaxWidth, string> = {
 };
 
 /**
- * CSS for modals and slideovers
+ * CSS for modals and slideovers (RTL and Dark mode aware)
  */
 const modalStyles = `
+:root {
+    --accelade-modal-bg: #ffffff;
+    --accelade-modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --accelade-modal-shadow-side: -10px 0 40px -5px rgba(0, 0, 0, 0.2);
+    --accelade-modal-shadow-bottom: 0 -10px 40px -5px rgba(0, 0, 0, 0.2);
+    --accelade-modal-close-color: #6b7280;
+    --accelade-modal-close-hover-bg: #f3f4f6;
+    --accelade-modal-close-hover-color: #1f2937;
+    --accelade-modal-close-focus-ring: #6366f1;
+    --accelade-modal-close-focus-ring-bg: white;
+    --accelade-modal-handle-bg: #d1d5db;
+    --accelade-modal-loading-color: #6b7280;
+}
+.dark, [data-theme="dark"] {
+    --accelade-modal-bg: #1e293b;
+    --accelade-modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    --accelade-modal-shadow-side: -10px 0 40px -5px rgba(0, 0, 0, 0.4);
+    --accelade-modal-shadow-bottom: 0 -10px 40px -5px rgba(0, 0, 0, 0.4);
+    --accelade-modal-close-color: #94a3b8;
+    --accelade-modal-close-hover-bg: #334155;
+    --accelade-modal-close-hover-color: #f1f5f9;
+    --accelade-modal-close-focus-ring: #818cf8;
+    --accelade-modal-close-focus-ring-bg: #1e293b;
+    --accelade-modal-handle-bg: #475569;
+    --accelade-modal-loading-color: #94a3b8;
+}
 .accelade-modal-overlay {
     position: fixed;
     inset: 0;
@@ -102,13 +128,13 @@ const modalStyles = `
     justify-content: flex-end;
 }
 .accelade-modal-panel {
-    background: white;
+    background: var(--accelade-modal-bg);
     position: relative;
     transition: transform 0.2s ease-out, opacity 0.2s ease-out;
 }
 .accelade-modal-overlay.modal .accelade-modal-panel {
     border-radius: 0.75rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--accelade-modal-shadow);
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
     transform: scale(0.95);
@@ -122,7 +148,7 @@ const modalStyles = `
     height: 100vh;
     max-height: 100vh;
     overflow-y: auto;
-    box-shadow: -10px 0 40px -5px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--accelade-modal-shadow-side);
 }
 .accelade-modal-overlay.slideover.position-left .accelade-modal-panel {
     transform: translateX(-100%);
@@ -140,7 +166,7 @@ const modalStyles = `
 }
 .accelade-modal-overlay.bottom-sheet .accelade-modal-panel {
     border-radius: 1rem 1rem 0 0;
-    box-shadow: 0 -10px 40px -5px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--accelade-modal-shadow-bottom);
     max-height: 90vh;
     overflow-y: auto;
     transform: translateY(100%);
@@ -152,14 +178,14 @@ const modalStyles = `
 .accelade-modal-overlay.bottom-sheet .accelade-modal-handle {
     width: 2.5rem;
     height: 0.25rem;
-    background: #d1d5db;
+    background: var(--accelade-modal-handle-bg);
     border-radius: 9999px;
     margin: 0.75rem auto 0.5rem;
 }
 .accelade-modal-close {
     position: absolute;
     top: 0.75rem;
-    right: 0.75rem;
+    inset-inline-end: 0.75rem;
     width: 2rem;
     height: 2rem;
     display: flex;
@@ -167,19 +193,19 @@ const modalStyles = `
     justify-content: center;
     border: none;
     background: transparent;
-    color: #6b7280;
+    color: var(--accelade-modal-close-color);
     cursor: pointer;
     border-radius: 0.375rem;
     transition: background 0.15s ease, color 0.15s ease;
     z-index: 10;
 }
 .accelade-modal-close:hover {
-    background: #f3f4f6;
-    color: #1f2937;
+    background: var(--accelade-modal-close-hover-bg);
+    color: var(--accelade-modal-close-hover-color);
 }
 .accelade-modal-close:focus {
     outline: none;
-    box-shadow: 0 0 0 2px white, 0 0 0 4px #6366f1;
+    box-shadow: 0 0 0 2px var(--accelade-modal-close-focus-ring-bg), 0 0 0 4px var(--accelade-modal-close-focus-ring);
 }
 .accelade-modal-close svg {
     width: 1.25rem;
@@ -193,7 +219,7 @@ const modalStyles = `
     align-items: center;
     justify-content: center;
     min-height: 8rem;
-    color: #6b7280;
+    color: var(--accelade-modal-loading-color);
 }
 .accelade-modal-loading svg {
     width: 2rem;

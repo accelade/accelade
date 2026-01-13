@@ -133,26 +133,65 @@ export class AngularStateAdapter implements IStateAdapter {
     }
 
     /**
-     * Get a specific state value
+     * Get a specific state value (supports nested paths like "props.count")
      */
     get<T = unknown>(key: string): T | undefined {
-        return this.state[key] as T | undefined;
+        if (!key.includes('.')) {
+            return this.state[key] as T | undefined;
+        }
+
+        // Handle nested path
+        const parts = key.split('.');
+        let current: unknown = this.state;
+        for (const part of parts) {
+            if (current === null || current === undefined) {
+                return undefined;
+            }
+            current = (current as Record<string, unknown>)[part];
+        }
+        return current as T | undefined;
     }
 
     /**
-     * Set a state value
+     * Set a state value (supports nested paths like "props.count")
      */
     set(key: string, value: unknown): void {
-        const oldValue = this.state[key];
-        this.state[key] = value;
+        const oldValue = this.get(key);
 
-        // Update the signal if it exists
-        const signal = this.signals.get(key);
-        if (signal) {
-            signal.set(value);
+        if (!key.includes('.')) {
+            // Simple key
+            this.state[key] = value;
+
+            // Update the signal if it exists
+            const signal = this.signals.get(key);
+            if (signal) {
+                signal.set(value);
+            } else {
+                this.signals.set(key, createSignal(value));
+            }
         } else {
-            // Create new signal for dynamic key
-            this.signals.set(key, createSignal(value));
+            // Handle nested path
+            const parts = key.split('.');
+            const lastKey = parts.pop()!;
+            let current: Record<string, unknown> = this.state;
+
+            for (const part of parts) {
+                if (!(part in current) || typeof current[part] !== 'object' || current[part] === null) {
+                    current[part] = {};
+                }
+                current = current[part] as Record<string, unknown>;
+            }
+
+            current[lastKey] = value;
+
+            // Update the root signal
+            const rootKey = parts[0];
+            if (rootKey) {
+                const signal = this.signals.get(rootKey);
+                if (signal) {
+                    signal.set(this.state[rootKey]);
+                }
+            }
         }
 
         // Update the BehaviorSubject

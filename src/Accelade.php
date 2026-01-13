@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Accelade;
 
 use Accelade\Broadcasting\EventResponse;
+use Accelade\Exceptions\ExceptionHandler;
 use Accelade\Support\SharedData;
+use Closure;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Foundation\Exceptions\Handler;
 use Illuminate\Support\Str;
 
 class Accelade
@@ -122,6 +125,15 @@ class Accelade
         $sharedData = $this->allShared();
         $sharedJson = json_encode($sharedData, JSON_THROW_ON_ERROR);
 
+        // Get error handling config
+        $errorConfig = config('accelade.errors', []);
+        $errorsJson = json_encode([
+            'suppressErrors' => $errorConfig['suppress_errors'] ?? false,
+            'showToasts' => $errorConfig['show_toasts'] ?? true,
+            'logErrors' => $errorConfig['log_errors'] ?? true,
+            'debug' => $errorConfig['debug'] ?? config('app.debug', false),
+        ]);
+
         return <<<HTML
 <script>
     window.AcceladeConfig = {
@@ -132,7 +144,8 @@ class Accelade
         batchUpdateUrl: '/accelade/batch-update',
         progress: {$progressJson},
         navigation: {$navigationJson},
-        shared: {$sharedJson}
+        shared: {$sharedJson},
+        errors: {$errorsJson}
     };
 </script>
 <script>
@@ -196,12 +209,12 @@ HTML;
     #accelade-progress .spinner {
         position: fixed;
         top: 15px;
-        right: 15px;
+        inset-inline-end: 15px;
         width: 18px;
         height: 18px;
         border: 2px solid transparent;
         border-top-color: #6366f1;
-        border-left-color: #8b5cf6;
+        border-inline-start-color: #8b5cf6;
         border-radius: 50%;
         animation: accelade-spinner 0.6s linear infinite;
         opacity: 0;
@@ -302,6 +315,33 @@ HTML;
         --accelade-notif-warning-bg: #fffbeb;
         --accelade-notif-danger-icon: #ef4444;
         --accelade-notif-danger-bg: #fef2f2;
+        --accelade-notif-action-color: #4f46e5;
+        --accelade-notif-action-hover-bg: #f3f4f6;
+        --accelade-notif-close-color: #9ca3af;
+        --accelade-notif-close-hover-bg: #f3f4f6;
+        --accelade-notif-close-hover-color: #6b7280;
+    }
+
+    /* Dark mode notifications */
+    .dark, [data-theme="dark"] {
+        --accelade-notif-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.2);
+        --accelade-notif-bg: #1e293b;
+        --accelade-notif-border: 1px solid rgb(51 65 85);
+        --accelade-notif-title-color: #f1f5f9;
+        --accelade-notif-body-color: #94a3b8;
+        --accelade-notif-success-icon: #34d399;
+        --accelade-notif-success-bg: rgba(16, 185, 129, 0.15);
+        --accelade-notif-info-icon: #60a5fa;
+        --accelade-notif-info-bg: rgba(59, 130, 246, 0.15);
+        --accelade-notif-warning-icon: #fbbf24;
+        --accelade-notif-warning-bg: rgba(245, 158, 11, 0.15);
+        --accelade-notif-danger-icon: #f87171;
+        --accelade-notif-danger-bg: rgba(239, 68, 68, 0.15);
+        --accelade-notif-action-color: #818cf8;
+        --accelade-notif-action-hover-bg: #334155;
+        --accelade-notif-close-color: #64748b;
+        --accelade-notif-close-hover-bg: #334155;
+        --accelade-notif-close-hover-color: #94a3b8;
     }
 
     .accelade-notifications {
@@ -316,11 +356,11 @@ HTML;
         pointer-events: none;
     }
 
-    .accelade-notifications-top-right { top: 0; right: 0; }
-    .accelade-notifications-top-left { top: 0; left: 0; }
+    .accelade-notifications-top-right { top: 0; inset-inline-end: 0; }
+    .accelade-notifications-top-left { top: 0; inset-inline-start: 0; }
     .accelade-notifications-top-center { top: 0; left: 50%; transform: translateX(-50%); }
-    .accelade-notifications-bottom-right { bottom: 0; right: 0; flex-direction: column-reverse; }
-    .accelade-notifications-bottom-left { bottom: 0; left: 0; flex-direction: column-reverse; }
+    .accelade-notifications-bottom-right { bottom: 0; inset-inline-end: 0; flex-direction: column-reverse; }
+    .accelade-notifications-bottom-left { bottom: 0; inset-inline-start: 0; flex-direction: column-reverse; }
     .accelade-notifications-bottom-center { bottom: 0; left: 50%; transform: translateX(-50%); flex-direction: column-reverse; }
 
     .accelade-notif {
@@ -368,7 +408,7 @@ HTML;
         padding: 0.375rem 0.75rem;
         font-size: 0.75rem;
         font-weight: 600;
-        color: #4f46e5;
+        color: var(--accelade-notif-action-color);
         background: transparent;
         border: none;
         border-radius: 0.375rem;
@@ -376,7 +416,7 @@ HTML;
         transition: background 0.15s;
         text-decoration: none;
     }
-    .accelade-notif-action:hover { background: #f3f4f6; }
+    .accelade-notif-action:hover { background: var(--accelade-notif-action-hover-bg); }
 
     .accelade-notif-close {
         flex-shrink: 0;
@@ -388,12 +428,13 @@ HTML;
         border: none;
         background: transparent;
         cursor: pointer;
-        color: #9ca3af;
+        color: var(--accelade-notif-close-color);
         border-radius: 0.375rem;
         transition: all 0.15s;
-        margin: -0.25rem -0.25rem -0.25rem 0;
+        margin-block: -0.25rem;
+        margin-inline: 0 -0.25rem;
     }
-    .accelade-notif-close:hover { background: #f3f4f6; color: #6b7280; }
+    .accelade-notif-close:hover { background: var(--accelade-notif-close-hover-bg); color: var(--accelade-notif-close-hover-color); }
     .accelade-notif-close svg { width: 1rem; height: 1rem; }
 
     /* ========================================
@@ -577,7 +618,13 @@ HTML;
         100% { background-position: -200% 0; }
     }
 
-    /* Shimmer variants */
+    /* Shimmer variants - dark mode auto-detected */
+    .dark .accelade-shimmer-line,
+    .dark .accelade-shimmer-circle-inner,
+    .dark .accelade-shimmer-inline,
+    [data-theme="dark"] .accelade-shimmer-line,
+    [data-theme="dark"] .accelade-shimmer-circle-inner,
+    [data-theme="dark"] .accelade-shimmer-inline,
     .accelade-shimmer-dark .accelade-shimmer-line,
     .accelade-shimmer-dark .accelade-shimmer-circle-inner {
         background: linear-gradient(
@@ -596,6 +643,11 @@ HTML;
         background: #fff;
         border-radius: 0.5rem;
         border: 1px solid #e5e7eb;
+    }
+    .dark .accelade-shimmer-card,
+    [data-theme="dark"] .accelade-shimmer-card {
+        background: #1e293b;
+        border-color: #334155;
     }
 
     .accelade-shimmer-card .accelade-shimmer-line:first-child {
@@ -872,5 +924,39 @@ HTML;
     public static function dangerOnEvent(string $message): EventResponse
     {
         return EventResponse::danger($message);
+    }
+
+    /**
+     * Create an exception handler for Accelade requests.
+     *
+     * Register this in your app/Exceptions/Handler.php:
+     *
+     * ```php
+     * use Accelade\Facades\Accelade;
+     *
+     * public function register(): void
+     * {
+     *     $this->renderable(Accelade::exceptionHandler($this));
+     * }
+     * ```
+     *
+     * With custom handler for specific exceptions:
+     *
+     * ```php
+     * $this->renderable(Accelade::exceptionHandler($this, function ($e, $request) {
+     *     if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
+     *         if ($e->getStatusCode() === 419) {
+     *             return redirect()->route('login', ['reason' => 'timeout']);
+     *         }
+     *     }
+     * }));
+     * ```
+     *
+     * @param  Handler  $handler  The Laravel exception handler
+     * @param  Closure|null  $customHandler  Optional custom handler for specific exceptions
+     */
+    public static function exceptionHandler(Handler $handler, ?Closure $customHandler = null): Closure
+    {
+        return ExceptionHandler::handle($handler, $customHandler);
     }
 }

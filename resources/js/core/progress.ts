@@ -69,6 +69,13 @@ class AcceladeProgress {
     private isVisible: boolean = false;
     private static stylesInjected: boolean = false;
 
+    /**
+     * Check if document is in RTL mode
+     */
+    private isRTL(): boolean {
+        return document.documentElement.dir === 'rtl' || document.body.dir === 'rtl';
+    }
+
     constructor(config: ProgressConfig = {}) {
         this.config = { ...defaultConfig, ...config };
         this.injectStyles();
@@ -186,16 +193,21 @@ class AcceladeProgress {
         if (!this.spinnerElement) return;
 
         const { color, gradientColor, spinnerSize, spinnerPosition } = this.config;
+        const isRTL = this.isRTL();
 
-        // Position mapping
+        // Position mapping - RTL-aware (swaps left/right in RTL mode)
         const positions: Record<string, { top?: string; bottom?: string; left?: string; right?: string }> = {
-            'top-left': { top: '15px', left: '15px' },
-            'top-right': { top: '15px', right: '15px' },
-            'bottom-left': { bottom: '15px', left: '15px' },
-            'bottom-right': { bottom: '15px', right: '15px' },
+            'top-left': { top: '15px', [isRTL ? 'right' : 'left']: '15px' },
+            'top-right': { top: '15px', [isRTL ? 'left' : 'right']: '15px' },
+            'bottom-left': { bottom: '15px', [isRTL ? 'right' : 'left']: '15px' },
+            'bottom-right': { bottom: '15px', [isRTL ? 'left' : 'right']: '15px' },
         };
 
         const pos = positions[spinnerPosition] || positions['top-right'];
+
+        // Clear existing position styles
+        this.spinnerElement.style.left = '';
+        this.spinnerElement.style.right = '';
 
         Object.assign(this.spinnerElement.style, {
             position: 'fixed',
@@ -204,7 +216,7 @@ class AcceladeProgress {
             height: `${spinnerSize}px`,
             border: '2px solid transparent',
             borderTopColor: color,
-            borderLeftColor: gradientColor,
+            [isRTL ? 'borderRightColor' : 'borderLeftColor']: gradientColor,
             borderRadius: '50%',
             animation: 'accelade-spinner 0.6s linear infinite',
             opacity: '0',

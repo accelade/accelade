@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Accelade;
 
 use Accelade\Animation\AnimationManager;
+use Accelade\Bridge\BridgeManager;
 use Accelade\Compilers\AcceladeTagCompiler;
 use Accelade\Console\InstallCommand;
 use Accelade\Notification\NotificationManager;
@@ -38,6 +39,10 @@ class AcceladeServiceProvider extends ServiceProvider
 
         $this->app->singleton('accelade.animation', function () {
             return new AnimationManager;
+        });
+
+        $this->app->singleton('accelade.bridge', function () {
+            return new BridgeManager;
         });
     }
 
@@ -194,21 +199,24 @@ class AcceladeServiceProvider extends ServiceProvider
             $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         });
 
-        // Demo routes (configurable)
-        $this->registerDemoRoutes();
+        // Bridge routes (always enabled)
+        $this->loadRoutesFrom(__DIR__.'/../routes/bridge.php');
+
+        // Docs routes (configurable)
+        $this->registerDocsRoutes();
     }
 
-    protected function registerDemoRoutes(): void
+    protected function registerDocsRoutes(): void
     {
-        if (! config('accelade.demo.enabled', false)) {
+        if (! config('accelade.docs.enabled', false)) {
             return;
         }
 
         Route::group([
-            'prefix' => config('accelade.demo.prefix', 'demo'),
-            'middleware' => config('accelade.demo.middleware', ['web']),
+            'prefix' => config('accelade.docs.prefix', 'docs'),
+            'middleware' => config('accelade.docs.middleware', ['web']),
         ], function () {
-            $this->loadRoutesFrom(__DIR__.'/../routes/demo.php');
+            $this->loadRoutesFrom(__DIR__.'/../routes/docs.php');
         });
     }
 

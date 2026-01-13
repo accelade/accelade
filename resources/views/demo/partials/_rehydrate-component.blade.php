@@ -21,33 +21,33 @@
 @endphp
 
 <!-- Demo: Rehydrate Component -->
-<section class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 mb-8 border border-slate-100">
+<section class="rounded-xl p-6 mb-6 border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">
     <div class="flex items-center gap-3 mb-2">
-        <span class="w-3 h-3 bg-teal-500 rounded-full"></span>
-        <h2 class="text-2xl font-semibold text-slate-800">Rehydrate Component</h2>
+        <span class="w-2.5 h-2.5 bg-teal-500 rounded-full"></span>
+        <h3 class="text-lg font-semibold" style="color: var(--docs-text);">Rehydrate Component</h3>
     </div>
-    <p class="text-slate-500 mb-6 ml-6">
-        Selective section reloading with <code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">&lt;x-accelade::rehydrate&gt;</code>.
+    <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
+        Selective section reloading with <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">&lt;x-accelade::rehydrate&gt;</code>.
         Trigger updates via events or automatic polling without full page refresh.
     </p>
 
-    <div class="grid md:grid-cols-2 gap-6 mb-6">
+    <div class="space-y-4 mb-4">
         <!-- Event-Triggered Rehydrate -->
-        <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-teal-100 text-teal-700 rounded">Event</span>
+        <div class="rounded-xl p-4 border border-teal-500/30" style="background: rgba(20, 184, 166, 0.1);">
+            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-teal-500/20 text-teal-500 rounded">Event</span>
                 Event-Triggered Reload
-            </h3>
-            <p class="text-sm text-slate-600 mb-4">
+            </h4>
+            <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
                 Click the button to emit an event that triggers the content to reload from the server.
             </p>
 
             <x-accelade::rehydrate on="counter-updated" id="event-demo">
-                <div class="p-4 bg-white rounded-lg border border-teal-100 mb-4">
-                    <p class="text-slate-700">
+                <div class="p-4 rounded-lg border border-[var(--docs-border)] mb-4" style="background: var(--docs-bg);">
+                    <p style="color: var(--docs-text);">
                         Current server time: <strong>{{ now()->format('H:i:s') }}</strong>
                     </p>
-                    <p class="text-sm text-slate-500 mt-1">
+                    <p class="text-sm mt-1" style="color: var(--docs-text-muted);">
                         Random number: <strong>{{ rand(1000, 9999) }}</strong>
                     </p>
                 </div>
@@ -62,21 +62,21 @@
         </div>
 
         <!-- Polling Rehydrate -->
-        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded">Polling</span>
+        <div class="rounded-xl p-4 border border-purple-500/30" style="background: rgba(168, 85, 247, 0.1);">
+            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-purple-500/20 text-purple-500 rounded">Polling</span>
                 Auto-Refresh (5 seconds)
-            </h3>
-            <p class="text-sm text-slate-600 mb-4">
+            </h4>
+            <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
                 This section automatically refreshes every 5 seconds.
             </p>
 
             <x-accelade::rehydrate :poll="5000" id="poll-demo">
-                <div class="p-4 bg-white rounded-lg border border-purple-100">
-                    <p class="text-slate-700">
+                <div class="p-4 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+                    <p style="color: var(--docs-text);">
                         Last updated: <strong>{{ now()->format('H:i:s') }}</strong>
                     </p>
-                    <p class="text-sm text-slate-500 mt-1">
+                    <p class="text-sm mt-1" style="color: var(--docs-text-muted);">
                         Random color:
                         @php $color = ['red', 'blue', 'green', 'purple', 'orange'][rand(0, 4)]; @endphp
                         <span class="inline-block px-2 py-0.5 rounded text-white text-xs bg-{{ $color }}-500">
@@ -86,23 +86,21 @@
                 </div>
             </x-accelade::rehydrate>
         </div>
-    </div>
 
-    <div class="grid md:grid-cols-2 gap-6 mb-6">
         <!-- Multiple Events -->
-        <div class="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-6 border border-amber-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded">Multiple</span>
+        <div class="rounded-xl p-4 border border-amber-500/30" style="background: rgba(245, 158, 11, 0.1);">
+            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-amber-500/20 text-amber-500 rounded">Multiple</span>
                 Multiple Event Listeners
-            </h3>
-            <p class="text-sm text-slate-600 mb-4">
+            </h4>
+            <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
                 Listen to multiple events with a single component.
             </p>
 
             <x-accelade::rehydrate :on="['item-added', 'item-removed']" id="multi-event-demo">
-                <div class="p-4 bg-white rounded-lg border border-amber-100 mb-4">
-                    <p class="text-slate-700 font-medium">Inventory Status</p>
-                    <p class="text-sm text-slate-500 mt-1">
+                <div class="p-4 rounded-lg border border-[var(--docs-border)] mb-4" style="background: var(--docs-bg);">
+                    <p class="font-medium" style="color: var(--docs-text);">Inventory Status</p>
+                    <p class="text-sm mt-1" style="color: var(--docs-text-muted);">
                         Items: <strong>{{ rand(1, 100) }}</strong> |
                         Updated: <strong>{{ now()->format('H:i:s') }}</strong>
                     </p>
@@ -126,21 +124,21 @@
         </div>
 
         <!-- Manual Reload -->
-        <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-slate-200 text-slate-700 rounded">API</span>
+        <div class="rounded-xl p-4 border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 border border-[var(--docs-border)] rounded" style="background: var(--docs-bg-alt); color: var(--docs-text-muted);">API</span>
                 JavaScript API
-            </h3>
-            <p class="text-sm text-slate-600 mb-4">
+            </h4>
+            <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
                 Trigger rehydration programmatically using the JavaScript API.
             </p>
 
             <x-accelade::rehydrate id="api-demo">
-                <div class="p-4 bg-white rounded-lg border border-slate-200 mb-4">
-                    <p class="text-slate-700">
+                <div class="p-4 rounded-lg border border-[var(--docs-border)] mb-4" style="background: var(--docs-bg-alt);">
+                    <p style="color: var(--docs-text);">
                         Server timestamp: <strong>{{ now()->timestamp }}</strong>
                     </p>
-                    <p class="text-sm text-slate-500 mt-1">
+                    <p class="text-sm mt-1" style="color: var(--docs-text-muted);">
                         Human: {{ now()->diffForHumans() }}
                     </p>
                 </div>
@@ -156,39 +154,39 @@
     </div>
 
     <!-- All Props -->
-    <div class="bg-slate-50 rounded-xl p-6 border border-slate-100 mb-6">
-        <h3 class="font-medium text-slate-700 mb-4">Component Props</h3>
+    <div class="rounded-xl p-4 border border-[var(--docs-border)] mb-4" style="background: var(--docs-bg);">
+        <h4 class="font-medium mb-4" style="color: var(--docs-text);">Component Props</h4>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="border-b border-slate-200">
-                        <th class="text-left py-2 px-3 text-slate-600">Prop</th>
-                        <th class="text-left py-2 px-3 text-slate-600">Type</th>
-                        <th class="text-left py-2 px-3 text-slate-600">Default</th>
-                        <th class="text-left py-2 px-3 text-slate-600">Description</th>
+                    <tr class="border-b border-[var(--docs-border)]">
+                        <th class="text-left py-2 px-3" style="color: var(--docs-text-muted);">Prop</th>
+                        <th class="text-left py-2 px-3" style="color: var(--docs-text-muted);">Type</th>
+                        <th class="text-left py-2 px-3" style="color: var(--docs-text-muted);">Default</th>
+                        <th class="text-left py-2 px-3" style="color: var(--docs-text-muted);">Description</th>
                     </tr>
                 </thead>
-                <tbody class="text-slate-600">
-                    <tr class="border-b border-slate-100">
-                        <td class="py-2 px-3"><code class="text-teal-600">on</code></td>
+                <tbody style="color: var(--docs-text-muted);">
+                    <tr class="border-b border-[var(--docs-border)]">
+                        <td class="py-2 px-3"><code class="text-teal-500">on</code></td>
                         <td class="py-2 px-3">string|array</td>
                         <td class="py-2 px-3">null</td>
                         <td class="py-2 px-3">Event name(s) that trigger rehydration</td>
                     </tr>
-                    <tr class="border-b border-slate-100">
-                        <td class="py-2 px-3"><code class="text-teal-600">poll</code></td>
+                    <tr class="border-b border-[var(--docs-border)]">
+                        <td class="py-2 px-3"><code class="text-teal-500">poll</code></td>
                         <td class="py-2 px-3">int</td>
                         <td class="py-2 px-3">null</td>
                         <td class="py-2 px-3">Polling interval in milliseconds</td>
                     </tr>
-                    <tr class="border-b border-slate-100">
-                        <td class="py-2 px-3"><code class="text-teal-600">url</code></td>
+                    <tr class="border-b border-[var(--docs-border)]">
+                        <td class="py-2 px-3"><code class="text-teal-500">url</code></td>
                         <td class="py-2 px-3">string</td>
                         <td class="py-2 px-3">current page</td>
                         <td class="py-2 px-3">URL to fetch content from</td>
                     </tr>
                     <tr>
-                        <td class="py-2 px-3"><code class="text-teal-600">preserve-scroll</code></td>
+                        <td class="py-2 px-3"><code class="text-teal-500">preserve-scroll</code></td>
                         <td class="py-2 px-3">bool</td>
                         <td class="py-2 px-3">true</td>
                         <td class="py-2 px-3">Preserve scroll position after reload</td>

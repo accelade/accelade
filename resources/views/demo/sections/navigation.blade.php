@@ -18,13 +18,13 @@
             <h3 class="text-sm font-semibold text-slate-600 mb-3 text-center">SPA Navigation (Same Framework)</h3>
             <div class="flex gap-4 justify-center flex-wrap">
                 <x-accelade::link
-                    href="{{ route('demo.section', ['framework' => $framework, 'section' => 'counter']) }}"
+                    href="{{ route('docs.section', ['framework' => $framework, 'section' => 'counter']) }}"
                     class="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition"
                 >
                     Go to Counter (SPA)
                 </x-accelade::link>
                 <x-accelade::link
-                    href="{{ route('demo.section', ['framework' => $framework, 'section' => 'navigation']) }}?time={{ time() }}"
+                    href="{{ route('docs.section', ['framework' => $framework, 'section' => 'navigation']) }}?time={{ time() }}"
                     class="px-6 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition"
                 >
                     Navigate with Query (SPA)
@@ -38,14 +38,14 @@
             <h3 class="text-sm font-semibold text-slate-600 mb-3 text-center">Preserve Scroll & State</h3>
             <div class="flex gap-4 justify-center flex-wrap">
                 <x-accelade::link
-                    href="{{ route('demo.section', ['framework' => $framework, 'section' => 'navigation']) }}?t={{ time() }}"
+                    href="{{ route('docs.section', ['framework' => $framework, 'section' => 'navigation']) }}?t={{ time() }}"
                     :preserveScroll="true"
                     class="px-6 py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 transition"
                 >
                     Preserve Scroll Position
                 </x-accelade::link>
                 <x-accelade::link
-                    href="{{ route('demo.section', ['framework' => $framework, 'section' => 'navigation']) }}?t={{ time() }}"
+                    href="{{ route('docs.section', ['framework' => $framework, 'section' => 'navigation']) }}?t={{ time() }}"
                     :preserveState="true"
                     class="px-6 py-3 bg-amber-600 text-white rounded-xl font-medium hover:bg-amber-700 transition"
                 >
@@ -61,7 +61,7 @@
                 @foreach(['vanilla', 'vue', 'react', 'svelte', 'angular'] as $fw)
                     @if($fw !== $framework)
                         <x-accelade::link
-                            href="{{ route('demo.section', ['framework' => $fw, 'section' => 'navigation']) }}"
+                            href="{{ route('docs.section', ['framework' => $fw, 'section' => 'navigation']) }}"
                             class="px-6 py-3 bg-slate-600 text-white rounded-xl font-medium hover:bg-slate-700 transition"
                         >
                             {{ ucfirst($fw) }} Demo

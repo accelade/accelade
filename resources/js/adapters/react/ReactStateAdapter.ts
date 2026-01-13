@@ -95,24 +95,69 @@ export class ReactStateAdapter implements IStateAdapter {
     }
 
     /**
-     * Get a specific state value
+     * Get a specific state value (supports nested paths like "props.count")
      */
     get<T = unknown>(key: string): T | undefined {
-        return this.state[key] as T | undefined;
+        if (!key.includes('.')) {
+            return this.state[key] as T | undefined;
+        }
+
+        // Handle nested path
+        const parts = key.split('.');
+        let current: unknown = this.state;
+        for (const part of parts) {
+            if (current === null || current === undefined) {
+                return undefined;
+            }
+            current = (current as Record<string, unknown>)[part];
+        }
+        return current as T | undefined;
     }
 
     /**
-     * Set a state value (triggers React re-render via setState)
+     * Set a state value (supports nested paths, triggers React re-render via setState)
      */
     set(key: string, value: unknown): void {
-        const oldValue = this.state[key];
+        const oldValue = this.get(key);
 
-        if (this.setState) {
-            // Use React's setState to trigger re-render
-            this.setState((prev) => ({ ...prev, [key]: value }));
+        if (!key.includes('.')) {
+            // Simple key
+            if (this.setState) {
+                this.setState((prev) => ({ ...prev, [key]: value }));
+            } else {
+                this.state[key] = value;
+            }
         } else {
-            // Fallback for when not connected to React
-            this.state[key] = value;
+            // Handle nested path
+            const parts = key.split('.');
+            const lastKey = parts.pop()!;
+
+            if (this.setState) {
+                this.setState((prev) => {
+                    const newState = { ...prev };
+                    let current: Record<string, unknown> = newState;
+
+                    for (const part of parts) {
+                        if (!(part in current) || typeof current[part] !== 'object' || current[part] === null) {
+                            current[part] = {};
+                        }
+                        current[part] = { ...(current[part] as Record<string, unknown>) };
+                        current = current[part] as Record<string, unknown>;
+                    }
+
+                    current[lastKey] = value;
+                    return newState;
+                });
+            } else {
+                let current: Record<string, unknown> = this.state;
+                for (const part of parts) {
+                    if (!(part in current) || typeof current[part] !== 'object' || current[part] === null) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[lastKey] = value;
+            }
         }
 
         if (oldValue !== value) {

@@ -16,18 +16,18 @@
     };
 @endphp
 
-<div class="code-block-wrapper rounded-xl overflow-hidden shadow-lg border border-slate-700 my-4" data-code-block="{{ $id }}">
+<div class="code-block-wrapper rounded-xl overflow-hidden shadow-lg my-4" dir="ltr" style="background:#1e293b;border:1px solid #334155;" data-code-block="{{ $id }}">
     {{-- macOS-style title bar --}}
-    <div class="flex items-center justify-between px-4 py-3 bg-slate-800 border-b border-slate-700">
+    <div class="flex items-center justify-between px-4 py-3" style="background:#1e293b;border-bottom:1px solid #334155;">
         <div class="flex items-center gap-4">
             {{-- Traffic lights --}}
             <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-red-500 hover:bg-red-400 transition-colors cursor-default"></span>
-                <span class="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-400 transition-colors cursor-default"></span>
-                <span class="w-3 h-3 rounded-full bg-green-500 hover:bg-green-400 transition-colors cursor-default"></span>
+                <span class="w-3 h-3 rounded-full" style="background:#ef4444;"></span>
+                <span class="w-3 h-3 rounded-full" style="background:#eab308;"></span>
+                <span class="w-3 h-3 rounded-full" style="background:#22c55e;"></span>
             </div>
             {{-- Filename or language label --}}
-            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">
+            <span class="text-xs font-medium uppercase tracking-wider" style="color:#94a3b8;">
                 {{ $filename ?? $language }}
             </span>
         </div>
@@ -36,7 +36,8 @@
             {{-- Copy button --}}
             <button
                 type="button"
-                class="code-copy-btn flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 rounded-md transition-all"
+                class="code-copy-btn flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all"
+                style="color:#94a3b8;background:rgba(51,65,85,0.5);"
                 data-code-target="{{ $id }}"
                 title="Copy code"
             >
@@ -51,7 +52,8 @@
             {{-- Download as image button --}}
             <button
                 type="button"
-                class="code-download-btn flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 rounded-md transition-all"
+                class="code-download-btn flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all"
+                style="color:#94a3b8;background:rgba(51,65,85,0.5);"
                 data-code-target="{{ $id }}"
                 title="Download as image"
             >
@@ -63,7 +65,7 @@
         </div>
     </div>
     {{-- Code content --}}
-    <div class="code-content overflow-x-auto">
-        <pre id="{{ $id }}" class="language-{{ $prismLanguage }}" style="margin:0;border-radius:0;"><code class="language-{{ $prismLanguage }}">{!! $slot !!}</code></pre>
+    <div class="code-content overflow-x-auto" style="background:#1e293b;">
+        <pre id="{{ $id }}" class="language-{{ $prismLanguage }}" style="margin:0;border-radius:0;background:#1e293b !important;"><code class="language-{{ $prismLanguage }}" style="background:transparent !important;">{!! $slot !!}</code></pre>
     </div>
 </div>

@@ -152,6 +152,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `events.hasListeners()`, `events.listenerCount()`, `events.eventNames()`
   - Full documentation in `docs/event-bus.md`
 
+- **Bridge Components (Beta)** - Two-way binding between PHP and JavaScript
+  - `WithBridge` trait for Blade components enables PHP/JS communication
+  - Public PHP properties accessible as `props` object in templates
+  - Call public PHP methods from JavaScript via AJAX
+  - Methods can return `BridgeResponse` with:
+    - Toast notifications via `toastSuccess()`, `toastInfo()`, etc.
+    - Redirects via `redirectTo()` or `redirectToRoute()`
+    - Page refresh via `refresh(preserveScroll)`
+    - Event emissions via `emit(event, data)`
+  - `<x-accelade::bridge>` Blade component for wrapping bridge-enabled components
+  - Encrypted state payload for security
+  - `Bridge` facade for programmatic access
+  - JavaScript API via `Accelade.bridge.get()`, `Accelade.bridge.getAll()`
+  - Full documentation in `docs/bridge.md`
+
 ## [0.2.0] - 2024-01-11
 
 ### Added

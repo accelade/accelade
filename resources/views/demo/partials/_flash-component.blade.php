@@ -29,44 +29,44 @@
 @endphp
 
 <!-- Demo: Flash Component -->
-<section class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 mb-8 border border-slate-100">
+<section class="rounded-xl p-6 mb-6 border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">
     <div class="flex items-center gap-3 mb-2">
-        <span class="w-3 h-3 bg-amber-500 rounded-full"></span>
-        <h2 class="text-2xl font-semibold text-slate-800">Flash Data Component</h2>
+        <span class="w-2.5 h-2.5 bg-amber-500 rounded-full"></span>
+        <h3 class="text-lg font-semibold" style="color: var(--docs-text);">Flash Data Component</h3>
     </div>
-    <p class="text-slate-500 mb-6 ml-6">
-        Access Laravel's session flash data in your templates using <code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">&lt;x-accelade::flash&gt;</code>.
+    <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
+        Access Laravel's session flash data in your templates using <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">&lt;x-accelade::flash&gt;</code>.
         Works seamlessly with SPA navigation.
     </p>
 
-    <div class="grid md:grid-cols-2 gap-6 mb-6">
+    <div class="space-y-4 mb-4">
         <!-- Live Demo -->
-        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded">Live</span>
+        <div class="rounded-xl p-4 border border-amber-500/30" style="background: rgba(245, 158, 11, 0.1);">
+            <h4 class="font-medium mb-4 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 bg-amber-500/20 text-amber-500 rounded">Live</span>
                 Flash Messages
-            </h3>
-            <p class="text-sm text-slate-600 mb-4">
-                These flash messages were set on the server. They're accessible through the <code class="bg-white/50 px-1 py-0.5 rounded text-xs">flash</code> object.
+            </h4>
+            <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
+                These flash messages were set on the server. They're accessible through the <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg);">flash</code> object.
             </p>
 
             <x-accelade::flash class="space-y-3">
-                <div {{ $ifAttr }}="flash.has('message')" class="p-3 bg-white rounded-lg border border-slate-200 text-sm text-slate-700">
+                <div {{ $ifAttr }}="flash.has('message')" class="p-3 rounded-lg border border-[var(--docs-border)] text-sm" style="background: var(--docs-bg); color: var(--docs-text);">
                     <span class="font-medium">Message:</span>
                     <span {{ $textAttr }}="flash.message"></span>
                 </div>
 
-                <div {{ $ifAttr }}="flash.has('success')" class="p-3 bg-green-50 rounded-lg border border-green-200 text-sm text-green-700">
+                <div {{ $ifAttr }}="flash.has('success')" class="p-3 bg-green-500/10 rounded-lg border border-green-500/30 text-sm text-green-500">
                     <span class="font-medium">Success:</span>
                     <span {{ $textAttr }}="flash.success"></span>
                 </div>
 
-                <div {{ $ifAttr }}="flash.has('error')" class="p-3 bg-red-50 rounded-lg border border-red-200 text-sm text-red-700">
+                <div {{ $ifAttr }}="flash.has('error')" class="p-3 bg-red-500/10 rounded-lg border border-red-500/30 text-sm text-red-500">
                     <span class="font-medium">Error:</span>
                     <span {{ $textAttr }}="flash.error"></span>
                 </div>
 
-                <div {{ $ifAttr }}="flash.has('info')" class="p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm text-blue-700">
+                <div {{ $ifAttr }}="flash.has('info')" class="p-3 bg-blue-500/10 rounded-lg border border-blue-500/30 text-sm text-blue-500">
                     <span class="font-medium">Info:</span>
                     <span {{ $textAttr }}="flash.info"></span>
                 </div>
@@ -74,15 +74,15 @@
         </div>
 
         <!-- How It Works -->
-        <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <h3 class="font-medium text-slate-700 mb-4 flex items-center gap-2">
-                <span class="text-xs px-2 py-1 bg-slate-200 text-slate-700 rounded">Info</span>
+        <div class="rounded-xl p-4 border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+            <h4 class="font-medium mb-4 flex items-center gap-2" style="color: var(--docs-text);">
+                <span class="text-xs px-2 py-1 border border-[var(--docs-border)] rounded" style="background: var(--docs-bg-alt); color: var(--docs-text-muted);">Info</span>
                 How It Works
-            </h3>
-            <ul class="space-y-3 text-sm text-slate-600">
+            </h4>
+            <ul class="space-y-3 text-sm" style="color: var(--docs-text-muted);">
                 <li class="flex gap-2">
                     <span class="text-amber-500">1.</span>
-                    <span>Backend flashes data using <code class="bg-slate-100 px-1 py-0.5 rounded text-xs">session()->flash()</code></span>
+                    <span>Backend flashes data using <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">session()->flash()</code></span>
                 </li>
                 <li class="flex gap-2">
                     <span class="text-amber-500">2.</span>
@@ -90,7 +90,7 @@
                 </li>
                 <li class="flex gap-2">
                     <span class="text-amber-500">3.</span>
-                    <span>The <code class="bg-slate-100 px-1 py-0.5 rounded text-xs">flash</code> object provides <code class="bg-slate-100 px-1 py-0.5 rounded text-xs">.has()</code> and direct access</span>
+                    <span>The <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">flash</code> object provides <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">.has()</code> and direct access</span>
                 </li>
                 <li class="flex gap-2">
                     <span class="text-amber-500">4.</span>
@@ -98,42 +98,42 @@
                 </li>
             </ul>
         </div>
-    </div>
 
-    <!-- Flash Methods -->
-    <div class="bg-slate-50 rounded-xl p-6 border border-slate-100 mb-6">
-        <h3 class="font-medium text-slate-700 mb-4">Flash Object Methods</h3>
-        <div class="grid md:grid-cols-3 gap-4">
-            <div class="p-4 bg-white rounded-lg border border-slate-200">
-                <code class="text-sm font-mono text-amber-600">flash.has(key)</code>
-                <p class="text-xs text-slate-500 mt-1">Check if a flash key exists and has a value</p>
-            </div>
-            <div class="p-4 bg-white rounded-lg border border-slate-200">
-                <code class="text-sm font-mono text-amber-600">flash.key</code>
-                <p class="text-xs text-slate-500 mt-1">Access flash value directly by key</p>
-            </div>
-            <div class="p-4 bg-white rounded-lg border border-slate-200">
-                <code class="text-sm font-mono text-amber-600">flash.get(key, default)</code>
-                <p class="text-xs text-slate-500 mt-1">Get value with optional default</p>
+        <!-- Flash Methods -->
+        <div class="rounded-xl p-4 border border-orange-500/30" style="background: rgba(249, 115, 22, 0.1);">
+            <h4 class="font-medium mb-4" style="color: var(--docs-text);">Flash Object Methods</h4>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="p-4 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+                    <code class="text-sm font-mono text-amber-500">flash.has(key)</code>
+                    <p class="text-xs mt-1" style="color: var(--docs-text-muted);">Check if a flash key exists and has a value</p>
+                </div>
+                <div class="p-4 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+                    <code class="text-sm font-mono text-amber-500">flash.key</code>
+                    <p class="text-xs mt-1" style="color: var(--docs-text-muted);">Access flash value directly by key</p>
+                </div>
+                <div class="p-4 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+                    <code class="text-sm font-mono text-amber-500">flash.get(key, default)</code>
+                    <p class="text-xs mt-1" style="color: var(--docs-text-muted);">Get value with optional default</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Configuration -->
-    <div class="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 mb-6">
-        <h3 class="font-medium text-slate-700 mb-4">Configuration Options</h3>
-        <p class="text-sm text-slate-600 mb-4">
-            Control automatic flash data sharing in <code class="bg-white/50 px-1 py-0.5 rounded text-xs">config/accelade.php</code>:
-        </p>
+        <!-- Configuration -->
+        <div class="rounded-xl p-4 border border-[var(--docs-border)]" style="background: var(--docs-bg);">
+            <h4 class="font-medium mb-4" style="color: var(--docs-text);">Configuration Options</h4>
+            <p class="text-sm mb-4" style="color: var(--docs-text-muted);">
+                Control automatic flash data sharing in <code class="px-1.5 py-0.5 rounded text-sm border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">config/accelade.php</code>:
+            </p>
 
-        <div class="grid md:grid-cols-2 gap-4">
-            <div class="p-4 bg-white rounded-lg border border-slate-200">
-                <code class="text-sm font-mono text-slate-600">flash.enabled</code>
-                <p class="text-xs text-slate-500 mt-1">Enable/disable automatic flash data sharing (default: true)</p>
-            </div>
-            <div class="p-4 bg-white rounded-lg border border-slate-200">
-                <code class="text-sm font-mono text-slate-600">flash.keys</code>
-                <p class="text-xs text-slate-500 mt-1">Array of specific keys to share, or null for all</p>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">
+                    <code class="text-sm font-mono" style="color: var(--docs-text-muted);">flash.enabled</code>
+                    <p class="text-xs mt-1" style="color: var(--docs-text-muted);">Enable/disable automatic flash data sharing (default: true)</p>
+                </div>
+                <div class="p-4 rounded-lg border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">
+                    <code class="text-sm font-mono" style="color: var(--docs-text-muted);">flash.keys</code>
+                    <p class="text-xs mt-1" style="color: var(--docs-text-muted);">Array of specific keys to share, or null for all</p>
+                </div>
             </div>
         </div>
     </div>
@@ -159,7 +159,7 @@
 &lt;/x-accelade::flash&gt;
     </x-accelade::code-block>
 
-    <div class="mt-6">
+    <div class="mt-4">
         <x-accelade::code-block language="php" filename="Controller.php">
 &lt;?php
 
@@ -192,7 +192,7 @@ class OrderController extends Controller
         </x-accelade::code-block>
     </div>
 
-    <div class="mt-6">
+    <div class="mt-4">
         <x-accelade::code-block language="php" filename="config/accelade.php">
 // Flash data configuration
 'flash' => [

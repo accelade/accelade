@@ -146,22 +146,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Demo Configuration
+    | Documentation Portal
     |--------------------------------------------------------------------------
     |
-    | Configure the built-in demo pages for testing and development.
-    | The demo showcases all Accelade features across all supported frameworks.
+    | Configuration for the Accelade documentation portal with live demos.
     |
     | Options:
-    | - enabled: Enable/disable demo routes (default: false in production)
-    | - prefix: URL prefix for demo routes (default: 'demo')
-    | - middleware: Middleware to apply to demo routes (default: ['web'])
+    | - enabled: Enable/disable docs routes (default: false in production)
+    | - prefix: URL prefix for docs routes (default: 'docs')
+    | - middleware: Middleware to apply to docs routes (default: ['web'])
+    | - github_repo: GitHub repository for "Edit on GitHub" links
     |
     */
-    'demo' => [
-        'enabled' => env('ACCELADE_DEMO_ENABLED', env('APP_ENV') !== 'production'),
-        'prefix' => env('ACCELADE_DEMO_PREFIX', 'demo'),
+    'docs' => [
+        'enabled' => env('ACCELADE_DOCS_ENABLED', env('APP_ENV') !== 'production'),
+        'prefix' => env('ACCELADE_DOCS_PREFIX', 'docs'),
         'middleware' => ['web'],
+        'github_repo' => 'accelade/accelade',
     ],
 
     /*
@@ -177,6 +178,28 @@ return [
     */
     'testing' => [
         'base_url' => env('ACCELADE_TEST_URL', env('APP_URL', 'http://localhost')),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Error Handling Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure how Accelade handles errors in the browser.
+    |
+    | Options:
+    | - suppress_errors: In production, show toast notifications instead of
+    |   throwing errors that may cause blank pages (default: true in production)
+    | - show_toasts: Show toast notifications for errors (default: true)
+    | - log_errors: Log errors to browser console (default: true)
+    | - debug: Include debug information in error responses (uses APP_DEBUG)
+    |
+    */
+    'errors' => [
+        'suppress_errors' => env('ACCELADE_SUPPRESS_ERRORS', env('APP_ENV') === 'production'),
+        'show_toasts' => env('ACCELADE_ERROR_TOASTS', true),
+        'log_errors' => env('ACCELADE_LOG_ERRORS', true),
+        'debug' => env('APP_DEBUG', false),
     ],
 
     /*
