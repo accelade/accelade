@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Accelade\Http\Controllers;
 
+use Accelade\Docs\DocsRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\File;
@@ -15,86 +16,9 @@ use League\CommonMark\MarkdownConverter;
 
 class DocsController extends Controller
 {
-    /**
-     * Section to documentation file mapping.
-     */
-    protected array $sectionDocs = [
-        'getting-started' => 'getting-started.md',
-        'installation' => 'installation.md',
-        'configuration' => 'configuration.md',
-        'counter' => 'components.md',
-        'data' => 'data.md',
-        'state' => 'state.md',
-        'modal' => 'modal.md',
-        'toggle' => 'toggle.md',
-        'transition' => 'animations.md',
-        'notifications' => 'notifications.md',
-        'code-block' => 'code-block.md',
-        'lazy' => 'lazy-loading.md',
-        'defer' => 'content.md',
-        'content' => 'content.md',
-        'rehydrate' => 'rehydrate.md',
-        'teleport' => 'teleport.md',
-        'navigation' => 'spa-navigation.md',
-        'link' => 'link.md',
-        'progress' => 'spa-navigation.md',
-        'persistent' => 'persistent-layout.md',
-        'event-bus' => 'event-bus.md',
-        'event' => 'event.md',
-        'bridge' => 'bridge.md',
-        'shared-data' => 'shared-data.md',
-        'flash' => 'flash.md',
-        'errors' => 'exception-handling.md',
-        'scripts' => 'scripts.md',
-        'api-reference' => 'api-reference.md',
-        'frameworks' => 'frameworks.md',
-        'architecture' => 'architecture.md',
-        'testing' => 'testing.md',
-        'contributing' => 'contributing.md',
-        'sponsor' => 'sponsor.md',
-        'thanks' => 'thanks.md',
-    ];
-
-    /**
-     * Sections that have live demos.
-     */
-    protected array $sectionsWithDemo = [
-        'counter',
-        'data',
-        'state',
-        'modal',
-        'toggle',
-        'transition',
-        'notifications',
-        'code-block',
-        'lazy',
-        'defer',
-        'content',
-        'rehydrate',
-        'teleport',
-        'navigation',
-        'link',
-        'progress',
-        'persistent',
-        'event-bus',
-        'event',
-        'bridge',
-        'shared-data',
-        'flash',
-        'errors',
-        'scripts',
-    ];
-
-    /**
-     * Framework prefixes for demo components.
-     */
-    protected array $frameworkPrefixes = [
-        'vanilla' => 'a',
-        'vue' => 'v',
-        'react' => 'data-state',
-        'svelte' => 's',
-        'angular' => 'ng',
-    ];
+    public function __construct(
+        protected DocsRegistry $registry,
+    ) {}
 
     /**
      * Show a documentation section.
@@ -104,21 +28,24 @@ class DocsController extends Controller
         $framework = $request->query('framework', 'vanilla');
 
         // Validate framework
-        if (! array_key_exists($framework, $this->frameworkPrefixes)) {
+        if (! $this->registry->isValidFramework($framework)) {
             $framework = 'vanilla';
         }
 
         // Get prefix for framework
-        $prefix = $this->frameworkPrefixes[$framework];
+        $prefix = $this->registry->getFrameworkPrefix($framework);
+
+        // Get section from registry
+        $docSection = $this->registry->getSection($section);
 
         // Check if section has a demo
-        $hasDemo = in_array($section, $this->sectionsWithDemo, true);
+        $hasDemo = $docSection->hasDemo ?? false;
 
         // Get documentation content
         $documentation = $this->getDocumentation($section);
 
         // Determine which view to render
-        $viewName = $this->getSectionView($section);
+        $viewName = $docSection?->getViewName() ?? 'accelade::docs.sections.getting-started';
 
         return view($viewName, [
             'framework' => $framework,
@@ -126,6 +53,8 @@ class DocsController extends Controller
             'section' => $section,
             'documentation' => $documentation,
             'hasDemo' => $hasDemo,
+            'docSection' => $docSection,
+            'navigation' => $this->registry->getNavigation(),
         ]);
     }
 
@@ -134,15 +63,15 @@ class DocsController extends Controller
      */
     protected function getDocumentation(string $section): ?string
     {
-        $docFile = $this->sectionDocs[$section] ?? null;
+        $docSection = $this->registry->getSection($section);
 
-        if (! $docFile) {
+        if ($docSection === null) {
             return null;
         }
 
-        $docPath = __DIR__.'/../../../docs/'.$docFile;
+        $docPath = $docSection->getMarkdownPath($this->registry);
 
-        if (! File::exists($docPath)) {
+        if ($docPath === null || ! File::exists($docPath)) {
             return null;
         }
 
@@ -248,52 +177,6 @@ HTML;
     }
 
     /**
-     * Get the view name for a section.
-     */
-    protected function getSectionView(string $section): string
-    {
-        // Map sections to their view files
-        $viewMap = [
-            'getting-started' => 'accelade::docs.sections.getting-started',
-            'installation' => 'accelade::docs.sections.installation',
-            'configuration' => 'accelade::docs.sections.configuration',
-            'counter' => 'accelade::docs.sections.counter',
-            'data' => 'accelade::docs.sections.data',
-            'state' => 'accelade::docs.sections.state',
-            'modal' => 'accelade::docs.sections.modal',
-            'toggle' => 'accelade::docs.sections.toggle',
-            'transition' => 'accelade::docs.sections.transition',
-            'notifications' => 'accelade::docs.sections.notifications',
-            'code-block' => 'accelade::docs.sections.code-block',
-            'lazy' => 'accelade::docs.sections.lazy',
-            'defer' => 'accelade::docs.sections.defer',
-            'content' => 'accelade::docs.sections.content',
-            'rehydrate' => 'accelade::docs.sections.rehydrate',
-            'teleport' => 'accelade::docs.sections.teleport',
-            'navigation' => 'accelade::docs.sections.navigation',
-            'link' => 'accelade::docs.sections.link',
-            'progress' => 'accelade::docs.sections.progress',
-            'persistent' => 'accelade::docs.sections.persistent',
-            'event-bus' => 'accelade::docs.sections.event-bus',
-            'event' => 'accelade::docs.sections.event',
-            'bridge' => 'accelade::docs.sections.bridge',
-            'shared-data' => 'accelade::docs.sections.shared-data',
-            'flash' => 'accelade::docs.sections.flash',
-            'errors' => 'accelade::docs.sections.errors',
-            'scripts' => 'accelade::docs.sections.scripts',
-            'api-reference' => 'accelade::docs.sections.api-reference',
-            'frameworks' => 'accelade::docs.sections.frameworks',
-            'architecture' => 'accelade::docs.sections.architecture',
-            'testing' => 'accelade::docs.sections.testing',
-            'contributing' => 'accelade::docs.sections.contributing',
-            'sponsor' => 'accelade::docs.sections.sponsor',
-            'thanks' => 'accelade::docs.sections.thanks',
-        ];
-
-        return $viewMap[$section] ?? 'accelade::docs.sections.getting-started';
-    }
-
-    /**
      * Search documentation.
      */
     public function search(Request $request): array
@@ -306,26 +189,60 @@ HTML;
 
         $results = [];
 
-        foreach ($this->sectionDocs as $section => $docFile) {
-            $docPath = __DIR__.'/../../../docs/'.$docFile;
+        foreach ($this->registry->getAllSections() as $slug => $section) {
+            $docPath = $section->getMarkdownPath($this->registry);
 
-            if (! File::exists($docPath)) {
-                continue;
+            // Check section metadata
+            $matchesMetadata = str_contains(strtolower($slug), $query)
+                || str_contains(strtolower($section->label), $query)
+                || str_contains(strtolower($section->description ?? ''), $query)
+                || $this->matchesKeywords($query, $section->keywords);
+
+            // Check content if file exists
+            $matchesContent = false;
+            if ($docPath !== null && File::exists($docPath)) {
+                $content = strtolower(File::get($docPath));
+                $matchesContent = str_contains($content, $query);
             }
 
-            $content = strtolower(File::get($docPath));
-            $sectionLabel = ucwords(str_replace('-', ' ', $section));
-
-            // Check if query matches section name or content
-            if (str_contains($section, $query) || str_contains($content, $query)) {
+            if ($matchesMetadata || $matchesContent) {
                 $results[] = [
-                    'section' => $section,
-                    'label' => $sectionLabel,
-                    'hasDemo' => in_array($section, $this->sectionsWithDemo, true),
+                    'section' => $slug,
+                    'label' => $section->label,
+                    'hasDemo' => $section->hasDemo,
+                    'package' => $section->package,
+                    'description' => $section->description,
                 ];
             }
         }
 
         return ['results' => $results];
+    }
+
+    /**
+     * Check if query matches any keywords.
+     *
+     * @param  array<int, string>  $keywords
+     */
+    protected function matchesKeywords(string $query, array $keywords): bool
+    {
+        foreach ($keywords as $keyword) {
+            if (str_contains(strtolower($keyword), $query)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get navigation structure for the docs sidebar.
+     */
+    public function navigation(): array
+    {
+        return [
+            'navigation' => $this->registry->getNavigation(),
+            'frameworks' => $this->registry->getFrameworkPrefixes(),
+        ];
     }
 }

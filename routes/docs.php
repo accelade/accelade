@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Accelade\Docs\DocsRegistry;
 use Accelade\Facades\Accelade;
 use Accelade\Http\Controllers\DocsController;
 use Accelade\Http\Controllers\NotifyDemoController;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | These routes serve the Accelade documentation portal with live demos.
+| Other packages can register their documentation sections via the
+| DocsRegistry in their service providers.
 |
 */
 
@@ -32,47 +35,12 @@ $shareData = function () {
     ]);
 };
 
-// Valid sections
-$validSections = [
-    'getting-started',
-    'installation',
-    'configuration',
-    'counter',
-    'data',
-    'state',
-    'modal',
-    'toggle',
-    'transition',
-    'notifications',
-    'code-block',
-    'lazy',
-    'defer',
-    'content',
-    'rehydrate',
-    'teleport',
-    'navigation',
-    'link',
-    'progress',
-    'persistent',
-    'event-bus',
-    'event',
-    'bridge',
-    'shared-data',
-    'flash',
-    'errors',
-    'scripts',
-    'api-reference',
-    'frameworks',
-    'architecture',
-    'testing',
-    'contributing',
-    'sponsor',
-    'thanks',
-];
+// Docs section routes - validates against registered sections
+Route::get('/{section}', function (string $section) use ($shareData) {
+    /** @var DocsRegistry $registry */
+    $registry = app('accelade.docs');
 
-// Docs section routes
-Route::get('/{section}', function (string $section) use ($shareData, $validSections) {
-    if (! in_array($section, $validSections)) {
+    if (! $registry->hasSection($section)) {
         abort(404);
     }
 
@@ -85,6 +53,11 @@ Route::get('/{section}', function (string $section) use ($shareData, $validSecti
 Route::get('/api/search', function () {
     return app(DocsController::class)->search(request());
 })->name('docs.search');
+
+// Navigation API - returns sidebar structure
+Route::get('/api/navigation', function () {
+    return app(DocsController::class)->navigation();
+})->name('docs.navigation');
 
 // Backend notification demo routes
 Route::get('/notify/{type}', [NotifyDemoController::class, 'show'])

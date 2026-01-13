@@ -8,6 +8,7 @@ use Accelade\Animation\AnimationManager;
 use Accelade\Bridge\BridgeManager;
 use Accelade\Compilers\AcceladeTagCompiler;
 use Accelade\Console\InstallCommand;
+use Accelade\Docs\DocsRegistry;
 use Accelade\Notification\NotificationManager;
 use Accelade\SEO\SEO;
 use Illuminate\Support\Facades\Blade;
@@ -44,6 +45,13 @@ class AcceladeServiceProvider extends ServiceProvider
         $this->app->singleton('accelade.bridge', function () {
             return new BridgeManager;
         });
+
+        $this->app->singleton('accelade.docs', function () {
+            return new DocsRegistry;
+        });
+
+        // Bind the class to the singleton alias for dependency injection
+        $this->app->alias('accelade.docs', DocsRegistry::class);
     }
 
     public function boot(): void
@@ -54,6 +62,7 @@ class AcceladeServiceProvider extends ServiceProvider
         $this->registerRoutes();
         $this->registerPublishing();
         $this->registerCommands();
+        $this->registerDefaultDocs();
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'accelade');
     }
@@ -247,5 +256,88 @@ class AcceladeServiceProvider extends ServiceProvider
                 InstallCommand::class,
             ]);
         }
+    }
+
+    protected function registerDefaultDocs(): void
+    {
+        /** @var DocsRegistry $docs */
+        $docs = $this->app->make('accelade.docs');
+
+        // Register Accelade package path
+        $docs->registerPackage('accelade', __DIR__.'/../docs');
+
+        // Register navigation groups
+        $docs->registerGroup('getting-started', 'Getting Started', 'book', 10);
+        $docs->registerGroup('components', 'Components', 'cube', 20);
+        $docs->registerGroup('data', 'Data & State', 'database', 30);
+        $docs->registerGroup('navigation', 'Navigation', 'arrow-right', 40);
+        $docs->registerGroup('advanced', 'Advanced', 'cog', 50);
+        $docs->registerGroup('resources', 'Resources', 'folder', 60);
+
+        // Register sections by group
+        $this->registerGettingStartedDocs($docs);
+        $this->registerComponentsDocs($docs);
+        $this->registerDataDocs($docs);
+        $this->registerNavigationDocs($docs);
+        $this->registerAdvancedDocs($docs);
+        $this->registerResourcesDocs($docs);
+    }
+
+    protected function registerGettingStartedDocs(DocsRegistry $docs): void
+    {
+        $docs->section('getting-started')->label('Getting Started')->markdown('getting-started.md')->demo()->inGroup('getting-started')->register();
+        $docs->section('installation')->label('Installation')->markdown('installation.md')->inGroup('getting-started')->register();
+        $docs->section('configuration')->label('Configuration')->markdown('configuration.md')->inGroup('getting-started')->register();
+    }
+
+    protected function registerComponentsDocs(DocsRegistry $docs): void
+    {
+        $docs->section('counter')->label('Counter Demo')->markdown('components.md')->demo()->inGroup('components')->register();
+        $docs->section('data')->label('Data Component')->markdown('data.md')->demo()->inGroup('components')->register();
+        $docs->section('state')->label('State Management')->markdown('state.md')->demo()->inGroup('components')->register();
+        $docs->section('modal')->label('Modal')->markdown('modal.md')->demo()->inGroup('components')->register();
+        $docs->section('toggle')->label('Toggle')->markdown('toggle.md')->demo()->inGroup('components')->register();
+        $docs->section('transition')->label('Transitions')->markdown('animations.md')->demo()->inGroup('components')->register();
+        $docs->section('notifications')->label('Notifications')->markdown('notifications.md')->demo()->inGroup('components')->register();
+        $docs->section('code-block')->label('Code Block')->markdown('code-block.md')->demo()->inGroup('components')->register();
+    }
+
+    protected function registerDataDocs(DocsRegistry $docs): void
+    {
+        $docs->section('lazy')->label('Lazy Loading')->markdown('lazy-loading.md')->demo()->inGroup('data')->register();
+        $docs->section('defer')->label('Defer')->markdown('content.md')->demo()->inGroup('data')->register();
+        $docs->section('content')->label('Content')->markdown('content.md')->demo()->inGroup('data')->register();
+        $docs->section('rehydrate')->label('Rehydrate')->markdown('rehydrate.md')->demo()->inGroup('data')->register();
+        $docs->section('teleport')->label('Teleport')->markdown('teleport.md')->demo()->inGroup('data')->register();
+    }
+
+    protected function registerNavigationDocs(DocsRegistry $docs): void
+    {
+        $docs->section('navigation')->label('SPA Navigation')->markdown('spa-navigation.md')->demo()->inGroup('navigation')->register();
+        $docs->section('link')->label('Link Component')->markdown('link.md')->demo()->inGroup('navigation')->register();
+        $docs->section('progress')->label('Progress Bar')->markdown('spa-navigation.md')->demo()->inGroup('navigation')->register();
+        $docs->section('persistent')->label('Persistent Layout')->markdown('persistent-layout.md')->demo()->inGroup('navigation')->register();
+    }
+
+    protected function registerAdvancedDocs(DocsRegistry $docs): void
+    {
+        $docs->section('event-bus')->label('Event Bus')->markdown('event-bus.md')->demo()->inGroup('advanced')->register();
+        $docs->section('event')->label('Event Component')->markdown('event.md')->demo()->inGroup('advanced')->register();
+        $docs->section('bridge')->label('Bridge (PHP/JS)')->markdown('bridge.md')->demo()->inGroup('advanced')->register();
+        $docs->section('shared-data')->label('Shared Data')->markdown('shared-data.md')->demo()->inGroup('advanced')->register();
+        $docs->section('flash')->label('Flash Messages')->markdown('flash.md')->demo()->inGroup('advanced')->register();
+        $docs->section('errors')->label('Error Handling')->markdown('exception-handling.md')->demo()->inGroup('advanced')->register();
+        $docs->section('scripts')->label('Scripts')->markdown('scripts.md')->demo()->inGroup('advanced')->register();
+    }
+
+    protected function registerResourcesDocs(DocsRegistry $docs): void
+    {
+        $docs->section('api-reference')->label('API Reference')->markdown('api-reference.md')->inGroup('resources')->register();
+        $docs->section('frameworks')->label('Frameworks')->markdown('frameworks.md')->inGroup('resources')->register();
+        $docs->section('architecture')->label('Architecture')->markdown('architecture.md')->inGroup('resources')->register();
+        $docs->section('testing')->label('Testing')->markdown('testing.md')->inGroup('resources')->register();
+        $docs->section('contributing')->label('Contributing')->markdown('contributing.md')->inGroup('resources')->register();
+        $docs->section('sponsor')->label('Sponsor')->markdown('sponsor.md')->inGroup('resources')->register();
+        $docs->section('thanks')->label('Thanks')->markdown('thanks.md')->inGroup('resources')->register();
     }
 }

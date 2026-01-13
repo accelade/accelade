@@ -3,6 +3,7 @@
     'framework' => 'vanilla',
     'documentation' => null,
     'hasDemo' => true,
+    'navigation' => null,
 ])
 
 @php
@@ -26,68 +27,73 @@
     ];
     $prefix = $frameworkPrefixes[$framework] ?? 'a';
 
-    // Section groups (icons on links, not groups) - with keywords for search
-    $sectionGroups = [
-        'Getting Started' => [
-            ['id' => 'getting-started', 'label' => 'Introduction', 'icon' => '👋', 'doc' => 'getting-started.md', 'keywords' => 'welcome overview start begin quick tutorial'],
-            ['id' => 'installation', 'label' => 'Installation', 'icon' => '📦', 'doc' => 'installation.md', 'keywords' => 'install setup composer npm requirements dependencies'],
-            ['id' => 'configuration', 'label' => 'Configuration', 'icon' => '⚙️', 'doc' => 'configuration.md', 'keywords' => 'config settings options environment env'],
-            ['id' => 'frameworks', 'label' => 'Frameworks', 'icon' => '🏗️', 'doc' => 'frameworks.md', 'keywords' => 'vue react svelte angular vanilla'],
-            ['id' => 'architecture', 'label' => 'Architecture', 'icon' => '🏛️', 'doc' => 'architecture.md', 'keywords' => 'structure design pattern internals'],
-            ['id' => 'testing', 'label' => 'Testing', 'icon' => '🧪', 'doc' => 'testing.md', 'keywords' => 'test unit integration pest phpunit'],
-        ],
-        'Core' => [
-            ['id' => 'counter', 'label' => 'Counter', 'icon' => '🔢', 'doc' => 'components.md', 'demo' => true, 'keywords' => 'count increment decrement number reactive'],
-            ['id' => 'data', 'label' => 'Data Binding', 'icon' => '💾', 'doc' => 'data.md', 'demo' => true, 'keywords' => 'bind model two-way input form reactive'],
-            ['id' => 'state', 'label' => 'State Management', 'icon' => '🔀', 'doc' => 'state.md', 'demo' => true, 'keywords' => 'store global reactive shared persist session'],
-            ['id' => 'scripts', 'label' => 'Custom Scripts', 'icon' => '📜', 'doc' => 'scripts.md', 'demo' => true, 'keywords' => 'javascript custom methods functions api hooks'],
-        ],
-        'UI Components' => [
-            ['id' => 'modal', 'label' => 'Modal', 'icon' => '🪟', 'doc' => 'modal.md', 'demo' => true, 'keywords' => 'dialog popup overlay window alert confirm'],
-            ['id' => 'toggle', 'label' => 'Toggle', 'icon' => '🔘', 'doc' => 'toggle.md', 'demo' => true, 'keywords' => 'switch checkbox boolean on off'],
-            ['id' => 'transition', 'label' => 'Transitions', 'icon' => '✨', 'doc' => 'animations.md', 'demo' => true, 'keywords' => 'animation fade slide enter leave css'],
-            ['id' => 'notifications', 'label' => 'Notifications', 'icon' => '🔔', 'doc' => 'notifications.md', 'demo' => true, 'keywords' => 'toast alert message notify success error warning'],
-            ['id' => 'code-block', 'label' => 'Code Block', 'icon' => '💻', 'doc' => 'code-block.md', 'demo' => true, 'keywords' => 'syntax highlight copy image prism code snippet'],
-        ],
-        'Content Loading' => [
-            ['id' => 'lazy', 'label' => 'Lazy Loading', 'icon' => '💤', 'doc' => 'lazy-loading.md', 'demo' => true, 'keywords' => 'defer async load on demand viewport intersection'],
-            ['id' => 'defer', 'label' => 'Defer', 'icon' => '⏱️', 'doc' => 'content.md', 'demo' => true, 'keywords' => 'lazy delay load async'],
-            ['id' => 'content', 'label' => 'Content', 'icon' => '📄', 'doc' => 'content.md', 'demo' => true, 'keywords' => 'dynamic html ajax fetch load'],
-            ['id' => 'rehydrate', 'label' => 'Rehydrate', 'icon' => '🔄', 'doc' => 'rehydrate.md', 'demo' => true, 'keywords' => 'hydration ssr refresh reload update'],
-            ['id' => 'teleport', 'label' => 'Teleport', 'icon' => '🚀', 'doc' => 'teleport.md', 'demo' => true, 'keywords' => 'portal move dom append body'],
-        ],
-        'Navigation' => [
-            ['id' => 'navigation', 'label' => 'SPA Navigation', 'icon' => '🧭', 'doc' => 'spa-navigation.md', 'demo' => true, 'keywords' => 'router link page history pushstate ajax'],
-            ['id' => 'link', 'label' => 'Link Component', 'icon' => '🔗', 'doc' => 'link.md', 'demo' => true, 'keywords' => 'anchor href navigate prefetch'],
-            ['id' => 'progress', 'label' => 'Progress Bar', 'icon' => '📊', 'doc' => 'spa-navigation.md', 'demo' => true, 'keywords' => 'loading bar indicator nprogress'],
-            ['id' => 'persistent', 'label' => 'Persistent Layout', 'icon' => '📌', 'doc' => 'persistent-layout.md', 'demo' => true, 'keywords' => 'keep alive cache layout preserve'],
-        ],
-        'Events' => [
-            ['id' => 'event-bus', 'label' => 'Event Bus', 'icon' => '📡', 'doc' => 'event-bus.md', 'demo' => true, 'keywords' => 'emit listen broadcast pubsub communicate'],
-            ['id' => 'event', 'label' => 'Laravel Echo', 'icon' => '📻', 'doc' => 'event.md', 'demo' => true, 'keywords' => 'websocket realtime broadcast pusher socket'],
-        ],
-        'Backend Integration' => [
-            ['id' => 'bridge', 'label' => 'Bridge', 'icon' => '🌉', 'doc' => 'bridge.md', 'demo' => true, 'keywords' => 'php call ajax server action method'],
-            ['id' => 'shared-data', 'label' => 'Shared Data', 'icon' => '📤', 'doc' => 'shared-data.md', 'demo' => true, 'keywords' => 'share pass server client global'],
-            ['id' => 'flash', 'label' => 'Flash Messages', 'icon' => '⚡', 'doc' => 'flash.md', 'demo' => true, 'keywords' => 'session message notification redirect'],
-            ['id' => 'errors', 'label' => 'Error Handling', 'icon' => '⚠️', 'doc' => 'exception-handling.md', 'demo' => true, 'keywords' => 'exception catch handle debug'],
-        ],
-        'Reference' => [
-            ['id' => 'api-reference', 'label' => 'API Reference', 'icon' => '📚', 'doc' => 'api-reference.md', 'keywords' => 'api methods functions facades classes documentation reference'],
-        ],
-        'Community' => [
-            ['id' => 'contributing', 'label' => 'Contributing', 'icon' => '🤝', 'doc' => 'contributing.md', 'keywords' => 'contribute pull request pr fork github help'],
-            ['id' => 'sponsor', 'label' => 'Sponsor', 'icon' => '💖', 'doc' => 'sponsor.md', 'keywords' => 'sponsor support donate funding github sponsors'],
-            ['id' => 'thanks', 'label' => 'Thanks & Credits', 'icon' => '🙏', 'doc' => 'thanks.md', 'keywords' => 'thanks credits acknowledgments contributors license'],
-        ],
+    // Icon mapping for section slugs
+    $sectionIcons = [
+        'getting-started' => '👋',
+        'installation' => '📦',
+        'configuration' => '⚙️',
+        'frameworks' => '🏗️',
+        'architecture' => '🏛️',
+        'testing' => '🧪',
+        'counter' => '🔢',
+        'data' => '💾',
+        'state' => '🔀',
+        'scripts' => '📜',
+        'modal' => '🪟',
+        'toggle' => '🔘',
+        'transition' => '✨',
+        'notifications' => '🔔',
+        'code-block' => '💻',
+        'lazy' => '💤',
+        'defer' => '⏱️',
+        'content' => '📄',
+        'rehydrate' => '🔄',
+        'teleport' => '🚀',
+        'navigation' => '🧭',
+        'link' => '🔗',
+        'progress' => '📊',
+        'persistent' => '📌',
+        'event-bus' => '📡',
+        'event' => '📻',
+        'bridge' => '🌉',
+        'shared-data' => '📤',
+        'flash' => '⚡',
+        'errors' => '⚠️',
+        'api-reference' => '📚',
+        'contributing' => '🤝',
+        'sponsor' => '💖',
+        'thanks' => '🙏',
     ];
 
-    // Flatten for finding section info
-    $allSections = collect($sectionGroups)->flatMap(fn($sections) => $sections)->keyBy('id')->toArray();
-    $currentSection = $allSections[$section] ?? ['label' => ucfirst($section), 'doc' => 'getting-started.md'];
+    // Use navigation from registry if provided, otherwise get from app
+    $navData = $navigation ?? app('accelade.docs')->getNavigation();
 
-    // GitHub edit URL - use the actual doc file
-    $docFile = $currentSection['doc'] ?? 'getting-started.md';
+    // Build section groups from navigation data
+    $sectionGroups = [];
+    $allSections = [];
+    foreach ($navData as $group) {
+        $groupSections = [];
+        foreach ($group['items'] as $item) {
+            $sectionData = [
+                'id' => $item['slug'],
+                'label' => $item['label'],
+                'icon' => $sectionIcons[$item['slug']] ?? '📄',
+                'demo' => $item['hasDemo'],
+                'keywords' => '',
+            ];
+            $groupSections[] = $sectionData;
+            $allSections[$item['slug']] = $sectionData;
+        }
+        $sectionGroups[$group['label']] = $groupSections;
+    }
+
+    // Current section info
+    $currentSection = $allSections[$section] ?? ['label' => ucfirst($section)];
+
+    // Get doc file from registry for GitHub edit URL
+    $registry = app('accelade.docs');
+    $docSection = $registry->getSection($section);
+    $docFile = $docSection?->markdownFile ?? 'getting-started.md';
     $githubRepo = config('accelade.docs.github_repo', 'accelade/accelade');
     $githubEditUrl = "https://github.com/{$githubRepo}/edit/master/docs/{$docFile}";
 
@@ -295,6 +301,9 @@
         .tab-btn.active { color: var(--docs-accent); border-color: var(--docs-accent); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+
+        /* Cloak pattern - hide until JS is ready */
+        [data-cloak] { display: none !important; }
 
         /* Documentation prose - GitHub-style markdown */
         .docs-prose {
@@ -551,7 +560,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen antialiased">
+<body class="min-h-screen antialiased" data-section="{{ $section }}">
     <!-- Mobile overlay -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
 
@@ -560,24 +569,27 @@
         <aside id="sidebar" class="sidebar w-60 border-e flex flex-col shrink-0 lg:sticky lg:top-0 lg:h-screen">
             <!-- Logo -->
             <div class="p-4 border-b border-[var(--docs-border)]">
-                <a href="{{ route('docs.section', ['section' => 'getting-started']) }}" class="flex items-center gap-3">
+                <x-accelade::link href="{{ route('docs.section', ['section' => 'getting-started']) }}" class="flex items-center gap-3" activeClass="">
                     <img src="{{ asset('vendor/accelade/logo-dark.png') }}" alt="Accelade" class="h-7 w-auto dark:hidden">
                     <img src="{{ asset('vendor/accelade/logo-light.png') }}" alt="Accelade" class="h-7 w-auto hidden dark:block">
                     <span class="font-bold text-lg">Accelade</span>
-                </a>
+                </x-accelade::link>
             </div>
 
             <!-- Navigation -->
-            <nav class="flex-1 p-3 overflow-y-auto">
+            <nav class="flex-1 p-3 overflow-y-auto" id="docs-sidebar-nav">
                 @foreach($sectionGroups as $groupName => $sections)
                     <div class="sidebar-group">
                         <div class="sidebar-group-title">{{ $groupName }}</div>
                         @foreach($sections as $s)
-                            <a href="{{ route('docs.section', ['section' => $s['id'], 'framework' => $framework]) }}"
-                               class="sidebar-link {{ $section === $s['id'] ? 'active' : '' }}">
+                            <x-accelade::link
+                                href="{{ route('docs.section', ['section' => $s['id'], 'framework' => $framework]) }}"
+                                :preserveScroll="true"
+                                class="sidebar-link {{ $section === $s['id'] ? 'active' : '' }}"
+                                activeClass="">
                                 <span class="icon">{{ $s['icon'] }}</span>
                                 <span>{{ $s['label'] }}</span>
-                            </a>
+                            </x-accelade::link>
                         @endforeach
                     </div>
                 @endforeach
@@ -641,42 +653,66 @@
             </header>
 
             <!-- Content Area -->
-            <div class="flex-1 flex justify-center">
+            <div class="flex-1 flex justify-center" data-accelade-page>
                 <!-- Main Content -->
                 <main class="flex-1 px-4 lg:px-8 py-6 min-w-0 max-w-4xl">
                     @if($hasDemo && $documentation)
-                        <!-- Tabs -->
-                        <div class="border-b border-[var(--docs-border)] mb-6">
-                            <div class="flex gap-4">
-                                <button class="tab-btn active" data-tab="docs">Documentation</button>
-                                <button class="tab-btn" data-tab="demo">
-                                    Live Demo
-                                    <span class="ms-1 px-1.5 py-0.5 text-xs rounded" style="background: {{ $currentFramework['color'] }}20; color: {{ $currentFramework['color'] }}">
-                                        {{ $currentFramework['label'] }}
-                                    </span>
-                                </button>
+                        <!-- Tabs container - hidden by data-cloak until JS sets correct state -->
+                        <div id="tabs-container" data-cloak>
+                            <!-- Tabs -->
+                            <div class="border-b border-[var(--docs-border)] mb-6">
+                                <div class="flex gap-4">
+                                    <button class="tab-btn active" data-tab="docs">Documentation</button>
+                                    <button class="tab-btn" data-tab="demo">
+                                        Live Demo
+                                        <span class="ms-1 px-1.5 py-0.5 text-xs rounded" style="background: {{ $currentFramework['color'] }}20; color: {{ $currentFramework['color'] }}">
+                                            {{ $currentFramework['label'] }}
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Docs Tab -->
+                            <div id="tab-docs" class="tab-content active">
+                                <div class="docs-prose" id="docs-content">
+                                    {!! $documentation !!}
+                                </div>
+                            </div>
+
+                            <!-- Demo Tab -->
+                            <div id="tab-demo" class="tab-content">
+                                {{ $slot }}
                             </div>
                         </div>
+                        <script>
+                            // Immediately set correct tab and remove cloak
+                            (function() {
+                                var section = '{{ $section }}';
+                                var savedTab = localStorage.getItem('docs-tab-' + section);
+                                var container = document.getElementById('tabs-container');
 
-                        <!-- Docs Tab -->
-                        <div id="tab-docs" class="tab-content active">
-                            <div class="docs-prose" id="docs-content">
-                                {!! $documentation !!}
-                            </div>
-                        </div>
+                                // Only switch if user has a saved preference for demo
+                                if (savedTab === 'demo') {
+                                    var docsTab = document.getElementById('tab-docs');
+                                    var demoTab = document.getElementById('tab-demo');
+                                    var tabBtns = container.querySelectorAll('.tab-btn');
 
-                        <!-- Demo Tab -->
-                        <div id="tab-demo" class="tab-content" data-accelade-page>
-                            {{ $slot }}
-                        </div>
+                                    docsTab.classList.remove('active');
+                                    demoTab.classList.add('active');
+                                    tabBtns[0].classList.remove('active');
+                                    tabBtns[1].classList.add('active');
+                                }
+
+                                // Remove cloak - show content
+                                container.removeAttribute('data-cloak');
+                            })();
+                        </script>
                     @elseif($documentation)
                         <div class="docs-prose" id="docs-content">
                             {!! $documentation !!}
                         </div>
                     @else
-                        <div data-accelade-page>
-                            {{ $slot }}
-                        </div>
+                        {{ $slot }}
                     @endif
                 </main>
 
@@ -736,13 +772,15 @@
                         <div class="search-group" data-group="{{ \Illuminate\Support\Str::slug($groupName) }}">
                             <div class="search-group-title px-2 py-1.5 text-xs font-medium text-[var(--docs-text-muted)] uppercase">{{ $groupName }}</div>
                             @foreach($sections as $s)
-                                <a href="{{ route('docs.section', ['section' => $s['id'], 'framework' => $framework]) }}"
-                                   class="search-item flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--docs-bg-alt)]"
-                                   data-search="{{ strtolower($s['label'] . ' ' . $groupName . ' ' . ($s['keywords'] ?? '')) }}"
-                                   data-group="{{ \Illuminate\Support\Str::slug($groupName) }}">
+                                <x-accelade::link
+                                    href="{{ route('docs.section', ['section' => $s['id'], 'framework' => $framework]) }}"
+                                    class="search-item flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--docs-bg-alt)]"
+                                    activeClass=""
+                                    data-search="{{ strtolower($s['label'] . ' ' . $groupName . ' ' . ($s['keywords'] ?? '')) }}"
+                                    data-group="{{ \Illuminate\Support\Str::slug($groupName) }}">
                                     <span>{{ $s['icon'] }}</span>
                                     <span class="font-medium">{{ $s['label'] }}</span>
-                                </a>
+                                </x-accelade::link>
                             @endforeach
                         </div>
                     @endforeach
@@ -764,7 +802,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
 
     <script>
-        // Theme
+        // Theme (runs once, persists across navigation)
         (function() {
             const stored = localStorage.getItem('docs-theme');
             if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -789,12 +827,6 @@
         function toggleFrameworkDropdown() {
             document.getElementById('framework-dropdown').classList.toggle('hidden');
         }
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('framework-dropdown');
-            if (!e.target.closest('.framework-btn') && !dropdown.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
 
         // Search
         function openSearch() {
@@ -806,15 +838,12 @@
             document.getElementById('search-modal').classList.add('hidden');
             document.getElementById('search-input').value = '';
             document.body.style.overflow = '';
-            // Reset visibility
             document.querySelectorAll('.search-item').forEach(el => el.style.display = '');
             document.querySelectorAll('.search-group').forEach(el => el.style.display = '');
         }
         function handleSearch(query) {
             const q = query.toLowerCase().trim();
             const groups = {};
-
-            // First pass: filter items and track which groups have visible items
             document.querySelectorAll('.search-item').forEach(el => {
                 const matches = !q || el.dataset.search.includes(q);
                 el.style.display = matches ? '' : 'none';
@@ -822,13 +851,78 @@
                 if (!groups[groupId]) groups[groupId] = false;
                 if (matches) groups[groupId] = true;
             });
-
-            // Second pass: hide groups with no visible items
             document.querySelectorAll('.search-group').forEach(group => {
                 const groupId = group.dataset.group;
                 group.style.display = groups[groupId] ? '' : 'none';
             });
         }
+
+        // TOC active state
+        function updateTocActive() {
+            const docsTab = document.getElementById('tab-docs');
+            if (!docsTab || !docsTab.classList.contains('active')) return;
+            const headings = document.querySelectorAll('.docs-prose h2[id], .docs-prose h3[id]');
+            const tocLinks = document.querySelectorAll('[data-toc-link]');
+            let current = '';
+            headings.forEach(h => {
+                const rect = h.getBoundingClientRect();
+                if (rect.top <= 120) current = h.id || '';
+            });
+            tocLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                link.classList.toggle('active', href === '#' + current);
+            });
+        }
+
+        // Global event listeners (use event delegation to work with SPA)
+        document.addEventListener('click', function(e) {
+            // Framework dropdown close
+            const dropdown = document.getElementById('framework-dropdown');
+            if (dropdown && !e.target.closest('.framework-btn') && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+
+            // Tab switching (event delegation)
+            const tabBtn = e.target.closest('.tab-btn');
+            if (tabBtn && tabBtn.dataset.tab) {
+                window.switchTab(tabBtn.dataset.tab);
+            }
+
+            // TOC link handling (event delegation)
+            const tocLink = e.target.closest('[data-toc-link]');
+            if (tocLink) {
+                e.preventDefault();
+                const targetId = tocLink.getAttribute('href').substring(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    window.switchTab('docs');
+                    setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+                }
+            }
+
+            // Code copy button (event delegation)
+            const copyBtn = e.target.closest('.code-copy-btn');
+            if (copyBtn) {
+                const targetId = copyBtn.dataset.codeTarget;
+                const pre = document.getElementById(targetId);
+                if (pre) {
+                    const code = pre.querySelector('code') || pre;
+                    navigator.clipboard.writeText(code.textContent).then(() => {
+                        const copyIcon = copyBtn.querySelector('.copy-icon');
+                        const checkIcon = copyBtn.querySelector('.check-icon');
+                        const copyText = copyBtn.querySelector('.copy-text');
+                        if (copyIcon) copyIcon.classList.add('hidden');
+                        if (checkIcon) checkIcon.classList.remove('hidden');
+                        if (copyText) copyText.textContent = 'Copied!';
+                        setTimeout(() => {
+                            if (copyIcon) copyIcon.classList.remove('hidden');
+                            if (checkIcon) checkIcon.classList.add('hidden');
+                            if (copyText) copyText.textContent = 'Copy';
+                        }, 2000);
+                    });
+                }
+            }
+        });
 
         // Keyboard shortcuts
         document.addEventListener('keydown', function(e) {
@@ -836,118 +930,35 @@
             if (e.key === 'Escape') closeSearch();
         });
 
-        // Tabs - with localStorage persistence (wrapped in IIFE to avoid redeclaration on SPA navigation)
-        (function() {
-            const currentSection = '{{ $section }}';
-            const tabStorageKey = 'docs-tab-' + currentSection;
-
-            window.switchTab = function(tab) {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
-                document.getElementById('tab-' + tab)?.classList.add('active');
-                localStorage.setItem(tabStorageKey, tab);
-            };
-
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    window.switchTab(this.dataset.tab);
-                });
-            });
-
-            // Restore saved tab on page load
-            const savedTab = localStorage.getItem(tabStorageKey);
-            if (savedTab && document.getElementById('tab-' + savedTab)) {
-                window.switchTab(savedTab);
-            }
-        })();
-
-        // TOC active state with smooth scroll
-        function updateTocActive() {
-            const docsTab = document.getElementById('tab-docs');
-            if (!docsTab || !docsTab.classList.contains('active')) return;
-
-            const headings = document.querySelectorAll('.docs-prose h2[id], .docs-prose h3[id]');
-            const tocLinks = document.querySelectorAll('[data-toc-link]');
-            let current = '';
-
-            headings.forEach(h => {
-                const rect = h.getBoundingClientRect();
-                if (rect.top <= 120) current = h.id || '';
-            });
-
-            tocLinks.forEach(link => {
-                const href = link.getAttribute('href');
-                const isActive = href === '#' + current;
-                link.classList.toggle('active', isActive);
-            });
-        }
-
-        // TOC click handling with smooth scroll
-        document.querySelectorAll('[data-toc-link]').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href').substring(1);
-                const target = document.getElementById(targetId);
-                if (target) {
-                    // Ensure we're on docs tab
-                    window.switchTab('docs');
-                    setTimeout(() => {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 50);
-                }
-            });
-        });
-
         window.addEventListener('scroll', updateTocActive);
 
-        // Add IDs to headings if missing
-        document.querySelectorAll('.docs-prose h2, .docs-prose h3').forEach(h => {
-            if (!h.id) {
-                h.id = h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-            }
-        });
+        // Tab switching function
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
+            document.getElementById('tab-' + tab)?.classList.add('active');
+            // Store preference per section
+            const section = document.body.dataset.section || 'default';
+            localStorage.setItem('docs-tab-' + section, tab);
+        };
 
-        // Code block copy functionality
-        document.querySelectorAll('.code-copy-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const targetId = this.dataset.codeTarget;
+        // Code block image download - using event delegation
+        document.addEventListener('click', async function(e) {
+            const btn = e.target.closest('.code-download-btn');
+            if (!btn) return;
+
+            const targetId = btn.dataset.codeTarget;
+            const wrapper = document.querySelector(`[data-code-block="${targetId}"]`);
+            if (!wrapper) return;
+
+            // Show loading state
+            const originalText = btn.querySelector('span:last-child');
+            const originalContent = originalText ? originalText.textContent : 'Image';
+            if (originalText) originalText.textContent = 'Loading...';
+
+            try {
                 const pre = document.getElementById(targetId);
-                if (!pre) return;
-
-                const code = pre.querySelector('code') || pre;
-                navigator.clipboard.writeText(code.textContent).then(() => {
-                    const copyIcon = this.querySelector('.copy-icon');
-                    const checkIcon = this.querySelector('.check-icon');
-                    const copyText = this.querySelector('.copy-text');
-
-                    if (copyIcon) copyIcon.classList.add('hidden');
-                    if (checkIcon) checkIcon.classList.remove('hidden');
-                    if (copyText) copyText.textContent = 'Copied!';
-
-                    setTimeout(() => {
-                        if (copyIcon) copyIcon.classList.remove('hidden');
-                        if (checkIcon) checkIcon.classList.add('hidden');
-                        if (copyText) copyText.textContent = 'Copy';
-                    }, 2000);
-                });
-            });
-        });
-
-        // Code block image download - builds image with syntax highlighting
-        document.querySelectorAll('.code-download-btn').forEach(btn => {
-            btn.addEventListener('click', async function() {
-                const targetId = this.dataset.codeTarget;
-                const wrapper = document.querySelector(`[data-code-block="${targetId}"]`);
-                if (!wrapper) return;
-
-                // Show loading state
-                const originalText = this.querySelector('span:last-child');
-                const originalContent = originalText ? originalText.textContent : 'Image';
-                if (originalText) originalText.textContent = 'Loading...';
-
-                try {
-                    const pre = document.getElementById(targetId);
                     const codeEl = pre?.querySelector('code') || pre;
                     const langLabel = wrapper.querySelector('.text-xs.font-medium.uppercase')?.textContent?.trim() || 'CODE';
 
@@ -1129,20 +1140,18 @@
                         if (originalText) originalText.textContent = originalContent;
                     }, 1500);
 
-                } catch (error) {
-                    console.error('Failed to generate image:', error);
-                    if (originalText) originalText.textContent = originalContent;
-                    alert('Failed to generate image: ' + error.message);
-                }
-            });
+            } catch (error) {
+                console.error('Failed to generate image:', error);
+                if (originalText) originalText.textContent = originalContent;
+                alert('Failed to generate image: ' + error.message);
+            }
         });
 
-        // Fix .md links in documentation to proper routes
+        // Fix .md links in documentation to proper routes and add SPA navigation
         function fixDocLinks() {
             const docsContent = document.getElementById('docs-content');
             if (!docsContent) return;
 
-            // Map of doc files to section IDs
             const docToSection = {
                 'getting-started.md': 'getting-started',
                 'installation.md': 'installation',
@@ -1180,32 +1189,113 @@
 
             docsContent.querySelectorAll('a[href]').forEach(link => {
                 const href = link.getAttribute('href');
-                // Handle .md links
                 if (href && href.endsWith('.md')) {
                     const filename = href.split('/').pop();
                     const sectionId = docToSection[filename];
                     if (sectionId) {
                         link.setAttribute('href', '/docs/' + sectionId + '?framework={{ $framework }}');
+                        link.setAttribute('a-navigate', '');
                     }
                 }
-                // Handle relative .md links without path
                 if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('/')) {
                     const filename = href.split('/').pop();
                     if (filename.endsWith('.md')) {
                         const sectionId = docToSection[filename];
                         if (sectionId) {
                             link.setAttribute('href', '/docs/' + sectionId + '?framework={{ $framework }}');
+                            link.setAttribute('a-navigate', '');
                         }
                     }
                 }
             });
         }
 
-        // Prism highlighting
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof Prism !== 'undefined') Prism.highlightAll();
+        // Initialize page (runs on load and after SPA navigation)
+        function initDocsPage() {
+            // Syntax highlighting
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            }
+
+            // Fix markdown links
             fixDocLinks();
+
+            // Update TOC
             updateTocActive();
+
+            // Add IDs to headings if missing
+            document.querySelectorAll('.docs-prose h2, .docs-prose h3').forEach(h => {
+                if (!h.id) {
+                    h.id = h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                }
+            });
+
+            // Restore saved tab preference (for SPA navigation)
+            const tabsContainer = document.getElementById('tabs-container');
+            if (tabsContainer) {
+                const section = document.body.dataset.section || 'default';
+                const savedTab = localStorage.getItem('docs-tab-' + section);
+                // Only switch to demo if explicitly saved, otherwise keep default (docs)
+                if (savedTab === 'demo') {
+                    window.switchTab('demo');
+                }
+                // Remove cloak if present
+                tabsContainer.removeAttribute('data-cloak');
+            }
+        }
+
+        // Sidebar scroll preservation
+        let savedSidebarScroll = 0;
+
+        function saveSidebarScroll() {
+            const nav = document.getElementById('docs-sidebar-nav');
+            if (nav) {
+                savedSidebarScroll = nav.scrollTop;
+            }
+        }
+
+        function restoreSidebarScroll() {
+            const nav = document.getElementById('docs-sidebar-nav');
+            if (nav && savedSidebarScroll > 0) {
+                nav.scrollTop = savedSidebarScroll;
+            }
+        }
+
+        // Use event delegation on document to catch all SPA link clicks
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a[a-link]');
+            if (link) {
+                // Save sidebar scroll before any SPA navigation
+                saveSidebarScroll();
+            }
+        }, true); // Use capture phase to run before the link handler
+
+        // Restore scroll after SPA navigation completes
+        // Listen for URL changes via popstate and also use MutationObserver
+        let lastUrl = location.href;
+        const observer = new MutationObserver(function() {
+            if (location.href !== lastUrl) {
+                lastUrl = location.href;
+                // Small delay to let DOM settle
+                requestAnimationFrame(() => {
+                    restoreSidebarScroll();
+                    initDocsPage();
+                });
+            }
+        });
+
+        // Start observing once DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initDocsPage();
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
+
+        // Also handle browser back/forward
+        window.addEventListener('popstate', function() {
+            requestAnimationFrame(() => {
+                restoreSidebarScroll();
+                initDocsPage();
+            });
         });
     </script>
 </body>
