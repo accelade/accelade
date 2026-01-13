@@ -74,10 +74,12 @@
     foreach ($navData as $group) {
         $groupSections = [];
         foreach ($group['items'] as $item) {
+            // Use section's icon if set, otherwise fallback to emoji mapping
+            $itemIcon = $item['icon'] ?? $sectionIcons[$item['slug']] ?? '📄';
             $sectionData = [
                 'id' => $item['slug'],
                 'label' => $item['label'],
-                'icon' => $sectionIcons[$item['slug']] ?? '📄',
+                'icon' => $itemIcon,
                 'demo' => $item['hasDemo'],
                 'keywords' => '',
             ];
@@ -587,7 +589,13 @@
                                 :preserveScroll="true"
                                 class="sidebar-link {{ $section === $s['id'] ? 'active' : '' }}"
                                 activeClass="">
-                                <span class="icon">{{ $s['icon'] }}</span>
+                                <span class="icon">
+                                    @if(preg_match('/^[a-z][a-z0-9-]*$/i', $s['icon']))
+                                        <x-accelade::icon :name="$s['icon']" class="w-4 h-4" />
+                                    @else
+                                        {{ $s['icon'] }}
+                                    @endif
+                                </span>
                                 <span>{{ $s['label'] }}</span>
                             </x-accelade::link>
                         @endforeach
@@ -767,7 +775,13 @@
                                     activeClass=""
                                     data-search="{{ strtolower($s['label'] . ' ' . $groupName . ' ' . ($s['keywords'] ?? '')) }}"
                                     data-group="{{ \Illuminate\Support\Str::slug($groupName) }}">
-                                    <span>{{ $s['icon'] }}</span>
+                                    <span>
+                                        @if(preg_match('/^[a-z][a-z0-9-]*$/i', $s['icon']))
+                                            <x-accelade::icon :name="$s['icon']" class="w-4 h-4" />
+                                        @else
+                                            {{ $s['icon'] }}
+                                        @endif
+                                    </span>
                                     <span class="font-medium">{{ $s['label'] }}</span>
                                 </x-accelade::link>
                             @endforeach

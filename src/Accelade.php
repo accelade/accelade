@@ -22,6 +22,20 @@ class Accelade
 
     protected SharedData $sharedData;
 
+    /**
+     * Injected scripts from other packages.
+     *
+     * @var array<string, string|Closure>
+     */
+    protected array $injectedScripts = [];
+
+    /**
+     * Injected styles from other packages.
+     *
+     * @var array<string, string|Closure>
+     */
+    protected array $injectedStyles = [];
+
     public function __construct(Application $app)
     {
         $this->app = $app;
@@ -32,6 +46,62 @@ class Accelade
      * Current framework override (set via setFramework method)
      */
     protected ?string $frameworkOverride = null;
+
+    /**
+     * Register a script to be included with @acceladeScripts.
+     * Allows other packages to inject their JavaScript.
+     *
+     * @param  string  $key  Unique key to prevent duplicates
+     * @param  string|Closure  $script  Script content or closure that returns script
+     */
+    public function registerScript(string $key, string|Closure $script): self
+    {
+        $this->injectedScripts[$key] = $script;
+
+        return $this;
+    }
+
+    /**
+     * Register a style to be included with @acceladeStyles.
+     * Allows other packages to inject their CSS.
+     *
+     * @param  string  $key  Unique key to prevent duplicates
+     * @param  string|Closure  $style  Style content or closure that returns style
+     */
+    public function registerStyle(string $key, string|Closure $style): self
+    {
+        $this->injectedStyles[$key] = $style;
+
+        return $this;
+    }
+
+    /**
+     * Get all injected scripts rendered as HTML.
+     */
+    protected function renderInjectedScripts(): string
+    {
+        $output = '';
+        foreach ($this->injectedScripts as $script) {
+            $content = $script instanceof Closure ? $script() : $script;
+            $output .= $content."\n";
+        }
+
+        return $output;
+    }
+
+    /**
+     * Get all injected styles rendered as HTML.
+     */
+    protected function renderInjectedStyles(): string
+    {
+        $output = '';
+        foreach ($this->injectedStyles as $style) {
+            $content = $style instanceof Closure ? $style() : $style;
+            $output .= $content."\n";
+        }
+
+        return $output;
+    }
 
     /**
      * Share data globally across the application.
@@ -134,6 +204,8 @@ class Accelade
             'debug' => $errorConfig['debug'] ?? config('app.debug', false),
         ]);
 
+        $injectedScripts = $this->renderInjectedScripts();
+
         return <<<HTML
 <script>
     window.AcceladeConfig = {
@@ -151,6 +223,7 @@ class Accelade
 <script>
 {$inlineJs}
 </script>
+{$injectedScripts}
 HTML;
     }
 
@@ -159,7 +232,7 @@ HTML;
      */
     public function styles(): string
     {
-        return <<<'HTML'
+        $styles = <<<'HTML'
 <style>
     /* ========================================
        Accelade Progress Bar (Inertia.js style)
@@ -699,6 +772,9 @@ HTML;
     }
 </style>
 HTML;
+
+        // Append injected styles from other packages
+        return $styles.$this->renderInjectedStyles();
     }
 
     /**

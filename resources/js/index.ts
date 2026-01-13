@@ -240,6 +240,7 @@ import { teleportManager, initTeleport, registerTeleport } from './core/teleport
 import { getEventBus, emit as eventBusEmit, on as eventBusOn, once as eventBusOnce, off as eventBusOff, type EventCallback } from './core/events';
 import { getBridge, getAllBridges } from './core/bridge';
 import ErrorHandler, { init as initErrorHandler, handleError, handleAjaxError, type ErrorConfig } from './core/errors/ErrorHandler';
+import { showConfirmDialog, confirm as confirmFn, confirmDanger } from './core/link/ConfirmDialog';
 
 // Singleton notification manager
 let notificationManager: NotificationManager | null = null;
@@ -678,6 +679,24 @@ const errors = {
     handler: ErrorHandler,
 };
 
+// Confirm dialog API object
+const confirm = {
+    /**
+     * Show a confirmation dialog with full options
+     */
+    show: showConfirmDialog,
+
+    /**
+     * Quick confirm with just a message (returns boolean promise)
+     */
+    ask: confirmFn,
+
+    /**
+     * Danger confirm with red button (returns boolean promise)
+     */
+    danger: confirmDanger,
+};
+
 /**
  * Main Accelade API
  */
@@ -723,6 +742,9 @@ const Accelade = {
 
     // Errors
     errors,
+
+    // Confirm dialog
+    confirm,
 
     // Convenience event bus methods (Splade-compatible API)
     emit: eventBusEmit,

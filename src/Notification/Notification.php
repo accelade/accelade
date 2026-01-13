@@ -33,12 +33,32 @@ class Notification implements JsonSerializable
 
     public array $actions = [];
 
+    protected ?NotificationManager $manager = null;
+
+    protected bool $sent = false;
+
     public function __construct(?string $title = null)
     {
         $this->id = uniqid('notif-');
         if ($title !== null) {
             $this->title = $title;
         }
+    }
+
+    public function __destruct()
+    {
+        // Auto-send when object is destroyed if manager is set and not already sent
+        if ($this->manager !== null && ! $this->sent) {
+            $this->manager->push($this);
+            $this->sent = true;
+        }
+    }
+
+    public function setManager(NotificationManager $manager): self
+    {
+        $this->manager = $manager;
+
+        return $this;
     }
 
     public static function make(?string $title = null): self
@@ -170,7 +190,10 @@ class Notification implements JsonSerializable
 
     public function send(): self
     {
-        app('accelade.notify')->push($this);
+        if (! $this->sent) {
+            app('accelade.notify')->push($this);
+            $this->sent = true;
+        }
 
         return $this;
     }

@@ -21,6 +21,8 @@ readonly class DocSectionConfig
 
     public ?string $description;
 
+    public ?string $icon;
+
     /** @var array<int, string> */
     public array $keywords;
 
@@ -35,6 +37,7 @@ readonly class DocSectionConfig
         $this->hasDemo = $options['hasDemo'] ?? false;
         $this->package = $options['package'] ?? 'accelade';
         $this->description = $options['description'] ?? null;
+        $this->icon = $options['icon'] ?? null;
         $this->keywords = $options['keywords'] ?? [];
     }
 }

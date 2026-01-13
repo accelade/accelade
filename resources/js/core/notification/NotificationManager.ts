@@ -91,6 +91,12 @@ export class NotificationManager {
         const id = `accelade-notifications-${position}`;
         let container = this.containers.get(position);
 
+        // Check if cached container is still connected to DOM (might be stale after SPA navigation)
+        if (container && !container.isConnected) {
+            this.containers.delete(position);
+            container = undefined;
+        }
+
         if (!container) {
             const existingContainer = document.getElementById(id);
             if (existingContainer) {

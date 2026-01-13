@@ -17,7 +17,7 @@ class NotificationManager
 
     protected Collection $notifications;
 
-    protected ?SessionStore $session = null;
+    protected bool $loadedFromSession = false;
 
     protected ?Closure $defaultCallback = null;
 
@@ -30,10 +30,45 @@ class NotificationManager
         $this->notifications = collect();
     }
 
+    /**
+     * Get the session store, lazily resolved.
+     */
+    protected function getSession(): ?SessionStore
+    {
+        if (app()->bound('session.store')) {
+            return app('session.store');
+        }
+
+        return null;
+    }
+
+    /**
+     * @deprecated Use lazy session resolution instead
+     */
     public function setSession(SessionStore $session): void
     {
-        $this->session = $session;
-        $this->loadFromSession();
+        // No longer needed - session is resolved lazily
+        $this->ensureLoadedFromSession();
+    }
+
+    /**
+     * Ensure notifications are loaded from session (once per request).
+     */
+    protected function ensureLoadedFromSession(): void
+    {
+        if ($this->loadedFromSession) {
+            return;
+        }
+
+        $session = $this->getSession();
+        if ($session?->has(self::SESSION_KEY)) {
+            $data = $session->get(self::SESSION_KEY, []);
+            $this->notifications = collect($data)->map(
+                fn ($d) => $this->hydrate($d)
+            );
+        }
+
+        $this->loadedFromSession = true;
     }
 
     public function setDefault(Closure $callback): void
@@ -76,7 +111,7 @@ class NotificationManager
     public function success(string $title): Notification
     {
         $notification = $this->title($title)->success();
-        $this->push($notification);
+        $notification->setManager($this);
 
         return $notification;
     }
@@ -84,7 +119,7 @@ class NotificationManager
     public function info(string $title): Notification
     {
         $notification = $this->title($title)->info();
-        $this->push($notification);
+        $notification->setManager($this);
 
         return $notification;
     }
@@ -92,7 +127,7 @@ class NotificationManager
     public function warning(string $title): Notification
     {
         $notification = $this->title($title)->warning();
-        $this->push($notification);
+        $notification->setManager($this);
 
         return $notification;
     }
@@ -100,24 +135,28 @@ class NotificationManager
     public function danger(string $title): Notification
     {
         $notification = $this->title($title)->danger();
-        $this->push($notification);
+        $notification->setManager($this);
 
         return $notification;
     }
 
     public function push(Notification $notification): void
     {
+        $this->ensureLoadedFromSession();
         $this->notifications->push($notification);
         $this->saveToSession();
     }
 
     public function all(): Collection
     {
+        $this->ensureLoadedFromSession();
+
         return $this->notifications;
     }
 
     public function flush(): Collection
     {
+        $this->ensureLoadedFromSession();
         $notifications = $this->notifications;
         $this->notifications = collect();
         $this->saveToSession();
@@ -127,6 +166,7 @@ class NotificationManager
 
     public function close(string $id): void
     {
+        $this->ensureLoadedFromSession();
         $this->notifications = $this->notifications->reject(
             fn (Notification $n) => $n->getId() === $id
         );
@@ -135,22 +175,15 @@ class NotificationManager
 
     public function toArray(): array
     {
-        return $this->notifications->toArray();
-    }
+        $this->ensureLoadedFromSession();
 
-    protected function loadFromSession(): void
-    {
-        if ($this->session?->has(self::SESSION_KEY)) {
-            $data = $this->session->get(self::SESSION_KEY, []);
-            $this->notifications = collect($data)->map(
-                fn ($d) => $this->hydrate($d)
-            );
-        }
+        return $this->notifications->toArray();
     }
 
     protected function saveToSession(): void
     {
-        $this->session?->put(
+        $session = $this->getSession();
+        $session?->put(
             self::SESSION_KEY,
             $this->notifications->map(fn ($n) => $n->jsonSerialize())->toArray()
         );

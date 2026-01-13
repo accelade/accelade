@@ -171,7 +171,7 @@ class DocsRegistry
     /**
      * Get navigation structure for sidebar.
      *
-     * @return array<int, array{key: string, label: string, icon: string, items: array<int, array{slug: string, label: string, hasDemo: bool}>}>
+     * @return array<int, array{key: string, label: string, icon: string, items: array<int, array{slug: string, label: string, hasDemo: bool, icon: ?string}>}>
      */
     public function getNavigation(): array
     {
@@ -187,6 +187,7 @@ class DocsRegistry
                         'slug' => $section->slug,
                         'label' => $section->label,
                         'hasDemo' => $section->hasDemo,
+                        'icon' => $section->icon,
                     ];
                 }
             }

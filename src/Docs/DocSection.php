@@ -25,6 +25,8 @@ readonly class DocSection
 
     public ?string $description;
 
+    public ?string $icon;
+
     /** @var array<int, string> */
     public array $keywords;
 
@@ -40,6 +42,7 @@ readonly class DocSection
         $this->hasDemo = $config->hasDemo;
         $this->package = $config->package;
         $this->description = $config->description;
+        $this->icon = $config->icon;
         $this->keywords = $config->keywords;
     }
 
@@ -113,6 +116,7 @@ readonly class DocSection
             'hasDemo' => $this->hasDemo,
             'package' => $this->package,
             'description' => $this->description,
+            'icon' => $this->icon,
             'keywords' => $this->keywords,
         ];
     }

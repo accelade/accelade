@@ -715,14 +715,15 @@ export class AcceladeRouter {
 
         scripts.forEach((oldScript) => {
             // Skip accelade:script tags - these are processed by the framework
+            // Note: data-accelade-notifications scripts have their own duplicate guard
             if (oldScript.hasAttribute('a-script') ||
                 oldScript.hasAttribute('v-script') ||
                 oldScript.hasAttribute('state-script')) {
                 return;
             }
 
-            // Skip if it's an accelade bundle script (already loaded)
-            if (oldScript.src && oldScript.src.includes('accelade')) {
+            // Skip if it's an accelade or actions bundle script (already loaded)
+            if (oldScript.src && (oldScript.src.includes('accelade') || oldScript.src.includes('actions'))) {
                 return;
             }
 

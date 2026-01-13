@@ -30,6 +30,8 @@ class DocSectionBuilder
 
     protected ?string $group = null;
 
+    protected ?string $icon = null;
+
     public function __construct(
         protected DocsRegistry $registry,
         string $slug,
@@ -122,6 +124,16 @@ class DocSectionBuilder
     }
 
     /**
+     * Set the icon for this section (Lucide icon name).
+     */
+    public function icon(string $icon): self
+    {
+        $this->icon = $icon;
+
+        return $this;
+    }
+
+    /**
      * Build and register the section.
      */
     public function register(): DocsRegistry
@@ -133,6 +145,7 @@ class DocSectionBuilder
             'hasDemo' => $this->hasDemo,
             'package' => $this->package,
             'description' => $this->description,
+            'icon' => $this->icon,
             'keywords' => $this->keywords,
         ]);
 
