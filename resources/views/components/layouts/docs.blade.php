@@ -685,25 +685,14 @@
                             </div>
                         </div>
                         <script>
-                            // Immediately set correct tab and remove cloak
                             (function() {
-                                var section = '{{ $section }}';
-                                var savedTab = localStorage.getItem('docs-tab-' + section);
                                 var container = document.getElementById('tabs-container');
-
-                                // Only switch if user has a saved preference for demo
-                                if (savedTab === 'demo') {
-                                    var docsTab = document.getElementById('tab-docs');
-                                    var demoTab = document.getElementById('tab-demo');
-                                    var tabBtns = container.querySelectorAll('.tab-btn');
-
-                                    docsTab.classList.remove('active');
-                                    demoTab.classList.add('active');
-                                    tabBtns[0].classList.remove('active');
-                                    tabBtns[1].classList.add('active');
+                                if (localStorage.getItem('docs-tab-{{ $section }}') === 'demo') {
+                                    document.getElementById('tab-docs').classList.remove('active');
+                                    document.getElementById('tab-demo').classList.add('active');
+                                    container.querySelectorAll('.tab-btn')[0].classList.remove('active');
+                                    container.querySelectorAll('.tab-btn')[1].classList.add('active');
                                 }
-
-                                // Remove cloak - show content
                                 container.removeAttribute('data-cloak');
                             })();
                         </script>
@@ -802,497 +791,473 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
 
     <script>
-        // Theme (runs once, persists across navigation)
+        // Theme initialization
         (function() {
-            const stored = localStorage.getItem('docs-theme');
-            if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
+            var stored = localStorage.getItem('docs-theme');
+            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.classList.toggle('dark', stored === 'dark' || (!stored && prefersDark));
         })();
 
         function toggleTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
+            var isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('docs-theme', isDark ? 'dark' : 'light');
         }
 
-        // Mobile sidebar
         function toggleMobileSidebar() {
             document.getElementById('sidebar').classList.toggle('mobile-open');
             document.getElementById('sidebar-overlay').classList.toggle('hidden');
         }
 
-        // Framework dropdown
         function toggleFrameworkDropdown() {
             document.getElementById('framework-dropdown').classList.toggle('hidden');
         }
 
-        // Search
         function openSearch() {
             document.getElementById('search-modal').classList.remove('hidden');
             document.getElementById('search-input').focus();
             document.body.style.overflow = 'hidden';
         }
+
         function closeSearch() {
             document.getElementById('search-modal').classList.add('hidden');
             document.getElementById('search-input').value = '';
             document.body.style.overflow = '';
-            document.querySelectorAll('.search-item').forEach(el => el.style.display = '');
-            document.querySelectorAll('.search-group').forEach(el => el.style.display = '');
+            document.querySelectorAll('.search-item, .search-group').forEach(function(el) {
+                el.style.display = '';
+            });
         }
+
         function handleSearch(query) {
-            const q = query.toLowerCase().trim();
-            const groups = {};
-            document.querySelectorAll('.search-item').forEach(el => {
-                const matches = !q || el.dataset.search.includes(q);
+            var q = query.toLowerCase().trim();
+            var groupVisibility = {};
+
+            document.querySelectorAll('.search-item').forEach(function(el) {
+                var matches = !q || el.dataset.search.includes(q);
                 el.style.display = matches ? '' : 'none';
-                const groupId = el.dataset.group;
-                if (!groups[groupId]) groups[groupId] = false;
-                if (matches) groups[groupId] = true;
+                groupVisibility[el.dataset.group] = groupVisibility[el.dataset.group] || matches;
             });
-            document.querySelectorAll('.search-group').forEach(group => {
-                const groupId = group.dataset.group;
-                group.style.display = groups[groupId] ? '' : 'none';
+
+            document.querySelectorAll('.search-group').forEach(function(group) {
+                group.style.display = groupVisibility[group.dataset.group] ? '' : 'none';
             });
         }
 
-        // TOC active state
         function updateTocActive() {
-            const docsTab = document.getElementById('tab-docs');
-            if (!docsTab || !docsTab.classList.contains('active')) return;
-            const headings = document.querySelectorAll('.docs-prose h2[id], .docs-prose h3[id]');
-            const tocLinks = document.querySelectorAll('[data-toc-link]');
-            let current = '';
-            headings.forEach(h => {
-                const rect = h.getBoundingClientRect();
-                if (rect.top <= 120) current = h.id || '';
+            var docsTab = document.getElementById('tab-docs');
+            if (!docsTab || !docsTab.classList.contains('active')) {
+                return;
+            }
+
+            var currentId = '';
+            document.querySelectorAll('.docs-prose h2[id], .docs-prose h3[id]').forEach(function(h) {
+                if (h.getBoundingClientRect().top <= 120) {
+                    currentId = h.id;
+                }
             });
-            tocLinks.forEach(link => {
-                const href = link.getAttribute('href');
-                link.classList.toggle('active', href === '#' + current);
+
+            document.querySelectorAll('[data-toc-link]').forEach(function(link) {
+                link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
             });
         }
 
-        // Global event listeners (use event delegation to work with SPA)
-        document.addEventListener('click', function(e) {
-            // Framework dropdown close
-            const dropdown = document.getElementById('framework-dropdown');
-            if (dropdown && !e.target.closest('.framework-btn') && !dropdown.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-
-            // Tab switching (event delegation)
-            const tabBtn = e.target.closest('.tab-btn');
-            if (tabBtn && tabBtn.dataset.tab) {
-                window.switchTab(tabBtn.dataset.tab);
-            }
-
-            // TOC link handling (event delegation)
-            const tocLink = e.target.closest('[data-toc-link]');
-            if (tocLink) {
-                e.preventDefault();
-                const targetId = tocLink.getAttribute('href').substring(1);
-                const target = document.getElementById(targetId);
-                if (target) {
-                    window.switchTab('docs');
-                    setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-                }
-            }
-
-            // Code copy button (event delegation)
-            const copyBtn = e.target.closest('.code-copy-btn');
-            if (copyBtn) {
-                const targetId = copyBtn.dataset.codeTarget;
-                const pre = document.getElementById(targetId);
-                if (pre) {
-                    const code = pre.querySelector('code') || pre;
-                    navigator.clipboard.writeText(code.textContent).then(() => {
-                        const copyIcon = copyBtn.querySelector('.copy-icon');
-                        const checkIcon = copyBtn.querySelector('.check-icon');
-                        const copyText = copyBtn.querySelector('.copy-text');
-                        if (copyIcon) copyIcon.classList.add('hidden');
-                        if (checkIcon) checkIcon.classList.remove('hidden');
-                        if (copyText) copyText.textContent = 'Copied!';
-                        setTimeout(() => {
-                            if (copyIcon) copyIcon.classList.remove('hidden');
-                            if (checkIcon) checkIcon.classList.add('hidden');
-                            if (copyText) copyText.textContent = 'Copy';
-                        }, 2000);
-                    });
-                }
-            }
-        });
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
-            if (e.key === 'Escape') closeSearch();
-        });
-
-        window.addEventListener('scroll', updateTocActive);
-
-        // Tab switching function
         window.switchTab = function(tab) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
-            document.getElementById('tab-' + tab)?.classList.add('active');
-            // Store preference per section
-            const section = document.body.dataset.section || 'default';
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+
+            var tabBtn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+            var tabContent = document.getElementById('tab-' + tab);
+            if (tabBtn) { tabBtn.classList.add('active'); }
+            if (tabContent) { tabContent.classList.add('active'); }
+
+            var section = document.body.dataset.section || 'default';
             localStorage.setItem('docs-tab-' + section, tab);
         };
 
-        // Code block image download - using event delegation
-        document.addEventListener('click', async function(e) {
-            const btn = e.target.closest('.code-download-btn');
-            if (!btn) return;
+        // Markdown filename to section slug mapping
+        var docToSection = {
+            'getting-started.md': 'getting-started', 'installation.md': 'installation',
+            'configuration.md': 'configuration', 'components.md': 'counter',
+            'data.md': 'data', 'state.md': 'state', 'modal.md': 'modal',
+            'toggle.md': 'toggle', 'animations.md': 'transition',
+            'notifications.md': 'notifications', 'code-block.md': 'code-block',
+            'lazy-loading.md': 'lazy', 'content.md': 'content', 'rehydrate.md': 'rehydrate',
+            'teleport.md': 'teleport', 'spa-navigation.md': 'navigation', 'link.md': 'link',
+            'persistent-layout.md': 'persistent', 'event-bus.md': 'event-bus',
+            'event.md': 'event', 'bridge.md': 'bridge', 'shared-data.md': 'shared-data',
+            'flash.md': 'flash', 'exception-handling.md': 'errors', 'scripts.md': 'scripts',
+            'api-reference.md': 'api-reference', 'frameworks.md': 'frameworks',
+            'architecture.md': 'architecture', 'testing.md': 'testing',
+            'contributing.md': 'contributing', 'sponsor.md': 'sponsor', 'thanks.md': 'thanks'
+        };
 
-            const targetId = btn.dataset.codeTarget;
-            const wrapper = document.querySelector(`[data-code-block="${targetId}"]`);
-            if (!wrapper) return;
-
-            // Show loading state
-            const originalText = btn.querySelector('span:last-child');
-            const originalContent = originalText ? originalText.textContent : 'Image';
-            if (originalText) originalText.textContent = 'Loading...';
-
-            try {
-                const pre = document.getElementById(targetId);
-                    const codeEl = pre?.querySelector('code') || pre;
-                    const langLabel = wrapper.querySelector('.text-xs.font-medium.uppercase')?.textContent?.trim() || 'CODE';
-
-                    // Extract tokens with their colors from the highlighted code
-                    function extractTokens(element) {
-                        const tokens = [];
-                        function walk(node) {
-                            if (node.nodeType === Node.TEXT_NODE) {
-                                const text = node.textContent;
-                                if (text) {
-                                    // Get color from parent if it's a token span
-                                    let color = '#e2e8f0'; // default
-                                    let parent = node.parentElement;
-                                    if (parent && parent.classList.contains('token')) {
-                                        color = window.getComputedStyle(parent).color;
-                                    }
-                                    tokens.push({ text, color });
-                                }
-                            } else if (node.nodeType === Node.ELEMENT_NODE) {
-                                for (const child of node.childNodes) {
-                                    walk(child);
-                                }
-                            }
-                        }
-                        walk(element);
-                        return tokens;
-                    }
-
-                    const tokens = extractTokens(codeEl);
-
-                    // Convert tokens to lines with colored segments
-                    const coloredLines = [];
-                    let currentLine = [];
-                    tokens.forEach(token => {
-                        const parts = token.text.split('\n');
-                        parts.forEach((part, i) => {
-                            if (i > 0) {
-                                coloredLines.push(currentLine);
-                                currentLine = [];
-                            }
-                            if (part) {
-                                currentLine.push({ text: part, color: token.color });
-                            }
-                        });
-                    });
-                    if (currentLine.length > 0) {
-                        coloredLines.push(currentLine);
-                    }
-
-                    // Configuration
-                    const config = {
-                        padding: 40,
-                        headerHeight: 48,
-                        fontSize: 14,
-                        lineHeight: 1.6,
-                        font: 'JetBrains Mono, SF Mono, Monaco, Consolas, monospace',
-                        bgColor: '#1e293b',
-                        outerBgColor: '#0f172a',
-                        borderColor: '#334155',
-                        textColor: '#e2e8f0',
-                        labelColor: '#94a3b8',
-                        dotColors: ['#ef4444', '#eab308', '#22c55e'],
-                        borderRadius: 12,
-                    };
-
-                    // Create canvas
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const scale = 2;
-
-                    // Measure max line width
-                    ctx.font = `${config.fontSize}px ${config.font}`;
-                    let maxWidth = 400;
-                    coloredLines.forEach(line => {
-                        const lineText = line.map(t => t.text).join('');
-                        const width = ctx.measureText(lineText).width;
-                        if (width > maxWidth) maxWidth = width;
-                    });
-
-                    const contentWidth = Math.min(maxWidth + config.padding, 900);
-                    const codeHeight = coloredLines.length * config.fontSize * config.lineHeight;
-                    const contentHeight = codeHeight + config.padding;
-                    const totalWidth = contentWidth + config.padding * 2;
-                    const totalHeight = contentHeight + config.headerHeight + config.padding * 2;
-
-                    canvas.width = totalWidth * scale;
-                    canvas.height = totalHeight * scale;
-                    ctx.scale(scale, scale);
-
-                    // Draw outer background (gradient)
-                    const gradient = ctx.createLinearGradient(0, 0, totalWidth, totalHeight);
-                    gradient.addColorStop(0, config.outerBgColor);
-                    gradient.addColorStop(1, '#1a1a2e');
-                    ctx.fillStyle = gradient;
-                    ctx.fillRect(0, 0, totalWidth, totalHeight);
-
-                    // Draw code block container
-                    const blockX = config.padding;
-                    const blockY = config.padding;
-                    const blockW = contentWidth;
-                    const blockH = contentHeight + config.headerHeight;
-
-                    // Shadow
-                    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-                    ctx.shadowBlur = 20;
-                    ctx.shadowOffsetY = 10;
-
-                    ctx.fillStyle = config.bgColor;
-                    ctx.beginPath();
-                    ctx.roundRect(blockX, blockY, blockW, blockH, config.borderRadius);
-                    ctx.fill();
-
-                    ctx.shadowColor = 'transparent';
-                    ctx.shadowBlur = 0;
-                    ctx.shadowOffsetY = 0;
-
-                    // Border
-                    ctx.strokeStyle = config.borderColor;
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.roundRect(blockX, blockY, blockW, blockH, config.borderRadius);
-                    ctx.stroke();
-
-                    // Header
-                    ctx.fillStyle = config.bgColor;
-                    ctx.beginPath();
-                    ctx.roundRect(blockX, blockY, blockW, config.headerHeight, [config.borderRadius, config.borderRadius, 0, 0]);
-                    ctx.fill();
-
-                    ctx.strokeStyle = config.borderColor;
-                    ctx.beginPath();
-                    ctx.moveTo(blockX, blockY + config.headerHeight);
-                    ctx.lineTo(blockX + blockW, blockY + config.headerHeight);
-                    ctx.stroke();
-
-                    // Traffic lights
-                    const dotY = blockY + config.headerHeight / 2;
-                    const dotStartX = blockX + 16;
-                    config.dotColors.forEach((color, i) => {
-                        ctx.fillStyle = color;
-                        ctx.beginPath();
-                        ctx.arc(dotStartX + (i * 20), dotY, 6, 0, Math.PI * 2);
-                        ctx.fill();
-                    });
-
-                    // Language label
-                    ctx.fillStyle = config.labelColor;
-                    ctx.font = `500 11px ${config.font}`;
-                    ctx.textAlign = 'left';
-                    ctx.fillText(langLabel.toUpperCase(), dotStartX + 70, dotY + 4);
-
-                    // Draw syntax-highlighted code
-                    ctx.font = `${config.fontSize}px ${config.font}`;
-                    ctx.textAlign = 'left';
-                    ctx.textBaseline = 'top';
-
-                    const codeStartX = blockX + config.padding / 2;
-                    const codeStartY = blockY + config.headerHeight + config.padding / 2;
-
-                    coloredLines.forEach((line, lineIndex) => {
-                        let x = codeStartX;
-                        const y = codeStartY + (lineIndex * config.fontSize * config.lineHeight);
-
-                        line.forEach(segment => {
-                            ctx.fillStyle = segment.color;
-                            ctx.fillText(segment.text, x, y);
-                            x += ctx.measureText(segment.text).width;
-                        });
-                    });
-
-                    // Download
-                    const link = document.createElement('a');
-                    link.download = 'code-snippet.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-
-                    if (originalText) originalText.textContent = 'Done!';
-                    setTimeout(() => {
-                        if (originalText) originalText.textContent = originalContent;
-                    }, 1500);
-
-            } catch (error) {
-                console.error('Failed to generate image:', error);
-                if (originalText) originalText.textContent = originalContent;
-                alert('Failed to generate image: ' + error.message);
-            }
-        });
-
-        // Fix .md links in documentation to proper routes and add SPA navigation
         function fixDocLinks() {
-            const docsContent = document.getElementById('docs-content');
-            if (!docsContent) return;
+            var docsContent = document.getElementById('docs-content');
+            if (!docsContent) {
+                return;
+            }
 
-            const docToSection = {
-                'getting-started.md': 'getting-started',
-                'installation.md': 'installation',
-                'configuration.md': 'configuration',
-                'components.md': 'counter',
-                'data.md': 'data',
-                'state.md': 'state',
-                'modal.md': 'modal',
-                'toggle.md': 'toggle',
-                'animations.md': 'transition',
-                'notifications.md': 'notifications',
-                'code-block.md': 'code-block',
-                'lazy-loading.md': 'lazy',
-                'content.md': 'content',
-                'rehydrate.md': 'rehydrate',
-                'teleport.md': 'teleport',
-                'spa-navigation.md': 'navigation',
-                'link.md': 'link',
-                'persistent-layout.md': 'persistent',
-                'event-bus.md': 'event-bus',
-                'event.md': 'event',
-                'bridge.md': 'bridge',
-                'shared-data.md': 'shared-data',
-                'flash.md': 'flash',
-                'exception-handling.md': 'errors',
-                'scripts.md': 'scripts',
-                'api-reference.md': 'api-reference',
-                'frameworks.md': 'frameworks',
-                'architecture.md': 'architecture',
-                'testing.md': 'testing',
-                'contributing.md': 'contributing',
-                'sponsor.md': 'sponsor',
-                'thanks.md': 'thanks',
-            };
+            docsContent.querySelectorAll('a[href]').forEach(function(link) {
+                var href = link.getAttribute('href');
+                if (!href || href.startsWith('http') || href.startsWith('#')) {
+                    return;
+                }
 
-            docsContent.querySelectorAll('a[href]').forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && href.endsWith('.md')) {
-                    const filename = href.split('/').pop();
-                    const sectionId = docToSection[filename];
+                var filename = href.split('/').pop();
+                if (filename.endsWith('.md')) {
+                    var sectionId = docToSection[filename];
                     if (sectionId) {
                         link.setAttribute('href', '/docs/' + sectionId + '?framework={{ $framework }}');
                         link.setAttribute('a-navigate', '');
                     }
                 }
-                if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('/')) {
-                    const filename = href.split('/').pop();
-                    if (filename.endsWith('.md')) {
-                        const sectionId = docToSection[filename];
-                        if (sectionId) {
-                            link.setAttribute('href', '/docs/' + sectionId + '?framework={{ $framework }}');
-                            link.setAttribute('a-navigate', '');
-                        }
-                    }
-                }
             });
         }
 
-        // Initialize page (runs on load and after SPA navigation)
         function initDocsPage() {
-            // Syntax highlighting
             if (typeof Prism !== 'undefined') {
                 Prism.highlightAll();
             }
 
-            // Fix markdown links
             fixDocLinks();
-
-            // Update TOC
             updateTocActive();
 
-            // Add IDs to headings if missing
-            document.querySelectorAll('.docs-prose h2, .docs-prose h3').forEach(h => {
+            document.querySelectorAll('.docs-prose h2, .docs-prose h3').forEach(function(h) {
                 if (!h.id) {
                     h.id = h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                 }
             });
 
-            // Restore saved tab preference (for SPA navigation)
-            const tabsContainer = document.getElementById('tabs-container');
+            var tabsContainer = document.getElementById('tabs-container');
             if (tabsContainer) {
-                const section = document.body.dataset.section || 'default';
-                const savedTab = localStorage.getItem('docs-tab-' + section);
-                // Only switch to demo if explicitly saved, otherwise keep default (docs)
-                if (savedTab === 'demo') {
+                var section = document.body.dataset.section || 'default';
+                if (localStorage.getItem('docs-tab-' + section) === 'demo') {
                     window.switchTab('demo');
                 }
-                // Remove cloak if present
                 tabsContainer.removeAttribute('data-cloak');
             }
         }
 
         // Sidebar scroll preservation
-        let savedSidebarScroll = 0;
+        var sidebarScrollPosition = 0;
 
         function saveSidebarScroll() {
-            const nav = document.getElementById('docs-sidebar-nav');
+            var nav = document.getElementById('docs-sidebar-nav');
             if (nav) {
-                savedSidebarScroll = nav.scrollTop;
+                sidebarScrollPosition = nav.scrollTop;
             }
         }
 
         function restoreSidebarScroll() {
-            const nav = document.getElementById('docs-sidebar-nav');
-            if (nav && savedSidebarScroll > 0) {
-                nav.scrollTop = savedSidebarScroll;
+            var nav = document.getElementById('docs-sidebar-nav');
+            if (nav && sidebarScrollPosition > 0) {
+                nav.scrollTop = sidebarScrollPosition;
             }
         }
 
-        // Use event delegation on document to catch all SPA link clicks
+        // Global click handler using event delegation
         document.addEventListener('click', function(e) {
-            const link = e.target.closest('a[a-link]');
-            if (link) {
-                // Save sidebar scroll before any SPA navigation
+            // Close framework dropdown when clicking outside
+            var dropdown = document.getElementById('framework-dropdown');
+            if (dropdown && !e.target.closest('.framework-btn') && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+
+            // Tab switching
+            var tabBtn = e.target.closest('.tab-btn');
+            if (tabBtn && tabBtn.dataset.tab) {
+                window.switchTab(tabBtn.dataset.tab);
+            }
+
+            // TOC link click - switch to docs tab and scroll
+            var tocLink = e.target.closest('[data-toc-link]');
+            if (tocLink) {
+                e.preventDefault();
+                var targetId = tocLink.getAttribute('href').substring(1);
+                var target = document.getElementById(targetId);
+                if (target) {
+                    window.switchTab('docs');
+                    setTimeout(function() {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 50);
+                }
+            }
+
+            // Code copy button
+            var copyBtn = e.target.closest('.code-copy-btn');
+            if (copyBtn) {
+                handleCodeCopy(copyBtn);
+            }
+
+            // Code download button
+            var downloadBtn = e.target.closest('.code-download-btn');
+            if (downloadBtn) {
+                handleCodeDownload(downloadBtn);
+            }
+
+            // SPA link click - save sidebar scroll
+            if (e.target.closest('a[a-link]')) {
                 saveSidebarScroll();
             }
-        }, true); // Use capture phase to run before the link handler
+        }, true);
 
-        // Restore scroll after SPA navigation completes
-        // Listen for URL changes via popstate and also use MutationObserver
-        let lastUrl = location.href;
-        const observer = new MutationObserver(function() {
+        function handleCodeCopy(btn) {
+            var targetId = btn.dataset.codeTarget;
+            var pre = document.getElementById(targetId);
+            if (!pre) {
+                return;
+            }
+
+            var code = pre.querySelector('code') || pre;
+            navigator.clipboard.writeText(code.textContent).then(function() {
+                var copyIcon = btn.querySelector('.copy-icon');
+                var checkIcon = btn.querySelector('.check-icon');
+                var copyText = btn.querySelector('.copy-text');
+
+                if (copyIcon) { copyIcon.classList.add('hidden'); }
+                if (checkIcon) { checkIcon.classList.remove('hidden'); }
+                if (copyText) { copyText.textContent = 'Copied!'; }
+
+                setTimeout(function() {
+                    if (copyIcon) { copyIcon.classList.remove('hidden'); }
+                    if (checkIcon) { checkIcon.classList.add('hidden'); }
+                    if (copyText) { copyText.textContent = 'Copy'; }
+                }, 2000);
+            });
+        }
+
+        function handleCodeDownload(btn) {
+            var targetId = btn.dataset.codeTarget;
+            var wrapper = document.querySelector('[data-code-block="' + targetId + '"]');
+            if (!wrapper) {
+                return;
+            }
+
+            var originalText = btn.querySelector('span:last-child');
+            var originalContent = originalText ? originalText.textContent : 'Image';
+            if (originalText) {
+                originalText.textContent = 'Loading...';
+            }
+
+            try {
+                var pre = document.getElementById(targetId);
+                var codeEl = pre && pre.querySelector('code') || pre;
+                var langLabel = wrapper.querySelector('.text-xs.font-medium.uppercase');
+                langLabel = langLabel ? langLabel.textContent.trim() : 'CODE';
+
+                var coloredLines = extractColoredLines(codeEl);
+                var canvas = renderCodeToCanvas(coloredLines, langLabel);
+
+                var link = document.createElement('a');
+                link.download = 'code-snippet.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                if (originalText) {
+                    originalText.textContent = 'Done!';
+                }
+                setTimeout(function() {
+                    if (originalText) {
+                        originalText.textContent = originalContent;
+                    }
+                }, 1500);
+            } catch (error) {
+                console.error('Failed to generate image:', error);
+                if (originalText) {
+                    originalText.textContent = originalContent;
+                }
+                alert('Failed to generate image: ' + error.message);
+            }
+        }
+
+        function extractColoredLines(element) {
+            var tokens = [];
+
+            function walk(node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    var text = node.textContent;
+                    if (text) {
+                        var color = '#e2e8f0';
+                        var parent = node.parentElement;
+                        if (parent && parent.classList.contains('token')) {
+                            color = window.getComputedStyle(parent).color;
+                        }
+                        tokens.push({ text: text, color: color });
+                    }
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    for (var i = 0; i < node.childNodes.length; i++) {
+                        walk(node.childNodes[i]);
+                    }
+                }
+            }
+            walk(element);
+
+            var lines = [];
+            var currentLine = [];
+            tokens.forEach(function(token) {
+                var parts = token.text.split('\n');
+                parts.forEach(function(part, i) {
+                    if (i > 0) {
+                        lines.push(currentLine);
+                        currentLine = [];
+                    }
+                    if (part) {
+                        currentLine.push({ text: part, color: token.color });
+                    }
+                });
+            });
+            if (currentLine.length > 0) {
+                lines.push(currentLine);
+            }
+
+            return lines;
+        }
+
+        function renderCodeToCanvas(coloredLines, langLabel) {
+            var config = {
+                padding: 40, headerHeight: 48, fontSize: 14, lineHeight: 1.6,
+                font: 'JetBrains Mono, SF Mono, Monaco, Consolas, monospace',
+                bgColor: '#1e293b', outerBgColor: '#0f172a', borderColor: '#334155',
+                textColor: '#e2e8f0', labelColor: '#94a3b8',
+                dotColors: ['#ef4444', '#eab308', '#22c55e'], borderRadius: 12
+            };
+
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            var scale = 2;
+
+            ctx.font = config.fontSize + 'px ' + config.font;
+            var maxWidth = 400;
+            coloredLines.forEach(function(line) {
+                var lineText = line.map(function(t) { return t.text; }).join('');
+                var width = ctx.measureText(lineText).width;
+                if (width > maxWidth) {
+                    maxWidth = width;
+                }
+            });
+
+            var contentWidth = Math.min(maxWidth + config.padding, 900);
+            var codeHeight = coloredLines.length * config.fontSize * config.lineHeight;
+            var contentHeight = codeHeight + config.padding;
+            var totalWidth = contentWidth + config.padding * 2;
+            var totalHeight = contentHeight + config.headerHeight + config.padding * 2;
+
+            canvas.width = totalWidth * scale;
+            canvas.height = totalHeight * scale;
+            ctx.scale(scale, scale);
+
+            // Outer background gradient
+            var gradient = ctx.createLinearGradient(0, 0, totalWidth, totalHeight);
+            gradient.addColorStop(0, config.outerBgColor);
+            gradient.addColorStop(1, '#1a1a2e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, totalWidth, totalHeight);
+
+            var blockX = config.padding;
+            var blockY = config.padding;
+            var blockW = contentWidth;
+            var blockH = contentHeight + config.headerHeight;
+
+            // Shadow and container
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetY = 10;
+            ctx.fillStyle = config.bgColor;
+            ctx.beginPath();
+            ctx.roundRect(blockX, blockY, blockW, blockH, config.borderRadius);
+            ctx.fill();
+
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+
+            // Border
+            ctx.strokeStyle = config.borderColor;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(blockX, blockY, blockW, blockH, config.borderRadius);
+            ctx.stroke();
+
+            // Header with bottom border
+            ctx.fillStyle = config.bgColor;
+            ctx.beginPath();
+            ctx.roundRect(blockX, blockY, blockW, config.headerHeight, [config.borderRadius, config.borderRadius, 0, 0]);
+            ctx.fill();
+
+            ctx.strokeStyle = config.borderColor;
+            ctx.beginPath();
+            ctx.moveTo(blockX, blockY + config.headerHeight);
+            ctx.lineTo(blockX + blockW, blockY + config.headerHeight);
+            ctx.stroke();
+
+            // Traffic light dots
+            var dotY = blockY + config.headerHeight / 2;
+            var dotStartX = blockX + 16;
+            config.dotColors.forEach(function(color, i) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(dotStartX + (i * 20), dotY, 6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Language label
+            ctx.fillStyle = config.labelColor;
+            ctx.font = '500 11px ' + config.font;
+            ctx.textAlign = 'left';
+            ctx.fillText(langLabel.toUpperCase(), dotStartX + 70, dotY + 4);
+
+            // Syntax-highlighted code
+            ctx.font = config.fontSize + 'px ' + config.font;
+            ctx.textBaseline = 'top';
+
+            var codeStartX = blockX + config.padding / 2;
+            var codeStartY = blockY + config.headerHeight + config.padding / 2;
+
+            coloredLines.forEach(function(line, lineIndex) {
+                var x = codeStartX;
+                var y = codeStartY + (lineIndex * config.fontSize * config.lineHeight);
+
+                line.forEach(function(segment) {
+                    ctx.fillStyle = segment.color;
+                    ctx.fillText(segment.text, x, y);
+                    x += ctx.measureText(segment.text).width;
+                });
+            });
+
+            return canvas;
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                openSearch();
+            }
+            if (e.key === 'Escape') {
+                closeSearch();
+            }
+        });
+
+        window.addEventListener('scroll', updateTocActive);
+
+        // SPA navigation handling
+        var lastUrl = location.href;
+        var observer = new MutationObserver(function() {
             if (location.href !== lastUrl) {
                 lastUrl = location.href;
-                // Small delay to let DOM settle
-                requestAnimationFrame(() => {
+                requestAnimationFrame(function() {
                     restoreSidebarScroll();
                     initDocsPage();
                 });
             }
         });
 
-        // Start observing once DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             initDocsPage();
             observer.observe(document.body, { childList: true, subtree: true });
         });
 
-        // Also handle browser back/forward
         window.addEventListener('popstate', function() {
-            requestAnimationFrame(() => {
+            requestAnimationFrame(function() {
                 restoreSidebarScroll();
                 initDocsPage();
             });
