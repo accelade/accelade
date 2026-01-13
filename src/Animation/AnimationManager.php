@@ -31,127 +31,80 @@ class AnimationManager
         }
 
         // Default - subtle fade and scale
-        $this->new(
+        $this->register(
             name: 'default',
-            enter: 'transition ease-out duration-200',
-            enterFrom: 'opacity-0 scale-95',
-            enterTo: 'opacity-100 scale-100',
-            leave: 'transition ease-in duration-150',
-            leaveFrom: 'opacity-100 scale-100',
-            leaveTo: 'opacity-0 scale-95',
+            enter: new AnimationPhase('transition ease-out duration-200', 'opacity-0 scale-95', 'opacity-100 scale-100'),
+            leave: new AnimationPhase('transition ease-in duration-150', 'opacity-100 scale-100', 'opacity-0 scale-95'),
         );
 
         // Opacity - simple fade
-        $this->new(
+        $this->register(
             name: 'opacity',
-            enter: 'transition-opacity ease-out duration-200',
-            enterFrom: 'opacity-0',
-            enterTo: 'opacity-100',
-            leave: 'transition-opacity ease-in duration-150',
-            leaveFrom: 'opacity-100',
-            leaveTo: 'opacity-0',
+            enter: new AnimationPhase('transition-opacity ease-out duration-200', 'opacity-0', 'opacity-100'),
+            leave: new AnimationPhase('transition-opacity ease-in duration-150', 'opacity-100', 'opacity-0'),
         );
 
         // Fade - same as opacity (alias)
-        $this->new(
+        $this->register(
             name: 'fade',
-            enter: 'transition-opacity ease-out duration-200',
-            enterFrom: 'opacity-0',
-            enterTo: 'opacity-100',
-            leave: 'transition-opacity ease-in duration-150',
-            leaveFrom: 'opacity-100',
-            leaveTo: 'opacity-0',
+            enter: new AnimationPhase('transition-opacity ease-out duration-200', 'opacity-0', 'opacity-100'),
+            leave: new AnimationPhase('transition-opacity ease-in duration-150', 'opacity-100', 'opacity-0'),
         );
 
         // Slide left
-        $this->new(
+        $this->register(
             name: 'slide-left',
-            enter: 'transition ease-out duration-300',
-            enterFrom: 'opacity-0 -translate-x-full',
-            enterTo: 'opacity-100 translate-x-0',
-            leave: 'transition ease-in duration-300',
-            leaveFrom: 'opacity-100 translate-x-0',
-            leaveTo: 'opacity-0 -translate-x-full',
+            enter: new AnimationPhase('transition ease-out duration-300', 'opacity-0 -translate-x-full', 'opacity-100 translate-x-0'),
+            leave: new AnimationPhase('transition ease-in duration-300', 'opacity-100 translate-x-0', 'opacity-0 -translate-x-full'),
         );
 
         // Slide right
-        $this->new(
+        $this->register(
             name: 'slide-right',
-            enter: 'transition ease-out duration-300',
-            enterFrom: 'opacity-0 translate-x-full',
-            enterTo: 'opacity-100 translate-x-0',
-            leave: 'transition ease-in duration-300',
-            leaveFrom: 'opacity-100 translate-x-0',
-            leaveTo: 'opacity-0 translate-x-full',
+            enter: new AnimationPhase('transition ease-out duration-300', 'opacity-0 translate-x-full', 'opacity-100 translate-x-0'),
+            leave: new AnimationPhase('transition ease-in duration-300', 'opacity-100 translate-x-0', 'opacity-0 translate-x-full'),
         );
 
         // Slide up
-        $this->new(
+        $this->register(
             name: 'slide-up',
-            enter: 'transition ease-out duration-300',
-            enterFrom: 'opacity-0 translate-y-full',
-            enterTo: 'opacity-100 translate-y-0',
-            leave: 'transition ease-in duration-300',
-            leaveFrom: 'opacity-100 translate-y-0',
-            leaveTo: 'opacity-0 translate-y-full',
+            enter: new AnimationPhase('transition ease-out duration-300', 'opacity-0 translate-y-full', 'opacity-100 translate-y-0'),
+            leave: new AnimationPhase('transition ease-in duration-300', 'opacity-100 translate-y-0', 'opacity-0 translate-y-full'),
         );
 
         // Slide down
-        $this->new(
+        $this->register(
             name: 'slide-down',
-            enter: 'transition ease-out duration-300',
-            enterFrom: 'opacity-0 -translate-y-full',
-            enterTo: 'opacity-100 translate-y-0',
-            leave: 'transition ease-in duration-300',
-            leaveFrom: 'opacity-100 translate-y-0',
-            leaveTo: 'opacity-0 -translate-y-full',
+            enter: new AnimationPhase('transition ease-out duration-300', 'opacity-0 -translate-y-full', 'opacity-100 translate-y-0'),
+            leave: new AnimationPhase('transition ease-in duration-300', 'opacity-100 translate-y-0', 'opacity-0 -translate-y-full'),
         );
 
         // Scale
-        $this->new(
+        $this->register(
             name: 'scale',
-            enter: 'transition ease-out duration-200',
-            enterFrom: 'opacity-0 scale-0',
-            enterTo: 'opacity-100 scale-100',
-            leave: 'transition ease-in duration-150',
-            leaveFrom: 'opacity-100 scale-100',
-            leaveTo: 'opacity-0 scale-0',
+            enter: new AnimationPhase('transition ease-out duration-200', 'opacity-0 scale-0', 'opacity-100 scale-100'),
+            leave: new AnimationPhase('transition ease-in duration-150', 'opacity-100 scale-100', 'opacity-0 scale-0'),
         );
 
         // Collapse - for accordions (no translate, just fade)
-        $this->new(
+        $this->register(
             name: 'collapse',
-            enter: 'transition-opacity ease-out duration-200',
-            enterFrom: 'opacity-0',
-            enterTo: 'opacity-100',
-            leave: 'transition-opacity ease-in duration-150',
-            leaveFrom: 'opacity-100',
-            leaveTo: 'opacity-0',
+            enter: new AnimationPhase('transition-opacity ease-out duration-200', 'opacity-0', 'opacity-100'),
+            leave: new AnimationPhase('transition-opacity ease-in duration-150', 'opacity-100', 'opacity-0'),
         );
 
         $this->builtInsRegistered = true;
     }
 
     /**
-     * Register a new animation preset.
+     * Register a new animation preset with phase objects.
      */
-    public function new(
-        string $name,
-        string $enter,
-        string $enterFrom,
-        string $enterTo,
-        string $leave,
-        string $leaveFrom,
-        string $leaveTo,
-    ): self {
+    public function register(string $name, AnimationPhase $enter, AnimationPhase $leave): self
+    {
         $this->presets[$name] = new AnimationPreset(
             name: $name,
             enter: $enter,
-            enterFrom: $enterFrom,
-            enterTo: $enterTo,
             leave: $leave,
-            leaveFrom: $leaveFrom,
-            leaveTo: $leaveTo,
         );
 
         return $this;

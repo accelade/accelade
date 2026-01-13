@@ -7,16 +7,12 @@ namespace Accelade\Animation;
 /**
  * Value object representing an animation preset.
  */
-class AnimationPreset
+readonly class AnimationPreset
 {
     public function __construct(
-        public readonly string $name,
-        public readonly string $enter,
-        public readonly string $enterFrom,
-        public readonly string $enterTo,
-        public readonly string $leave,
-        public readonly string $leaveFrom,
-        public readonly string $leaveTo,
+        public string $name,
+        public AnimationPhase $enter,
+        public AnimationPhase $leave,
     ) {}
 
     /**
@@ -28,12 +24,12 @@ class AnimationPreset
     {
         return [
             'name' => $this->name,
-            'enter' => $this->enter,
-            'enterFrom' => $this->enterFrom,
-            'enterTo' => $this->enterTo,
-            'leave' => $this->leave,
-            'leaveFrom' => $this->leaveFrom,
-            'leaveTo' => $this->leaveTo,
+            'enter' => $this->enter->transition,
+            'enterFrom' => $this->enter->from,
+            'enterTo' => $this->enter->to,
+            'leave' => $this->leave->transition,
+            'leaveFrom' => $this->leave->from,
+            'leaveTo' => $this->leave->to,
         ];
     }
 }

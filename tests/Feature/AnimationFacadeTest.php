@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Accelade\Animation\AnimationPhase;
 use Accelade\Animation\AnimationPreset;
 use Accelade\Facades\Animation;
 
@@ -39,12 +40,12 @@ it('animation facade can get preset', function () {
     expect($preset)
         ->toBeInstanceOf(AnimationPreset::class)
         ->and($preset->name)->toBe('fade')
-        ->and($preset->enter)->toBe('transition-opacity ease-out duration-200')
-        ->and($preset->enterFrom)->toBe('opacity-0')
-        ->and($preset->enterTo)->toBe('opacity-100')
-        ->and($preset->leave)->toBe('transition-opacity ease-in duration-150')
-        ->and($preset->leaveFrom)->toBe('opacity-100')
-        ->and($preset->leaveTo)->toBe('opacity-0');
+        ->and($preset->enter->transition)->toBe('transition-opacity ease-out duration-200')
+        ->and($preset->enter->from)->toBe('opacity-0')
+        ->and($preset->enter->to)->toBe('opacity-100')
+        ->and($preset->leave->transition)->toBe('transition-opacity ease-in duration-150')
+        ->and($preset->leave->from)->toBe('opacity-100')
+        ->and($preset->leave->to)->toBe('opacity-0');
 });
 
 it('animation facade returns null for unknown preset', function () {
@@ -52,21 +53,17 @@ it('animation facade returns null for unknown preset', function () {
 });
 
 it('animation facade can register custom preset', function () {
-    Animation::new(
+    Animation::register(
         name: 'custom',
-        enter: 'custom-enter',
-        enterFrom: 'custom-from',
-        enterTo: 'custom-to',
-        leave: 'custom-leave',
-        leaveFrom: 'custom-leave-from',
-        leaveTo: 'custom-leave-to',
+        enter: new AnimationPhase('custom-enter', 'custom-from', 'custom-to'),
+        leave: new AnimationPhase('custom-leave', 'custom-leave-from', 'custom-leave-to'),
     );
 
     expect(Animation::has('custom'))->toBeTrue();
 
     $preset = Animation::get('custom');
     expect($preset->name)->toBe('custom');
-    expect($preset->enter)->toBe('custom-enter');
+    expect($preset->enter->transition)->toBe('custom-enter');
 });
 
 it('animation facade can get all presets', function () {
@@ -110,14 +107,10 @@ it('preset can convert to array', function () {
 });
 
 it('animation facade supports fluent interface', function () {
-    $result = Animation::new(
+    $result = Animation::register(
         name: 'fluent-test',
-        enter: 'enter',
-        enterFrom: 'from',
-        enterTo: 'to',
-        leave: 'leave',
-        leaveFrom: 'leave-from',
-        leaveTo: 'leave-to',
+        enter: new AnimationPhase('enter', 'from', 'to'),
+        leave: new AnimationPhase('leave', 'leave-from', 'leave-to'),
     );
 
     expect($result)->toBeInstanceOf(\Accelade\Animation\AnimationManager::class);

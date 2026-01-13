@@ -20,12 +20,12 @@
 
     // Build transition classes - prefer explicit props over preset
     $transitionClasses = [
-        'enter' => $enter ?? ($preset?->enter ?? 'transition ease-out duration-200'),
-        'enterFrom' => $enterFrom ?? ($preset?->enterFrom ?? 'opacity-0'),
-        'enterTo' => $enterTo ?? ($preset?->enterTo ?? 'opacity-100'),
-        'leave' => $leave ?? ($preset?->leave ?? 'transition ease-in duration-150'),
-        'leaveFrom' => $leaveFrom ?? ($preset?->leaveFrom ?? 'opacity-100'),
-        'leaveTo' => $leaveTo ?? ($preset?->leaveTo ?? 'opacity-0'),
+        'enter' => $enter ?? ($preset?->enter->transition ?? 'transition ease-out duration-200'),
+        'enterFrom' => $enterFrom ?? ($preset?->enter->from ?? 'opacity-0'),
+        'enterTo' => $enterTo ?? ($preset?->enter->to ?? 'opacity-100'),
+        'leave' => $leave ?? ($preset?->leave->transition ?? 'transition ease-in duration-150'),
+        'leaveFrom' => $leaveFrom ?? ($preset?->leave->from ?? 'opacity-100'),
+        'leaveTo' => $leaveTo ?? ($preset?->leave->to ?? 'opacity-0'),
     ];
 
     // The show expression - can be a state property or expression

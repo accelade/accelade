@@ -578,44 +578,66 @@ class SEO implements Arrayable, Htmlable
      */
     public function toHtml(): string
     {
+        $html = array_merge(
+            $this->renderBasicMeta(),
+            $this->renderOpenGraphMeta(),
+            $this->renderTwitterMeta(),
+            $this->renderCustomMeta(),
+        );
+
+        return implode("\n    ", $html);
+    }
+
+    /**
+     * Render basic meta tags (title, description, keywords, robots, author, canonical).
+     *
+     * @return array<int, string>
+     */
+    protected function renderBasicMeta(): array
+    {
         $html = [];
 
-        // Title
         $title = $this->buildTitle();
         if ($title !== null) {
             $html[] = '<title>'.e($title).'</title>';
         }
 
-        // Description
         $description = $this->buildDescription();
         if ($description !== null) {
             $html[] = '<meta name="description" content="'.e($description).'">';
         }
 
-        // Keywords
         $keywords = $this->buildKeywords();
         if (count($keywords) > 0) {
             $html[] = '<meta name="keywords" content="'.e(implode(', ', $keywords)).'">';
         }
 
-        // Robots
         if ($this->robots !== null) {
             $html[] = '<meta name="robots" content="'.e($this->robots).'">';
         }
 
-        // Author
         if ($this->author !== null) {
             $html[] = '<meta name="author" content="'.e($this->author).'">';
         }
 
-        // Canonical
         $canonical = $this->buildCanonical();
         if ($canonical !== null) {
             $html[] = '<link rel="canonical" href="'.e($canonical).'">';
         }
 
-        // OpenGraph
+        return $html;
+    }
+
+    /**
+     * Render OpenGraph meta tags.
+     *
+     * @return array<int, string>
+     */
+    protected function renderOpenGraphMeta(): array
+    {
+        $html = [];
         $og = $this->buildOpenGraph();
+
         foreach ($og as $key => $value) {
             if ($value !== null) {
                 $property = $key === 'type' ? 'og:type' : 'og:'.str_replace('_', ':', $key);
@@ -623,8 +645,19 @@ class SEO implements Arrayable, Htmlable
             }
         }
 
-        // Twitter
+        return $html;
+    }
+
+    /**
+     * Render Twitter Card meta tags.
+     *
+     * @return array<int, string>
+     */
+    protected function renderTwitterMeta(): array
+    {
+        $html = [];
         $twitter = $this->buildTwitter();
+
         foreach ($twitter as $key => $value) {
             if ($value !== null) {
                 $name = 'twitter:'.str_replace('_', ':', $key);
@@ -632,7 +665,18 @@ class SEO implements Arrayable, Htmlable
             }
         }
 
-        // Custom meta tags
+        return $html;
+    }
+
+    /**
+     * Render custom meta tags.
+     *
+     * @return array<int, string>
+     */
+    protected function renderCustomMeta(): array
+    {
+        $html = [];
+
         foreach ($this->meta as $meta) {
             if ($meta['type'] === 'name') {
                 $html[] = '<meta name="'.e($meta['key']).'" content="'.e($meta['value']).'">';
@@ -647,7 +691,7 @@ class SEO implements Arrayable, Htmlable
             }
         }
 
-        return implode("\n    ", $html);
+        return $html;
     }
 
     /**

@@ -112,7 +112,7 @@ class DocsController extends Controller
         $prefix = $this->frameworkPrefixes[$framework];
 
         // Check if section has a demo
-        $hasDemo = in_array($section, $this->sectionsWithDemo);
+        $hasDemo = in_array($section, $this->sectionsWithDemo, true);
 
         // Get documentation content
         $documentation = $this->getDocumentation($section);
@@ -321,7 +321,7 @@ HTML;
                 $results[] = [
                     'section' => $section,
                     'label' => $sectionLabel,
-                    'hasDemo' => in_array($section, $this->sectionsWithDemo),
+                    'hasDemo' => in_array($section, $this->sectionsWithDemo, true),
                 ];
             }
         }
