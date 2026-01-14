@@ -88,7 +88,7 @@ export function createTransition(
 ): TransitionInstance {
     const config = parseConfig(element);
     let isVisible = true;
-    let isAnimating = false;
+    let animationId = 0; // Used to cancel stale animations
 
     // Parse all class sets
     const enterClasses = parseClasses(config.enter);
@@ -99,11 +99,26 @@ export function createTransition(
     const leaveToClasses = parseClasses(config.leaveTo);
 
     /**
+     * Clear all transition classes immediately
+     */
+    const clearAllClasses = (): void => {
+        removeClasses(element, enterClasses);
+        removeClasses(element, enterFromClasses);
+        removeClasses(element, enterToClasses);
+        removeClasses(element, leaveClasses);
+        removeClasses(element, leaveFromClasses);
+        removeClasses(element, leaveToClasses);
+    };
+
+    /**
      * Perform enter animation
      */
     const enter = async (): Promise<void> => {
-        if (isAnimating) return;
-        isAnimating = true;
+        // Cancel any ongoing animation by incrementing the ID
+        const currentAnimationId = ++animationId;
+
+        // Clear any previous transition classes
+        clearAllClasses();
 
         // Make visible
         element.style.display = '';
@@ -115,6 +130,9 @@ export function createTransition(
         // Wait for next frame to ensure classes are applied
         await nextFrame();
 
+        // Check if this animation was cancelled
+        if (currentAnimationId !== animationId) return;
+
         // Remove enterFrom, add enterTo
         removeClasses(element, enterFromClasses);
         addClasses(element, enterToClasses);
@@ -124,20 +142,25 @@ export function createTransition(
 
         await new Promise(resolve => setTimeout(resolve, duration));
 
+        // Check if this animation was cancelled
+        if (currentAnimationId !== animationId) return;
+
         // Cleanup - remove transition classes
         removeClasses(element, enterClasses);
         removeClasses(element, enterToClasses);
 
         isVisible = true;
-        isAnimating = false;
     };
 
     /**
      * Perform leave animation
      */
     const leave = async (): Promise<void> => {
-        if (isAnimating) return;
-        isAnimating = true;
+        // Cancel any ongoing animation by incrementing the ID
+        const currentAnimationId = ++animationId;
+
+        // Clear any previous transition classes
+        clearAllClasses();
 
         // Add leave + leaveFrom classes
         addClasses(element, leaveClasses);
@@ -145,6 +168,9 @@ export function createTransition(
 
         // Wait for next frame
         await nextFrame();
+
+        // Check if this animation was cancelled
+        if (currentAnimationId !== animationId) return;
 
         // Remove leaveFrom, add leaveTo
         removeClasses(element, leaveFromClasses);
@@ -155,13 +181,15 @@ export function createTransition(
 
         await new Promise(resolve => setTimeout(resolve, duration));
 
+        // Check if this animation was cancelled
+        if (currentAnimationId !== animationId) return;
+
         // Cleanup - remove transition classes and hide
         removeClasses(element, leaveClasses);
         removeClasses(element, leaveToClasses);
         element.style.display = 'none';
 
         isVisible = false;
-        isAnimating = false;
     };
 
     /**
@@ -170,9 +198,9 @@ export function createTransition(
     const update = (state: Record<string, unknown>): void => {
         const shouldShow = evaluateBooleanExpression(config.showExpression, state);
 
-        if (shouldShow && !isVisible && !isAnimating) {
+        if (shouldShow && !isVisible) {
             enter();
-        } else if (!shouldShow && isVisible && !isAnimating) {
+        } else if (!shouldShow && isVisible) {
             leave();
         }
     };
@@ -181,7 +209,7 @@ export function createTransition(
      * Force show with animation
      */
     const show = (): void => {
-        if (!isVisible && !isAnimating) {
+        if (!isVisible) {
             enter();
         }
     };
@@ -190,7 +218,7 @@ export function createTransition(
      * Force hide with animation
      */
     const hide = (): void => {
-        if (isVisible && !isAnimating) {
+        if (isVisible) {
             leave();
         }
     };
@@ -199,13 +227,10 @@ export function createTransition(
      * Dispose
      */
     const dispose = (): void => {
+        // Cancel any ongoing animation
+        animationId++;
         // Cleanup all possible classes
-        removeClasses(element, enterClasses);
-        removeClasses(element, enterFromClasses);
-        removeClasses(element, enterToClasses);
-        removeClasses(element, leaveClasses);
-        removeClasses(element, leaveFromClasses);
-        removeClasses(element, leaveToClasses);
+        clearAllClasses();
     };
 
     // Initial state check - hide if show expression is false

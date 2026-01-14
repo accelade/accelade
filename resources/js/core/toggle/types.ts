@@ -40,6 +40,16 @@ export interface ToggleInstance {
      */
     toggle: (key?: string) => void;
     /**
+     * Open (set to true)
+     * @param key - Optional key for multi-toggle mode
+     */
+    open: (key?: string) => void;
+    /**
+     * Close (set to false)
+     * @param key - Optional key for multi-toggle mode
+     */
+    close: (key?: string) => void;
+    /**
      * Set a specific toggle value
      * @param keyOrValue - Key (for multi) or value (for single)
      * @param value - Value (only for multi-key mode)
@@ -60,6 +70,10 @@ export interface ToggleInstance {
 export interface ToggleMethods {
     /** Toggle function */
     toggle: (key?: string) => void;
+    /** Open (set to true) */
+    open: (key?: string) => void;
+    /** Close (set to false) */
+    close: (key?: string) => void;
     /** Set toggle function */
     setToggle: (keyOrValue: string | boolean, value?: boolean) => void;
 }

@@ -952,21 +952,46 @@
         }
 
         // Sidebar scroll preservation
-        var sidebarScrollPosition = 0;
+        (function() {
+            var SCROLL_KEY = 'accelade-sidebar-scroll';
+            var nav = null;
 
-        function saveSidebarScroll() {
-            var nav = document.getElementById('docs-sidebar-nav');
-            if (nav) {
-                sidebarScrollPosition = nav.scrollTop;
+            function getNav() {
+                if (!nav) nav = document.getElementById('docs-sidebar-nav');
+                return nav;
             }
-        }
 
-        function restoreSidebarScroll() {
-            var nav = document.getElementById('docs-sidebar-nav');
-            if (nav && sidebarScrollPosition > 0) {
-                nav.scrollTop = sidebarScrollPosition;
+            // Save scroll on any link click inside sidebar
+            document.addEventListener('click', function(e) {
+                var link = e.target.closest('#docs-sidebar-nav a');
+                if (link) {
+                    var n = getNav();
+                    if (n) sessionStorage.setItem(SCROLL_KEY, String(n.scrollTop));
+                }
+            }, true);
+
+            // Restore scroll after SPA navigation
+            function restoreScroll() {
+                var saved = sessionStorage.getItem(SCROLL_KEY);
+                if (saved !== null) {
+                    var n = getNav();
+                    if (n) n.scrollTop = parseInt(saved, 10);
+                }
             }
-        }
+
+            // Listen for Accelade navigation events
+            document.addEventListener('accelade:navigated', restoreScroll);
+
+            // Also use MutationObserver as fallback
+            var lastHref = location.href;
+            var observer = new MutationObserver(function() {
+                if (location.href !== lastHref) {
+                    lastHref = location.href;
+                    restoreScroll();
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        })();
 
         // Global click handler using event delegation
         document.addEventListener('click', function(e) {
@@ -1008,10 +1033,6 @@
                 handleCodeDownload(downloadBtn);
             }
 
-            // SPA link click - save sidebar scroll
-            if (e.target.closest('a[a-link]')) {
-                saveSidebarScroll();
-            }
         }, true);
 
         function handleCodeCopy(btn) {
@@ -1259,7 +1280,6 @@
             if (location.href !== lastUrl) {
                 lastUrl = location.href;
                 requestAnimationFrame(function() {
-                    restoreSidebarScroll();
                     initDocsPage();
                 });
             }
@@ -1272,7 +1292,6 @@
 
         window.addEventListener('popstate', function() {
             requestAnimationFrame(function() {
-                restoreSidebarScroll();
                 initDocsPage();
             });
         });

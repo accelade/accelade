@@ -662,6 +662,11 @@ export class AcceladeRouter {
                 this.config.onAfterNavigate(url);
             }
 
+            // Dispatch navigation event for external listeners
+            document.dispatchEvent(new CustomEvent('accelade:navigated', {
+                detail: { url, preserveScroll }
+            }));
+
             success = true;
             return true;
         } catch (error) {

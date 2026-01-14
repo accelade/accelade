@@ -98,6 +98,26 @@ export function createToggle(
     };
 
     /**
+     * Open (set to true)
+     */
+    const open = (key?: string): void => {
+        const targetKey = isMultiKey ? key : DEFAULT_KEY;
+        if (!targetKey) return;
+        stateAdapter.set(targetKey, true);
+        dispatchToggleEvent(element, targetKey, true);
+    };
+
+    /**
+     * Close (set to false)
+     */
+    const close = (key?: string): void => {
+        const targetKey = isMultiKey ? key : DEFAULT_KEY;
+        if (!targetKey) return;
+        stateAdapter.set(targetKey, false);
+        dispatchToggleEvent(element, targetKey, false);
+    };
+
+    /**
      * Set a specific toggle value
      */
     const setToggle = (keyOrValue: string | boolean, value?: boolean): void => {
@@ -171,6 +191,8 @@ export function createToggle(
         element,
         isMultiKey,
         toggle,
+        open,
+        close,
         setToggle,
         getToggled,
         dispose,
@@ -183,6 +205,8 @@ export function createToggle(
 export function createToggleMethods(instance: ToggleInstance): ToggleMethods {
     return {
         toggle: instance.toggle,
+        open: instance.open,
+        close: instance.close,
         setToggle: instance.setToggle,
     };
 }
