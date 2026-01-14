@@ -623,9 +623,11 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
             return undefined;
         }
 
-        // Add toggle and setToggle methods to customMethods
+        // Add toggle methods to customMethods
         const toggleMethods = createToggleMethods(instance);
         customMethods.toggle = toggleMethods.toggle;
+        customMethods.open = toggleMethods.open;
+        customMethods.close = toggleMethods.close;
         customMethods.setToggle = toggleMethods.setToggle;
 
         // Add cleanup for Toggle instance
