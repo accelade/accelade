@@ -26,6 +26,28 @@ interface BindingRecord {
 }
 
 /**
+ * Animation configuration for show bindings
+ */
+interface AnimationConfig {
+    enter: string;
+    enterFrom: string;
+    enterTo: string;
+    leave: string;
+    leaveFrom: string;
+    leaveTo: string;
+}
+
+/**
+ * Show binding with animation support
+ */
+interface ShowBinding {
+    element: HTMLElement;
+    expression: string;
+    originalDisplay: string;
+    animation?: AnimationConfig;
+}
+
+/**
  * AngularBindingAdapter - Handles DOM bindings with Angular-style patterns
  */
 export class AngularBindingAdapter implements IBindingAdapter {
@@ -36,6 +58,7 @@ export class AngularBindingAdapter implements IBindingAdapter {
     private ifPlaceholders: Map<HTMLElement, Comment> = new Map();
     private modelBound: WeakSet<Element> = new WeakSet();
     private unsubscribe: CleanupFn | null = null;
+    private showBindings: ShowBinding[] = [];
 
     /**
      * Initialize the binding adapter
@@ -77,16 +100,75 @@ export class AngularBindingAdapter implements IBindingAdapter {
     }
 
     /**
-     * Bind visibility - Angular: [hidden] or *ngIf
+     * Bind visibility with animation support - Angular: [hidden] or *ngIf
      */
     bindShow(element: HTMLElement, expression: string): void {
+        // Get computed display style
+        const originalDisplay = element.style.display || '';
+
+        // Check for animation config from parent toggle
+        let animation: AnimationConfig | undefined;
+        const toggleParent = element.closest('[data-toggle-animation]');
+        if (toggleParent) {
+            try {
+                const animData = toggleParent.getAttribute('data-toggle-animation');
+                if (animData) {
+                    animation = JSON.parse(animData);
+                }
+            } catch {
+                // Invalid JSON, skip animation
+            }
+        }
+
+        // Store binding for animation support
+        this.showBindings.push({ element, expression, originalDisplay, animation });
+
         this.bindings.push({
             element,
             type: 'show',
             expression,
             cleanup: () => {},
         });
-        this.updateShowBinding(element, expression);
+
+        // Initial update (no animation on first render)
+        if (this.stateAdapter) {
+            const visible = evaluateBooleanExpression(expression, this.stateAdapter.getState());
+            if (visible) {
+                element.style.display = originalDisplay;
+                if (animation) {
+                    this.addClasses(element, animation.enterTo);
+                } else {
+                    element.classList.add('accelade-visible');
+                }
+            } else {
+                element.style.display = 'none';
+            }
+        }
+    }
+
+    /**
+     * Helper to add space-separated classes
+     */
+    private addClasses(element: HTMLElement, classes: string): void {
+        classes.split(/\s+/).filter(c => c).forEach(c => element.classList.add(c));
+    }
+
+    /**
+     * Helper to remove space-separated classes
+     */
+    private removeClasses(element: HTMLElement, classes: string): void {
+        classes.split(/\s+/).filter(c => c).forEach(c => element.classList.remove(c));
+    }
+
+    /**
+     * Extract duration from Tailwind duration class
+     */
+    private getAnimationDuration(classes: string): number {
+        const match = classes.match(/duration-(\d+)/);
+        if (match) {
+            return parseInt(match[1], 10);
+        }
+        return 200; // Default fallback
     }
 
     /**
@@ -175,8 +257,49 @@ export class AngularBindingAdapter implements IBindingAdapter {
         actions: AcceladeActions,
         customMethods: CustomMethods
     ): void {
+        // Parse event modifiers (e.g., click.prevent.stop -> click with prevent and stop modifiers)
+        const parts = event.split('.');
+        const eventName = parts[0];
+        const modifiers = new Set(parts.slice(1));
+
         const listener = (e: Event) => {
             if (!this.stateAdapter) return;
+
+            // Apply modifiers
+            if (modifiers.has('prevent')) {
+                e.preventDefault();
+            }
+            if (modifiers.has('stop')) {
+                e.stopPropagation();
+            }
+
+            // Handle keyboard modifiers for keydown/keyup events
+            if (e instanceof KeyboardEvent) {
+                if (modifiers.has('enter') && e.key !== 'Enter') return;
+                if (modifiers.has('escape') && e.key !== 'Escape') return;
+                if (modifiers.has('tab') && e.key !== 'Tab') return;
+                if (modifiers.has('space') && e.key !== ' ') return;
+                if (modifiers.has('up') && e.key !== 'ArrowUp') return;
+                if (modifiers.has('down') && e.key !== 'ArrowDown') return;
+                if (modifiers.has('left') && e.key !== 'ArrowLeft') return;
+                if (modifiers.has('right') && e.key !== 'ArrowRight') return;
+            }
+
+            // Handle mouse button modifiers
+            if (e instanceof MouseEvent) {
+                if (modifiers.has('left') && e.button !== 0) return;
+                if (modifiers.has('middle') && e.button !== 1) return;
+                if (modifiers.has('right') && e.button !== 2) return;
+            }
+
+            // Handle modifier key requirements
+            if (e instanceof KeyboardEvent || e instanceof MouseEvent) {
+                if (modifiers.has('ctrl') && !e.ctrlKey) return;
+                if (modifiers.has('alt') && !e.altKey) return;
+                if (modifiers.has('shift') && !e.shiftKey) return;
+                if (modifiers.has('meta') && !e.metaKey) return;
+            }
+
             ScriptExecutor.executeAction(
                 handler,
                 this.stateAdapter.getState(),
@@ -186,8 +309,8 @@ export class AngularBindingAdapter implements IBindingAdapter {
             );
         };
 
-        element.addEventListener(event, listener);
-        this.eventListeners.push({ element, event, handler: listener });
+        element.addEventListener(eventName, listener);
+        this.eventListeners.push({ element, event: eventName, handler: listener });
     }
 
     /**
@@ -274,12 +397,82 @@ export class AngularBindingAdapter implements IBindingAdapter {
     }
 
     /**
-     * Update show binding
+     * Update show binding with animation support
      */
     private updateShowBinding(element: HTMLElement, expression: string): void {
         if (!this.stateAdapter) return;
+
+        // Find the show binding for this element
+        const showBinding = this.showBindings.find(b => b.element === element);
+        if (!showBinding) {
+            // Fallback to simple show/hide
+            const visible = evaluateBooleanExpression(expression, this.stateAdapter.getState());
+            element.style.display = visible ? '' : 'none';
+            return;
+        }
+
+        const { originalDisplay, animation } = showBinding;
         const visible = evaluateBooleanExpression(expression, this.stateAdapter.getState());
-        element.style.display = visible ? '' : 'none';
+        const isCurrentlyHidden = element.style.display === 'none';
+
+        if (animation) {
+            // Use custom animation classes
+            if (visible && isCurrentlyHidden) {
+                // Enter animation
+                element.style.display = originalDisplay;
+                this.addClasses(element, animation.enter);
+                this.addClasses(element, animation.enterFrom);
+                // Force reflow
+                void element.offsetHeight;
+                // Transition to enterTo
+                this.removeClasses(element, animation.enterFrom);
+                this.addClasses(element, animation.enterTo);
+                // Cleanup after animation
+                const duration = this.getAnimationDuration(animation.enter);
+                setTimeout(() => {
+                    this.removeClasses(element, animation.enter);
+                }, duration);
+            } else if (!visible && !isCurrentlyHidden) {
+                // Leave animation
+                this.removeClasses(element, animation.enterTo);
+                this.addClasses(element, animation.leave);
+                this.addClasses(element, animation.leaveFrom);
+                // Force reflow
+                void element.offsetHeight;
+                // Transition to leaveTo
+                this.removeClasses(element, animation.leaveFrom);
+                this.addClasses(element, animation.leaveTo);
+                // Hide after animation
+                const duration = this.getAnimationDuration(animation.leave);
+                setTimeout(() => {
+                    if (element.classList.contains(animation.leaveTo.split(/\s+/)[0])) {
+                        element.style.display = 'none';
+                        this.removeClasses(element, animation.leave);
+                        this.removeClasses(element, animation.leaveTo);
+                    }
+                }, duration);
+            }
+        } else {
+            // Default simple animation
+            if (visible) {
+                if (isCurrentlyHidden) {
+                    element.style.display = originalDisplay;
+                    void element.offsetHeight;
+                }
+                element.classList.remove('accelade-hiding');
+                element.classList.add('accelade-visible');
+            } else {
+                if (!isCurrentlyHidden) {
+                    element.classList.add('accelade-hiding');
+                    element.classList.remove('accelade-visible');
+                    setTimeout(() => {
+                        if (element.classList.contains('accelade-hiding')) {
+                            element.style.display = 'none';
+                        }
+                    }, 100);
+                }
+            }
+        }
     }
 
     /**
@@ -395,6 +588,9 @@ export class AngularBindingAdapter implements IBindingAdapter {
             binding.cleanup();
         }
         this.bindings = [];
+
+        // Clear show bindings
+        this.showBindings = [];
 
         // Clear placeholders
         this.ifPlaceholders.clear();
