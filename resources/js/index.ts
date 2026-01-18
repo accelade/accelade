@@ -13,8 +13,11 @@
 export type {
     AcceladeComponentConfig,
     AcceladeActions,
+    AcceladeInstance,
     StateChangeCallback,
 } from './core/types';
+
+import type { AcceladeInstance } from './core/types';
 
 export type {
     FrameworkType,
@@ -234,7 +237,7 @@ import {
 import { NotificationManager } from './core/notification';
 import type { FrameworkType, ComponentInstance } from './adapters/types';
 import type { SharedData } from './core/types';
-import { initLazy, getLazyLoader, registerLazy, loadLazy, configureLazy, type LazyConfig } from './core/lazy';
+import { initLazy, getLazyLoader, registerLazy, loadLazy, configureLazy, type LazyConfig, type LazyInstance } from './core/lazy';
 import { rehydrateManager, initRehydrate, initRehydrateSystem, emit as rehydrateEmit } from './core/rehydrate';
 import { teleportManager, initTeleport, registerTeleport } from './core/teleport';
 import { getEventBus, emit as eventBusEmit, on as eventBusOn, once as eventBusOnce, off as eventBusOff, type EventCallback } from './core/events';
@@ -498,8 +501,8 @@ const lazy = {
     /**
      * Subscribe to lazy events
      */
-    on: (event: 'load' | 'loaded' | 'error', callback: Parameters<typeof getLazyLoader>['0']['on'] extends (e: infer E, c: infer C) => void ? C : never) =>
-        getLazyLoader().on(event, callback as Parameters<ReturnType<typeof getLazyLoader>['on']>[1]),
+    on: (event: 'load' | 'loaded' | 'error', callback: (instance: LazyInstance, data?: unknown) => void) =>
+        getLazyLoader().on(event, callback),
 
     /**
      * Get the LazyLoaderManager instance
@@ -699,6 +702,9 @@ const confirm = {
 
 /**
  * Main Accelade API
+ *
+ * Note: We use an explicit cast at export to avoid TS4094 errors about
+ * private members in nested class instances (like TeleportManager).
  */
 const Accelade = {
     // Core
@@ -753,8 +759,8 @@ const Accelade = {
     off: eventBusOff,
 
     // Debug (set via DebugManager when enabled)
-    debug: false as boolean,
-    devtools: null as unknown,
+    debug: false,
+    devtools: null,
 };
 
 // Export for window
@@ -840,5 +846,5 @@ if (typeof window !== 'undefined') {
     });
 }
 
-// Default export
-export default Accelade;
+// Default export - cast through unknown to AcceladeInstance to hide internal class private members
+export default Accelade as unknown as AcceladeInstance;

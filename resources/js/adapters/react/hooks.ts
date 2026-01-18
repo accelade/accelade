@@ -177,6 +177,34 @@ export function useAccelade<T extends StateRecord>(
             $toggle: (key: string): void => {
                 setState((prev) => ({ ...prev, [key]: !prev[key] }));
             },
+
+            // Store helper (not available in React hooks context)
+            $store: (): Record<string, unknown> | null => null,
+
+            // Event bus methods - import from event bus
+            $emit: <T = unknown>(event: string, data?: T): void => {
+                import('../../core/events').then(({ emit }) => emit(event, data));
+            },
+
+            $on: <T = unknown>(event: string, callback: (data: T) => void): (() => void) => {
+                let unsubscribe: (() => void) | null = null;
+                import('../../core/events').then(({ on }) => {
+                    unsubscribe = on(event, callback);
+                });
+                return () => unsubscribe?.();
+            },
+
+            $once: <T = unknown>(event: string, callback: (data: T) => void): (() => void) => {
+                let unsubscribe: (() => void) | null = null;
+                import('../../core/events').then(({ once }) => {
+                    unsubscribe = once(event, callback);
+                });
+                return () => unsubscribe?.();
+            },
+
+            $off: <T = unknown>(event: string, callback: (data: T) => void): void => {
+                import('../../core/events').then(({ off }) => off(event, callback));
+            },
         }),
         []
     );

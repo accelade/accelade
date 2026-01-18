@@ -101,6 +101,10 @@ export class ActionsFactory {
             $get,
             $toggle,
 
+            // Store helper (returns null since ActionsFactory doesn't have store access)
+            // Override in specific adapters that have store support
+            $store: (): Record<string, unknown> | null => null,
+
             // Event bus methods
             $emit: eventBusEmit,
             $on: eventBusOn,

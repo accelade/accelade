@@ -47,7 +47,7 @@ export function parseLinkConfig(element: HTMLAnchorElement): LinkConfig {
         element.getAttribute('confirm-text') ??
         element.getAttribute('data-confirm') ??
         (hasConfirm ? 'Are you sure you want to continue?' : undefined);
-    const confirmTitle = element.getAttribute('data-confirm-title') ?? element.getAttribute('confirm-title');
+    const confirmTitle = element.getAttribute('data-confirm-title') ?? element.getAttribute('confirm-title') ?? undefined;
     const confirmButton = element.getAttribute('data-confirm-button') ?? element.getAttribute('confirm-button') ?? 'Confirm';
     const cancelButton = element.getAttribute('data-cancel-button') ?? element.getAttribute('cancel-button') ?? 'Cancel';
     const confirmDanger = element.hasAttribute('data-confirm-danger') || element.hasAttribute('confirm-danger');

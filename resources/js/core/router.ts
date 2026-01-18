@@ -929,10 +929,13 @@ export type { LinkConfig, HttpMethod, ConfirmDialogOptions } from './link/types'
 export { modalManager, initModals, initModalLinks } from './modal/ModalFactory';
 export type { ModalConfig, ModalInstance, ModalOpenOptions, ModalMaxWidth, ModalPosition, SlideoverPosition } from './modal/types';
 
-export default {
+// Export default as a properly typed object to avoid TS4094 errors
+const routerExports = {
     AcceladeRouter,
     getRouter,
     initRouter,
     navigate,
     modal: modalManager,
 };
+
+export default routerExports;

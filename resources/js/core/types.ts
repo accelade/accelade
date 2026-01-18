@@ -55,7 +55,7 @@ export interface AcceladeConfig {
  * Accelade global instance
  */
 export interface AcceladeInstance {
-    init: (options?: { framework?: FrameworkType; debug?: boolean }) => void;
+    init: (optionsOrElement?: { framework?: FrameworkType; debug?: boolean } | HTMLElement) => void;
     navigate?: (url: string, options?: NavigationOptions) => Promise<boolean>;
     router?: AcceladeRouter;
     progress?: AcceladeProgressAPI;

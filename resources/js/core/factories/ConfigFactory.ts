@@ -5,6 +5,16 @@
 import type { AcceladeComponentConfig, AcceladeConfig, SharedData } from '../types';
 
 /**
+ * Error handler configuration
+ */
+interface ErrorHandlerConfig {
+    suppressErrors?: boolean;
+    showToasts?: boolean;
+    logErrors?: boolean;
+    debug?: boolean;
+}
+
+/**
  * Full config type with required properties (for internal use)
  */
 interface FullAcceladeConfig {
@@ -16,6 +26,7 @@ interface FullAcceladeConfig {
     debug: boolean;
     progress?: AcceladeConfig['progress'];
     shared?: SharedData;
+    errors?: ErrorHandlerConfig;
 }
 
 /**

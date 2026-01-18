@@ -16,9 +16,9 @@ import type {
 import type { IStateAdapter } from '../../adapters/types';
 
 /**
- * Echo instance info for a component
+ * Echo component instance info (distinct from types.ts EchoComponentInstance which is Laravel Echo interface)
  */
-export interface EchoInstance {
+export interface EchoComponentInstance {
     componentId: string;
     config: EchoConfig;
     stateAdapter: IStateAdapter;
@@ -55,11 +55,11 @@ export function parseEchoConfig(element: HTMLElement): EchoConfig | null {
 /**
  * Create an Echo listener for a component
  */
-export function createEchoInstance(
+export function createEchoComponentInstance(
     componentId: string,
     element: HTMLElement,
     stateAdapter: IStateAdapter
-): EchoInstance | null {
+): EchoComponentInstance | null {
     const config = parseEchoConfig(element);
     if (!config) {
         return null;
@@ -218,13 +218,13 @@ function restoreScrollIfNeeded(config: EchoConfig): void {
 /**
  * Cleanup an Echo instance
  */
-export function disposeEchoInstance(instance: EchoInstance): void {
+export function disposeEchoComponentInstance(instance: EchoComponentInstance): void {
     instance.unsubscribe();
     instance.stateAdapter.set('subscribed', false);
 }
 
 export const EchoFactory = {
     parseConfig: parseEchoConfig,
-    create: createEchoInstance,
-    dispose: disposeEchoInstance,
+    create: createEchoComponentInstance,
+    dispose: disposeEchoComponentInstance,
 };

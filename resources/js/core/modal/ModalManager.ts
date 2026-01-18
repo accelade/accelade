@@ -16,6 +16,27 @@ import type {
 } from './types';
 
 /**
+ * Public interface for ModalManager
+ * This allows exporting the singleton without exposing private members
+ */
+export interface IModalManager {
+    parseConfig(element: HTMLElement): ModalConfig;
+    parseLinkOptions(element: HTMLAnchorElement): LinkModalOptions | null;
+    register(element: HTMLElement, config: ModalConfig): ModalInstance;
+    open(options: ModalOpenOptions): ModalInstance;
+    openUrl(url: string, options?: Omit<ModalOpenOptions, 'url' | 'content'>): Promise<ModalInstance>;
+    openNamed(name: string): ModalInstance | undefined;
+    close(id: string): void;
+    closeLast(): void;
+    closeAll(): void;
+    get(id: string): ModalInstance | undefined;
+    getByName(name: string): ModalInstance | undefined;
+    hasOpen(): boolean;
+    handleHashChange(): void;
+    initHashListener(): void;
+}
+
+/**
  * Default modal configuration
  */
 const defaultConfig: ModalConfig = {
@@ -778,19 +799,10 @@ class ModalManager {
     }
 }
 
-// Singleton instance
-export const modalManager = new ModalManager();
+// Singleton instance - typed as IModalManager to hide private members
+export const modalManager: IModalManager = new ModalManager();
 
 // Export for window.Accelade.modal
-export default modalManager;
+export default modalManager as IModalManager;
 
-// Extend window type
-declare global {
-    interface Window {
-        Accelade?: {
-            init?: () => void;
-            modal?: ModalManager;
-            [key: string]: unknown;
-        };
-    }
-}
+// Note: Window.Accelade type is declared in core/types.ts

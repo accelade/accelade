@@ -20,7 +20,7 @@ import type { CustomMethods } from '../core/factories/ScriptExecutor';
 import { DeferFactory } from '../core/factories/DeferFactory';
 import type { DeferInstance } from '../core/factories/DeferFactory';
 import { EchoFactory } from '../core/echo/EchoFactory';
-import type { EchoInstance } from '../core/echo/EchoFactory';
+import type { EchoComponentInstance } from '../core/echo/EchoFactory';
 import { FlashFactory } from '../core/flash/FlashFactory';
 import type { FlashInstance } from '../core/flash/FlashFactory';
 import { createModal } from '../core/modal/ModalFactory';
@@ -28,7 +28,7 @@ import type { ModalAdapterInstance } from '../core/modal/ModalFactory';
 import { createState } from '../core/state/StateFactory';
 import type { StateInstance } from '../core/state/StateFactory';
 import { createToggle, createToggleMethods } from '../core/toggle/ToggleFactory';
-import type { ToggleInstance } from '../core/toggle/ToggleFactory';
+import type { ToggleInstance } from '../core/toggle/types';
 import { createTransition } from '../core/transition/TransitionFactory';
 import type { TransitionInstance } from '../core/transition/types';
 import { createBridge, createMethodProxies, disposeBridge } from '../core/bridge';
@@ -246,7 +246,7 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         }
 
         // Setup Echo event listener if applicable
-        let echoInstance: EchoInstance | undefined;
+        let echoInstance: EchoComponentInstance | undefined;
         if (element.hasAttribute('data-accelade-echo')) {
             echoInstance = this.setupEcho(element, config.id, stateAdapter);
         }
@@ -540,7 +540,7 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         element: HTMLElement,
         componentId: string,
         stateAdapter: IStateAdapter
-    ): EchoInstance | undefined {
+    ): EchoComponentInstance | undefined {
         const instance = EchoFactory.create(componentId, element, stateAdapter);
         if (!instance) {
             return undefined;

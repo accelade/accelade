@@ -8,8 +8,10 @@ import { navigate } from '../router';
 
 /**
  * Custom methods returned from script execution
+ * Uses a more flexible function signature to accommodate various method types
  */
-export type CustomMethods = Record<string, (...args: unknown[]) => unknown>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CustomMethods = Record<string, (...args: any[]) => any>;
 
 /**
  * Event callback type

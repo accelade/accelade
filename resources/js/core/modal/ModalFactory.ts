@@ -5,11 +5,11 @@
  */
 
 import type { IStateAdapter } from '../../adapters/types';
-import modalManagerInstance from './ModalManager';
+import modalManagerInstance, { type IModalManager } from './ModalManager';
 import type { ModalInstance, ModalConfig } from './types';
 
-// Re-export modalManager for use in router
-export const modalManager = modalManagerInstance;
+// Re-export modalManager for use in router (typed as IModalManager to hide private members)
+export const modalManager: IModalManager = modalManagerInstance;
 
 /**
  * Modal instance with adapter integration

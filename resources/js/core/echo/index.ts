@@ -4,4 +4,10 @@
 
 export * from './types';
 export * from './EchoManager';
-export * from './EchoFactory';
+export {
+    EchoFactory,
+    parseEchoConfig,
+    createEchoComponentInstance,
+    disposeEchoComponentInstance,
+} from './EchoFactory';
+export type { EchoComponentInstance } from './EchoFactory';
