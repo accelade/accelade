@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/fadymondy/accelade/actions"><img src="https://github.com/fadymondy/accelade/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+[![Tests](https://github.com/accelade/accelade/actions/workflows/tests.yml/badge.svg)](https://github.com/accelade/accelade/actions/workflows/tests.yml)
 <a href="https://packagist.org/packages/accelade/accelade"><img src="https://img.shields.io/packagist/v/accelade/accelade" alt="Latest Version"></a>
 <a href="https://packagist.org/packages/accelade/accelade"><img src="https://img.shields.io/packagist/dt/accelade/accelade" alt="Total Downloads"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
