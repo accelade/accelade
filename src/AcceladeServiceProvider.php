@@ -9,8 +9,11 @@ use Accelade\Bridge\BridgeManager;
 use Accelade\Compilers\AcceladeTagCompiler;
 use Accelade\Console\InstallCommand;
 use Accelade\Docs\DocsRegistry;
+use Accelade\Icons\BladeIconsRegistry;
 use Accelade\Notification\NotificationManager;
 use Accelade\SEO\SEO;
+use BladeUI\Icons\Factory as BladeIconsFactory;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -52,6 +55,16 @@ class AcceladeServiceProvider extends ServiceProvider
 
         // Bind the class to the singleton alias for dependency injection
         $this->app->alias('accelade.docs', DocsRegistry::class);
+
+        // Register Blade Icons Registry
+        $this->app->singleton(BladeIconsRegistry::class, function ($app) {
+            return new BladeIconsRegistry(
+                $app->make(BladeIconsFactory::class),
+                $app->make(Filesystem::class)
+            );
+        });
+
+        $this->app->alias(BladeIconsRegistry::class, 'accelade.icons');
     }
 
     public function boot(): void
@@ -211,8 +224,24 @@ class AcceladeServiceProvider extends ServiceProvider
         // Bridge routes (always enabled)
         $this->loadRoutesFrom(__DIR__.'/../routes/bridge.php');
 
+        // Icons API routes
+        $this->registerIconsRoutes();
+
         // Docs routes (configurable)
         $this->registerDocsRoutes();
+    }
+
+    protected function registerIconsRoutes(): void
+    {
+        Route::group([
+            'prefix' => config('accelade.prefix', 'accelade').'/api/icons',
+            'middleware' => config('accelade.middleware', ['web']),
+        ], function () {
+            Route::get('/sets', [\Accelade\Http\Controllers\IconsController::class, 'sets'])->name('accelade.icons.sets');
+            Route::get('/search', [\Accelade\Http\Controllers\IconsController::class, 'search'])->name('accelade.icons.search');
+            Route::get('/svg/{icon}', [\Accelade\Http\Controllers\IconsController::class, 'svg'])->where('icon', '.*')->name('accelade.icons.svg');
+            Route::get('/{set}', [\Accelade\Http\Controllers\IconsController::class, 'icons'])->name('accelade.icons.list');
+        });
     }
 
     protected function registerDocsRoutes(): void
@@ -268,66 +297,49 @@ class AcceladeServiceProvider extends ServiceProvider
 
         // Register navigation groups
         $docs->registerGroup('getting-started', 'Getting Started', 'book', 10);
-        $docs->registerGroup('components', 'Components', 'cube', 20);
-        $docs->registerGroup('data', 'Data & State', 'database', 30);
-        $docs->registerGroup('navigation', 'Navigation', 'arrow-right', 40);
-        $docs->registerGroup('advanced', 'Advanced', 'cog', 50);
+        $docs->registerGroup('core', 'Core', 'cube', 20);
         $docs->registerGroup('resources', 'Resources', 'folder', 60);
 
         // Register sections by group
         $this->registerGettingStartedDocs($docs);
         $this->registerComponentsDocs($docs);
-        $this->registerDataDocs($docs);
-        $this->registerNavigationDocs($docs);
-        $this->registerAdvancedDocs($docs);
         $this->registerResourcesDocs($docs);
     }
 
     protected function registerGettingStartedDocs(DocsRegistry $docs): void
     {
-        $docs->section('getting-started')->label('Getting Started')->markdown('getting-started.md')->demo()->inGroup('getting-started')->register();
+        $docs->section('getting-started')->label('Getting Started')->markdown('getting-started.md')->inGroup('getting-started')->register();
         $docs->section('installation')->label('Installation')->markdown('installation.md')->inGroup('getting-started')->register();
         $docs->section('configuration')->label('Configuration')->markdown('configuration.md')->inGroup('getting-started')->register();
     }
 
     protected function registerComponentsDocs(DocsRegistry $docs): void
     {
-        $docs->section('counter')->label('Counter Demo')->markdown('components.md')->demo()->inGroup('components')->register();
-        $docs->section('data')->label('Data Component')->markdown('data.md')->demo()->inGroup('components')->register();
-        $docs->section('state')->label('State Management')->markdown('state.md')->demo()->inGroup('components')->register();
-        $docs->section('modal')->label('Modal')->markdown('modal.md')->demo()->inGroup('components')->register();
-        $docs->section('toggle')->label('Toggle')->markdown('toggle.md')->demo()->inGroup('components')->register();
-        $docs->section('transition')->label('Transitions')->markdown('animations.md')->demo()->inGroup('components')->register();
-        $docs->section('notifications')->label('Notifications')->markdown('notifications.md')->demo()->inGroup('components')->register();
-        $docs->section('code-block')->label('Code Block')->markdown('code-block.md')->demo()->inGroup('components')->register();
-    }
-
-    protected function registerDataDocs(DocsRegistry $docs): void
-    {
-        $docs->section('lazy')->label('Lazy Loading')->markdown('lazy-loading.md')->demo()->inGroup('data')->register();
-        $docs->section('defer')->label('Defer')->markdown('content.md')->demo()->inGroup('data')->register();
-        $docs->section('content')->label('Content')->markdown('content.md')->demo()->inGroup('data')->register();
-        $docs->section('rehydrate')->label('Rehydrate')->markdown('rehydrate.md')->demo()->inGroup('data')->register();
-        $docs->section('teleport')->label('Teleport')->markdown('teleport.md')->demo()->inGroup('data')->register();
-    }
-
-    protected function registerNavigationDocs(DocsRegistry $docs): void
-    {
-        $docs->section('navigation')->label('SPA Navigation')->markdown('spa-navigation.md')->demo()->inGroup('navigation')->register();
-        $docs->section('link')->label('Link Component')->markdown('link.md')->demo()->inGroup('navigation')->register();
-        $docs->section('progress')->label('Progress Bar')->markdown('spa-navigation.md')->demo()->inGroup('navigation')->register();
-        $docs->section('persistent')->label('Persistent Layout')->markdown('persistent-layout.md')->demo()->inGroup('navigation')->register();
-    }
-
-    protected function registerAdvancedDocs(DocsRegistry $docs): void
-    {
-        $docs->section('event-bus')->label('Event Bus')->markdown('event-bus.md')->demo()->inGroup('advanced')->register();
-        $docs->section('event')->label('Event Component')->markdown('event.md')->demo()->inGroup('advanced')->register();
-        $docs->section('bridge')->label('Bridge (PHP/JS)')->markdown('bridge.md')->demo()->inGroup('advanced')->register();
-        $docs->section('shared-data')->label('Shared Data')->markdown('shared-data.md')->demo()->inGroup('advanced')->register();
-        $docs->section('flash')->label('Flash Messages')->markdown('flash.md')->demo()->inGroup('advanced')->register();
-        $docs->section('errors')->label('Error Handling')->markdown('exception-handling.md')->demo()->inGroup('advanced')->register();
-        $docs->section('scripts')->label('Scripts')->markdown('scripts.md')->demo()->inGroup('advanced')->register();
+        $docs->section('counter')->label('Counter Demo')->markdown('components.md')->demo()->inGroup('core')->register();
+        $docs->section('navigation')->label('SPA Navigation')->markdown('spa-navigation.md')->demo()->inGroup('core')->register();
+        $docs->section('link')->label('Link Component')->markdown('link.md')->demo()->inGroup('core')->register();
+        $docs->section('progress')->label('Progress Bar')->markdown('spa-navigation.md')->demo()->inGroup('core')->register();
+        $docs->section('persistent')->label('Persistent Layout')->markdown('persistent-layout.md')->demo()->inGroup('core')->register();
+        $docs->section('data')->label('Data Component')->markdown('data.md')->demo()->inGroup('core')->register();
+        $docs->section('state')->label('State Management')->markdown('state.md')->demo()->inGroup('core')->register();
+        $docs->section('modal')->label('Modal')->markdown('modal.md')->demo()->inGroup('core')->register();
+        $docs->section('toggle')->label('Toggle')->markdown('toggle.md')->demo()->inGroup('core')->register();
+        $docs->section('icon')->label('Icon')->markdown('icon.md')->demo()->inGroup('core')->register();
+        $docs->section('transition')->label('Transitions')->markdown('animations.md')->demo()->inGroup('core')->register();
+        $docs->section('notifications')->label('Notifications')->markdown('notifications.md')->demo()->inGroup('core')->register();
+        $docs->section('code-block')->label('Code Block')->markdown('code-block.md')->demo()->inGroup('core')->register();
+        $docs->section('lazy')->label('Lazy Loading')->markdown('lazy-loading.md')->demo()->inGroup('core')->register();
+        $docs->section('defer')->label('Defer')->markdown('content.md')->demo()->inGroup('core')->register();
+        $docs->section('content')->label('Content')->markdown('content.md')->demo()->inGroup('core')->register();
+        $docs->section('rehydrate')->label('Rehydrate')->markdown('rehydrate.md')->demo()->inGroup('core')->register();
+        $docs->section('teleport')->label('Teleport')->markdown('teleport.md')->demo()->inGroup('core')->register();
+        $docs->section('event-bus')->label('Event Bus')->markdown('event-bus.md')->demo()->inGroup('core')->register();
+        $docs->section('event')->label('Event Component')->markdown('event.md')->demo()->inGroup('core')->register();
+        $docs->section('bridge')->label('Bridge (PHP/JS)')->markdown('bridge.md')->demo()->inGroup('core')->register();
+        $docs->section('shared-data')->label('Shared Data')->markdown('shared-data.md')->demo()->inGroup('core')->register();
+        $docs->section('flash')->label('Flash Messages')->markdown('flash.md')->demo()->inGroup('core')->register();
+        $docs->section('errors')->label('Error Handling')->markdown('exception-handling.md')->demo()->inGroup('core')->register();
+        $docs->section('scripts')->label('Scripts')->markdown('scripts.md')->demo()->inGroup('core')->register();
     }
 
     protected function registerResourcesDocs(DocsRegistry $docs): void

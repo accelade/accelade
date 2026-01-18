@@ -826,6 +826,18 @@ if (typeof window !== 'undefined') {
         initRehydrate();
         initTeleport();
     }
+
+    // Re-initialize after SPA navigation
+    document.addEventListener('accelade:navigated', () => {
+        // Re-init components in new content
+        init();
+        // Re-init lazy loading for new lazy components
+        initLazy();
+        // Re-init rehydrate for new rehydrate components
+        initRehydrate();
+        // Re-init teleport for new teleport components
+        initTeleport();
+    });
 }
 
 // Default export

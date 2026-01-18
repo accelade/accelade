@@ -30,67 +30,67 @@ class AnimationManager
             return;
         }
 
-        // Default - subtle fade and scale
+        // Default - subtle fade and scale (fast)
         $this->register(
             name: 'default',
-            enter: new AnimationPhase('transition ease-out duration-200', 'opacity-0 scale-95', 'opacity-100 scale-100'),
-            leave: new AnimationPhase('transition ease-in duration-150', 'opacity-100 scale-100', 'opacity-0 scale-95'),
+            enter: new AnimationPhase('transition ease-out duration-150', 'opacity-0 scale-95', 'opacity-100 scale-100'),
+            leave: new AnimationPhase('transition ease-in duration-100', 'opacity-100 scale-100', 'opacity-0 scale-95'),
         );
 
-        // Opacity - simple fade
+        // Opacity - simple fade (fast)
         $this->register(
             name: 'opacity',
-            enter: new AnimationPhase('transition-opacity ease-out duration-200', 'opacity-0', 'opacity-100'),
-            leave: new AnimationPhase('transition-opacity ease-in duration-150', 'opacity-100', 'opacity-0'),
+            enter: new AnimationPhase('transition-opacity ease-out duration-150', 'opacity-0', 'opacity-100'),
+            leave: new AnimationPhase('transition-opacity ease-in duration-100', 'opacity-100', 'opacity-0'),
         );
 
         // Fade - same as opacity (alias)
         $this->register(
             name: 'fade',
-            enter: new AnimationPhase('transition-opacity ease-out duration-200', 'opacity-0', 'opacity-100'),
-            leave: new AnimationPhase('transition-opacity ease-in duration-150', 'opacity-100', 'opacity-0'),
+            enter: new AnimationPhase('transition-opacity ease-out duration-150', 'opacity-0', 'opacity-100'),
+            leave: new AnimationPhase('transition-opacity ease-in duration-100', 'opacity-100', 'opacity-0'),
         );
 
-        // Slide left
+        // Slide left (fast)
         $this->register(
             name: 'slide-left',
-            enter: new AnimationPhase('transition ease-out duration-300', 'opacity-0 -translate-x-full', 'opacity-100 translate-x-0'),
-            leave: new AnimationPhase('transition ease-in duration-300', 'opacity-100 translate-x-0', 'opacity-0 -translate-x-full'),
+            enter: new AnimationPhase('transition ease-out duration-150', 'opacity-0 -translate-x-full', 'opacity-100 translate-x-0'),
+            leave: new AnimationPhase('transition ease-in duration-100', 'opacity-100 translate-x-0', 'opacity-0 -translate-x-full'),
         );
 
-        // Slide right
+        // Slide right (fast)
         $this->register(
             name: 'slide-right',
-            enter: new AnimationPhase('transition ease-out duration-300', 'opacity-0 translate-x-full', 'opacity-100 translate-x-0'),
-            leave: new AnimationPhase('transition ease-in duration-300', 'opacity-100 translate-x-0', 'opacity-0 translate-x-full'),
+            enter: new AnimationPhase('transition ease-out duration-150', 'opacity-0 translate-x-full', 'opacity-100 translate-x-0'),
+            leave: new AnimationPhase('transition ease-in duration-100', 'opacity-100 translate-x-0', 'opacity-0 translate-x-full'),
         );
 
-        // Slide up
+        // Slide up (fast)
         $this->register(
             name: 'slide-up',
-            enter: new AnimationPhase('transition ease-out duration-300', 'opacity-0 translate-y-full', 'opacity-100 translate-y-0'),
-            leave: new AnimationPhase('transition ease-in duration-300', 'opacity-100 translate-y-0', 'opacity-0 translate-y-full'),
+            enter: new AnimationPhase('transition ease-out duration-150', 'opacity-0 translate-y-full', 'opacity-100 translate-y-0'),
+            leave: new AnimationPhase('transition ease-in duration-100', 'opacity-100 translate-y-0', 'opacity-0 translate-y-full'),
         );
 
-        // Slide down
+        // Slide down (fast)
         $this->register(
             name: 'slide-down',
-            enter: new AnimationPhase('transition ease-out duration-300', 'opacity-0 -translate-y-full', 'opacity-100 translate-y-0'),
-            leave: new AnimationPhase('transition ease-in duration-300', 'opacity-100 translate-y-0', 'opacity-0 -translate-y-full'),
+            enter: new AnimationPhase('transition ease-out duration-150', 'opacity-0 -translate-y-full', 'opacity-100 translate-y-0'),
+            leave: new AnimationPhase('transition ease-in duration-100', 'opacity-100 translate-y-0', 'opacity-0 -translate-y-full'),
         );
 
-        // Scale
+        // Scale (fast)
         $this->register(
             name: 'scale',
-            enter: new AnimationPhase('transition ease-out duration-200', 'opacity-0 scale-0', 'opacity-100 scale-100'),
-            leave: new AnimationPhase('transition ease-in duration-150', 'opacity-100 scale-100', 'opacity-0 scale-0'),
+            enter: new AnimationPhase('transition ease-out duration-150', 'opacity-0 scale-0', 'opacity-100 scale-100'),
+            leave: new AnimationPhase('transition ease-in duration-100', 'opacity-100 scale-100', 'opacity-0 scale-0'),
         );
 
-        // Collapse - for accordions (no translate, just fade)
+        // Collapse - for accordions (fast)
         $this->register(
             name: 'collapse',
-            enter: new AnimationPhase('transition-opacity ease-out duration-200', 'opacity-0', 'opacity-100'),
-            leave: new AnimationPhase('transition-opacity ease-in duration-150', 'opacity-100', 'opacity-0'),
+            enter: new AnimationPhase('transition-opacity ease-out duration-150', 'opacity-0', 'opacity-100'),
+            leave: new AnimationPhase('transition-opacity ease-in duration-100', 'opacity-100', 'opacity-0'),
         );
 
         $this->builtInsRegistered = true;

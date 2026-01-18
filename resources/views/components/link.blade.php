@@ -75,6 +75,8 @@
 @elseif($away)
     <a
         href="{{ $href }}"
+        target="_blank"
+        rel="noopener noreferrer"
         @if($framework === 'vanilla') a-link @elseif($framework === 'vue') data-accelade-link @else data-spa-link @endif
         {{ $attributes->merge(['class' => trim($classes)]) }}
         data-away

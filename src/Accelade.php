@@ -510,6 +510,9 @@ HTML;
     .accelade-notif-close:hover { background: var(--accelade-notif-close-hover-bg); color: var(--accelade-notif-close-hover-color); }
     .accelade-notif-close svg { width: 1rem; height: 1rem; }
 
+    /* Title-only notification: vertically center all elements */
+    .accelade-notif-title-only { align-items: center; }
+
     /* ========================================
        Accelade Show/Hide Transitions
        ======================================== */
@@ -518,7 +521,7 @@ HTML;
     [s-show],
     [ng-show],
     [data-state-show] {
-        transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity 0.1s cubic-bezier(0.4, 0, 0.2, 1), transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
         transform-origin: top center;
     }
 

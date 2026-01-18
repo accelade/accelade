@@ -116,7 +116,9 @@ export class NotificationManager {
     private createElement(data: NotificationData): HTMLElement {
         const el = document.createElement('div');
         el.id = data.id;
-        el.className = `accelade-notif accelade-notif-${data.status}`;
+        // Add 'accelade-notif-title-only' class when there's no body for vertical centering
+        const titleOnlyClass = !data.body ? ' accelade-notif-title-only' : '';
+        el.className = `accelade-notif accelade-notif-${data.status}${titleOnlyClass}`;
         if (data.color) el.style.setProperty('--accelade-notif-color', data.color);
         el.innerHTML = this.getTemplate(data);
 

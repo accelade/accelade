@@ -84,16 +84,6 @@ Customize notification templates:
 php artisan vendor:publish --tag=accelade-views
 ```
 
-## Enable Demo
-
-For development, enable the built-in demo pages:
-
-```env
-ACCELADE_DEMO_ENABLED=true
-```
-
-Visit `/demo/vanilla` to explore all features.
-
 ## Troubleshooting
 
 ### Scripts Not Loading

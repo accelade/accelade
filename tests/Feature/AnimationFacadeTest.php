@@ -40,10 +40,10 @@ it('animation facade can get preset', function () {
     expect($preset)
         ->toBeInstanceOf(AnimationPreset::class)
         ->and($preset->name)->toBe('fade')
-        ->and($preset->enter->transition)->toBe('transition-opacity ease-out duration-200')
+        ->and($preset->enter->transition)->toBe('transition-opacity ease-out duration-150')
         ->and($preset->enter->from)->toBe('opacity-0')
         ->and($preset->enter->to)->toBe('opacity-100')
-        ->and($preset->leave->transition)->toBe('transition-opacity ease-in duration-150')
+        ->and($preset->leave->transition)->toBe('transition-opacity ease-in duration-100')
         ->and($preset->leave->from)->toBe('opacity-100')
         ->and($preset->leave->to)->toBe('opacity-0');
 });

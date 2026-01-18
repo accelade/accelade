@@ -89,8 +89,11 @@ test('manager can flush notifications', function () {
 test('manager can close notification by id', function () {
     $manager = new NotificationManager;
 
-    $notification = $manager->success('Test');
+    $notification = Notification::make('Test')->success();
     $id = $notification->getId();
+
+    // Manually push the notification (setManager + destruct relies on variable going out of scope)
+    $manager->push($notification);
 
     expect($manager->all())->toHaveCount(1);
 

@@ -519,7 +519,7 @@ export class VanillaBindingAdapter implements IBindingAdapter {
                             if (element.classList.contains('accelade-hiding')) {
                                 element.style.display = 'none';
                             }
-                        }, 200); // Match CSS transition duration
+                        }, 100); // Match CSS transition duration
                     }
                 }
             }

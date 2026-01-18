@@ -29,9 +29,11 @@
         "illuminate/support": "^11.0|^12.0",
         "illuminate/view": "^11.0|^12.0",
         "illuminate/routing": "^11.0|^12.0",
-        "league/commonmark": "^2.8"
+        "league/commonmark": "^2.8",
+        "blade-ui-kit/blade-icons": "^1.8"
     },
     "require-dev": {
+        "blade-ui-kit/blade-heroicons": "^2.6",
         "laravel/pint": "^1.18",
         "orchestra/testbench": "^9.0|^10.0",
         "pestphp/pest": "^3.0",
@@ -54,7 +56,8 @@
             ],
             "aliases": {
                 "Accelade": "Accelade\\Facades\\Accelade",
-                "Notify": "Accelade\\Facades\\Notify"
+                "Notify": "Accelade\\Facades\\Notify",
+                "Icons": "Accelade\\Facades\\Icons"
             }
         }
     },

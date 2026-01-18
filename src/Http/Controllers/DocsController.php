@@ -8,6 +8,7 @@ use Accelade\Docs\DocsRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\View as ViewFacade;
 use Illuminate\View\View;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
@@ -46,6 +47,11 @@ class DocsController extends Controller
 
         // Determine which view to render
         $viewName = $docSection?->getViewName() ?? 'accelade::docs.sections.getting-started';
+
+        // Fall back to markdown-only view if specific view doesn't exist
+        if (! ViewFacade::exists($viewName)) {
+            $viewName = 'accelade::docs.sections.markdown-only';
+        }
 
         return view($viewName, [
             'framework' => $framework,

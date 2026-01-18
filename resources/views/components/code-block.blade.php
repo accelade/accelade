@@ -41,12 +41,12 @@
                 data-code-target="{{ $id }}"
                 title="Copy code"
             >
-                <svg class="copy-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                </svg>
-                <svg class="check-icon w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
+                <span class="copy-icon">
+                    <x-accelade::icon name="heroicon-o-clipboard-document" size="sm" :showFallback="false" />
+                </span>
+                <span class="check-icon hidden">
+                    <x-accelade::icon name="heroicon-o-check" size="sm" :showFallback="false" />
+                </span>
                 <span class="copy-text">Copy</span>
             </button>
             {{-- Download as image button --}}
@@ -57,9 +57,7 @@
                 data-code-target="{{ $id }}"
                 title="Download as image"
             >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
+                <x-accelade::icon name="heroicon-o-photo" size="sm" :showFallback="false" />
                 <span>Image</span>
             </button>
         </div>

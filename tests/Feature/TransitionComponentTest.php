@@ -44,10 +44,10 @@ it('renders with animation preset', function () {
     $html = $view->render();
 
     expect($html)
-        ->toContain('data-transition-enter="transition-opacity ease-out duration-200"')
+        ->toContain('data-transition-enter="transition-opacity ease-out duration-150"')
         ->toContain('data-transition-enter-from="opacity-0"')
         ->toContain('data-transition-enter-to="opacity-100"')
-        ->toContain('data-transition-leave="transition-opacity ease-in duration-150"')
+        ->toContain('data-transition-leave="transition-opacity ease-in duration-100"')
         ->toContain('data-transition-leave-from="opacity-100"')
         ->toContain('data-transition-leave-to="opacity-0"');
 });
@@ -61,7 +61,7 @@ it('renders with slide-left preset', function () {
     $html = $view->render();
 
     expect($html)
-        ->toContain('data-transition-enter="transition ease-out duration-300"')
+        ->toContain('data-transition-enter="transition ease-out duration-150"')
         ->toContain('data-transition-enter-from="opacity-0 -translate-x-full"')
         ->toContain('data-transition-enter-to="opacity-100 translate-x-0"');
 });
@@ -170,7 +170,7 @@ it('renders with default preset', function () {
     $html = $view->render();
 
     expect($html)
-        ->toContain('data-transition-enter="transition ease-out duration-200"')
+        ->toContain('data-transition-enter="transition ease-out duration-150"')
         ->toContain('data-transition-enter-from="opacity-0 scale-95"')
         ->toContain('data-transition-enter-to="opacity-100 scale-100"');
 });

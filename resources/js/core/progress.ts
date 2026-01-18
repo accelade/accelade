@@ -112,9 +112,16 @@ class AcceladeProgress {
      * Create progress bar DOM elements
      */
     private createElements(): void {
-        if (this.element) {
+        // Check if element exists AND is still in the DOM
+        // (SPA navigation can remove it when swapping content)
+        if (this.element && document.body.contains(this.element)) {
             return;
         }
+
+        // Reset references if element was removed from DOM
+        this.element = null;
+        this.barElement = null;
+        this.spinnerElement = null;
 
         // Create container
         this.element = document.createElement('div');
@@ -147,9 +154,10 @@ class AcceladeProgress {
         if (!this.element) return;
 
         const { position, zIndex, height } = this.config;
+
+        // Set base styles
         Object.assign(this.element.style, {
             position: 'fixed',
-            [position]: '0',
             left: '0',
             right: '0',
             height: `${height}px`,
@@ -160,6 +168,15 @@ class AcceladeProgress {
             opacity: '0',
             transition: 'opacity 0.2s ease',
         });
+
+        // Set position - use 'auto' to clear the opposite side (not empty string)
+        if (position === 'top') {
+            this.element.style.top = '0px';
+            this.element.style.bottom = 'auto';
+        } else {
+            this.element.style.top = 'auto';
+            this.element.style.bottom = '0px';
+        }
     }
 
     /**
@@ -205,7 +222,9 @@ class AcceladeProgress {
 
         const pos = positions[spinnerPosition] || positions['top-right'];
 
-        // Clear existing position styles
+        // Clear all position styles first
+        this.spinnerElement.style.top = '';
+        this.spinnerElement.style.bottom = '';
         this.spinnerElement.style.left = '';
         this.spinnerElement.style.right = '';
 
@@ -230,7 +249,34 @@ class AcceladeProgress {
     private updateStyles(): void {
         this.applyContainerStyles();
         this.applyBarStyles();
-        this.applySpinnerStyles();
+        this.updateSpinner();
+    }
+
+    /**
+     * Dynamically add/remove spinner based on config
+     */
+    private updateSpinner(): void {
+        if (!this.element) return;
+
+        if (this.config.includeSpinner) {
+            // Create spinner if it doesn't exist
+            if (!this.spinnerElement) {
+                this.spinnerElement = document.createElement('div');
+                this.spinnerElement.className = 'spinner';
+                this.element.appendChild(this.spinnerElement);
+            }
+            this.applySpinnerStyles();
+            // Match visibility with container
+            if (this.isVisible) {
+                this.spinnerElement.style.opacity = '1';
+            }
+        } else {
+            // Remove spinner if it exists
+            if (this.spinnerElement) {
+                this.spinnerElement.remove();
+                this.spinnerElement = null;
+            }
+        }
     }
 
     /**
@@ -364,12 +410,17 @@ class AcceladeProgress {
 
         this.stopTrickle();
 
+        // Mark as not running immediately (allows re-starting)
+        this.isRunning = false;
+
         // If not visible yet, just clean up
         if (!this.isVisible) {
-            this.isRunning = false;
             document.documentElement.classList.remove('accelade-navigating');
             return;
         }
+
+        // Mark as not visible immediately (allows show() to work on restart)
+        this.isVisible = false;
 
         // Complete to 100%
         this.set(100);
@@ -381,7 +432,6 @@ class AcceladeProgress {
             // Reset after fade out
             setTimeout(() => {
                 this.set(0);
-                this.isRunning = false;
                 document.documentElement.classList.remove('accelade-navigating');
             }, 200);
         }, this.config.speed);

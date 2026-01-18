@@ -116,8 +116,8 @@ export async function handleLinkClick(
             }
         }
 
-        // Navigate away (full page)
-        window.location.href = config.href;
+        // Navigate away (open in new tab)
+        window.open(config.href, '_blank', 'noopener,noreferrer');
         return true;
     }
 
