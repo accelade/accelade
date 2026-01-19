@@ -6,16 +6,20 @@
  * with multiple views, drag & drop, and resource support.
  */
 
-import Calendar from '@event-calendar/core';
-import DayGrid from '@event-calendar/day-grid';
-import TimeGrid from '@event-calendar/time-grid';
-import List from '@event-calendar/list';
-import ResourceTimeGrid from '@event-calendar/resource-time-grid';
-import ResourceTimeline from '@event-calendar/resource-timeline';
-import Interaction from '@event-calendar/interaction';
+// Event Calendar v5 - all plugins bundled in core
+import {
+    createCalendar,
+    destroyCalendar,
+    DayGrid,
+    TimeGrid,
+    List,
+    ResourceTimeGrid,
+    ResourceTimeline,
+    Interaction,
+} from '@event-calendar/core';
 
-// Type for the Calendar instance
-type CalendarType = InstanceType<typeof Calendar>;
+// Type for the Calendar instance (opaque object from mount())
+type CalendarType = ReturnType<typeof createCalendar>;
 
 import type { IStateAdapter } from '../../adapters/types';
 import type {
@@ -212,17 +216,91 @@ function getPlugins(config: CalendarConfig): unknown[] {
 }
 
 /**
+ * Detect if the page is in dark mode
+ * Only returns true if the page explicitly has dark mode enabled via class or data attribute.
+ * Does NOT fall back to system preference - that's handled separately.
+ */
+function isPageInDarkMode(): boolean {
+    const htmlElement = document.documentElement;
+    const bodyElement = document.body;
+
+    // Check for class-based dark mode (Tailwind CSS / Filament style)
+    if (htmlElement.classList.contains('dark') || bodyElement?.classList.contains('dark')) {
+        return true;
+    }
+
+    // Check data attribute based dark mode
+    if (htmlElement.dataset.theme === 'dark' || htmlElement.dataset.mode === 'dark') {
+        return true;
+    }
+
+    // If no explicit dark class/attribute, assume light mode
+    // Don't fall back to system preference - let the page control the theme
+    return false;
+}
+
+/**
+ * Light mode CSS variable values (from @event-calendar/core defaults)
+ */
+const LIGHT_MODE_CSS_VARS = {
+    '--ec-color-400': 'oklch(70.4% 0 0)',
+    '--ec-color-300': 'oklch(86.9% 0 0)',
+    '--ec-color-200': 'oklch(92.8% 0 0)',
+    '--ec-color-100': 'oklch(97% 0 0)',
+    '--ec-color-50': 'oklch(98.5% 0 0)',
+    '--ec-bg-color': '#fff',
+    '--ec-today-bg-color': 'oklch(97.4% 0.014 103.054)',
+    '--ec-highlight-color': 'oklch(93.1% 0.032 255.508)',
+    '--ec-bg-event-opacity': '1',
+};
+
+/**
+ * Dark mode CSS variable values (from @event-calendar/core)
+ */
+const DARK_MODE_CSS_VARS = {
+    '--ec-color-400': 'oklch(43.9% 0 0)',
+    '--ec-color-300': 'oklch(37.1% 0 0)',
+    '--ec-color-200': 'oklch(26.9% 0 0)',
+    '--ec-color-100': 'oklch(20.5% 0 0)',
+    '--ec-color-50': 'oklch(14.5% 0 0)',
+    '--ec-bg-color': 'oklch(20.5% 0 0)',
+    '--ec-today-bg-color': 'oklch(28.6% 0.066 53.813)',
+    '--ec-highlight-color': 'oklch(30.2% 0.056 229.695)',
+    '--ec-bg-event-opacity': '0.5',
+};
+
+/**
  * Apply theme to calendar element
  */
 function applyTheme(element: HTMLElement, theme: CalendarTheme, darkMode: boolean | 'auto'): void {
-    // Apply dark mode class
+    // Determine if we should use dark mode
+    let useDarkMode = false;
+
     if (darkMode === true) {
-        element.classList.add('ec-dark');
+        useDarkMode = true;
     } else if (darkMode === 'auto') {
-        element.classList.add('ec-auto-dark');
+        useDarkMode = isPageInDarkMode();
+    }
+    // darkMode === false means light mode, useDarkMode stays false
+
+    // Remove any existing dark mode classes
+    element.classList.remove('ec-dark');
+    element.classList.remove('ec-auto-dark');
+
+    // Apply the appropriate CSS variables to override media query styles
+    // This is necessary because the library uses @media (prefers-color-scheme: dark)
+    // which would apply dark styles even when the page is in light mode
+    const cssVars = useDarkMode ? DARK_MODE_CSS_VARS : LIGHT_MODE_CSS_VARS;
+    for (const [key, value] of Object.entries(cssVars)) {
+        element.style.setProperty(key, value);
     }
 
-    // Apply custom CSS variables
+    // Apply dark mode class if in dark mode
+    if (useDarkMode) {
+        element.classList.add('ec-dark');
+    }
+
+    // Apply custom theme CSS variables (these override the defaults above)
     if (theme.textColor) {
         element.style.setProperty('--ec-text-color', theme.textColor);
     }
@@ -431,17 +509,11 @@ export function createCalendarInstance(
         });
     };
 
-    // Create the calendar using the constructor
-    // The Calendar class expects: new Calendar({ target, props: { plugins, options } })
+    // Create the calendar using the v5 API
+    // createCalendar(target, plugins, options)
     let ec: CalendarType;
     try {
-        ec = new Calendar({
-            target: element,
-            props: {
-                plugins,
-                options: calendarOptions,
-            },
-        });
+        ec = createCalendar(element, plugins, calendarOptions);
     } catch (error) {
         console.error('Calendar: Failed to create calendar', error);
         return undefined;
@@ -587,7 +659,7 @@ export function createCalendarInstance(
      * Dispose
      */
     const dispose = (): void => {
-        ec.destroy();
+        destroyCalendar(ec);
         instances.delete(config.id);
     };
 

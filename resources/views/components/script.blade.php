@@ -31,15 +31,15 @@
 @endphp
 
 @if($framework === 'vanilla')
-<script a-script>
+<script type="text/accelade" a-script>
 {{ $slot }}
 </script>
 @elseif($framework === 'vue')
-<script v-script>
+<script type="text/accelade" v-script>
 {{ $slot }}
 </script>
 @else
-<script state-script>
+<script type="text/accelade" state-script>
 {{ $slot }}
 </script>
 @endif

@@ -171,6 +171,20 @@ class AcceladeManager {
                         // Update all other components using this store
                         manager.updateStoreComponents(component.storeName, component.id);
                     }
+
+                    // Call watchers registered via $watch
+                    const watchers = (component as ComponentInstance & { _watchers?: Array<{ key: string; callback: (newVal: unknown, oldVal: unknown) => void }> })._watchers;
+                    if (watchers) {
+                        for (const watcher of watchers) {
+                            if (watcher.key === prop) {
+                                try {
+                                    watcher.callback(value, oldValue);
+                                } catch (e) {
+                                    console.error('Accelade: Error in $watch callback:', e);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 return true;
@@ -325,26 +339,6 @@ class AcceladeManager {
             if (!code.trim()) return;
 
             try {
-                // Create a function with access to state, actions, and helpers
-                const scriptFn = new Function(
-                    'state',
-                    'actions',
-                    '$set',
-                    '$get',
-                    '$toggle',
-                    '$navigate',
-                    'component',
-                    code
-                ) as (
-                    state: ReactiveState,
-                    actions: AcceladeActions,
-                    $set: (key: string, value: unknown) => void,
-                    $get: (key: string) => unknown,
-                    $toggle: (key: string) => void,
-                    $navigate: (url: string, options?: NavigationOptions) => Promise<boolean>,
-                    component: ComponentInstance
-                ) => Record<string, (...args: unknown[]) => unknown> | void;
-
                 // Helper functions
                 const $set = (key: string, value: unknown): void => {
                     component.state[key] = value;
@@ -354,6 +348,49 @@ class AcceladeManager {
                     component.state[key] = !component.state[key];
                 };
 
+                // Get config from element's data-accelade-config attribute
+                const configStr = el.dataset.acceladeConfig;
+                let config: Record<string, unknown> = {};
+                if (configStr) {
+                    try {
+                        config = JSON.parse(configStr) as Record<string, unknown>;
+                    } catch {
+                        // Invalid JSON
+                    }
+                }
+
+                // $watch helper for watching state changes
+                const watchers: Array<{ key: string; callback: (newVal: unknown, oldVal: unknown) => void }> = [];
+                const $watch = (key: string, callback: (newVal: unknown, oldVal: unknown) => void): void => {
+                    watchers.push({ key, callback });
+                };
+
+                // Create a function with access to state, actions, and helpers
+                const scriptFn = new Function(
+                    'state',
+                    'actions',
+                    '$set',
+                    '$get',
+                    '$toggle',
+                    '$navigate',
+                    '$el',
+                    'config',
+                    '$watch',
+                    'component',
+                    code
+                ) as (
+                    state: ReactiveState,
+                    actions: AcceladeActions,
+                    $set: (key: string, value: unknown) => void,
+                    $get: (key: string) => unknown,
+                    $toggle: (key: string) => void,
+                    $navigate: (url: string, options?: NavigationOptions) => Promise<boolean>,
+                    $el: HTMLElement,
+                    config: Record<string, unknown>,
+                    $watch: (key: string, callback: (newVal: unknown, oldVal: unknown) => void) => void,
+                    component: ComponentInstance
+                ) => Record<string, (...args: unknown[]) => unknown> | void;
+
                 // Execute and get returned methods
                 const result = scriptFn(
                     component.state,
@@ -362,8 +399,17 @@ class AcceladeManager {
                     $get,
                     $toggle,
                     navigate,
+                    el,
+                    config,
+                    $watch,
                     component
                 );
+
+                // Setup watchers if any were registered
+                if (watchers.length > 0) {
+                    // Store watchers on the component for the proxy to call
+                    (component as ComponentInstance & { _watchers?: typeof watchers })._watchers = watchers;
+                }
 
                 // If the script returns an object with methods, add them to customMethods
                 if (result && typeof result === 'object') {

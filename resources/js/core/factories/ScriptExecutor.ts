@@ -42,6 +42,8 @@ export interface ScriptContext {
     setState: (key: string, value: unknown) => void;
     getState: () => Record<string, unknown>;
     originalState: Record<string, unknown>;
+    $el?: HTMLElement;
+    config?: Record<string, unknown>;
 }
 
 /**
@@ -111,7 +113,7 @@ export class ScriptExecutor {
      * Execute a single script code block
      */
     static executeScript(code: string, context: ScriptContext): CustomMethods | void {
-        const { state, actions, helpers, originalState } = context;
+        const { state, actions, helpers, originalState, $el, config } = context;
         const { $set, $get, $toggle, $watch, $emit, $on, $once, $off } = helpers;
 
         // Build function parameters based on available helpers
@@ -127,6 +129,8 @@ export class ScriptExecutor {
             '$on',
             '$once',
             '$off',
+            '$el',
+            'config',
         ];
 
         const paramValues: unknown[] = [
@@ -141,6 +145,8 @@ export class ScriptExecutor {
             $on,
             $once,
             $off,
+            $el,
+            config ?? {},
         ];
 
         // Add $watch if available (Vue-specific)

@@ -211,6 +211,17 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
             this.createWatchFn(stateAdapter)
         );
 
+        // Get config from data-accelade-config attribute
+        const configStr = element.dataset.acceladeConfig;
+        let componentConfig: Record<string, unknown> = {};
+        if (configStr) {
+            try {
+                componentConfig = JSON.parse(configStr) as Record<string, unknown>;
+            } catch {
+                // Invalid JSON
+            }
+        }
+
         // Execute custom scripts
         const customMethods = ScriptExecutor.execute(
             element,
@@ -221,6 +232,8 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
                 setState: (key, value) => stateAdapter.set(key, value),
                 getState: () => stateAdapter.getState(),
                 originalState,
+                $el: element,
+                config: componentConfig,
             },
             this.type
         );

@@ -1,6 +1,6 @@
 /**
- * Type declarations for @event-calendar packages
- * These packages don't have built-in TypeScript support
+ * Type declarations for @event-calendar/core v5
+ * All plugins are bundled in the core package
  */
 
 declare module '@event-calendar/core' {
@@ -21,8 +21,7 @@ declare module '@event-calendar/core' {
         [key: string]: unknown;
     }
 
-    export default class Calendar {
-        constructor(options: CalendarOptions);
+    export interface CalendarInstance {
         setOption(name: string, value: unknown): void;
         getOption(name: string): unknown;
         getEvents(): CalendarEvent[];
@@ -36,11 +35,28 @@ declare module '@event-calendar/core' {
         getView(): { type: string; title: string };
         prev(): void;
         next(): void;
-        today(): void;
-        destroy(): void;
     }
+
+    // v5 API - functions instead of class
+    export function createCalendar(
+        target: HTMLElement,
+        plugins: unknown[],
+        options: Record<string, unknown>
+    ): CalendarInstance;
+
+    export function destroyCalendar(calendar: CalendarInstance): void;
+
+    // Plugins (all bundled in core for v5)
+    export const DayGrid: unknown;
+    export const TimeGrid: unknown;
+    export const List: unknown;
+    export const ResourceTimeGrid: unknown;
+    export const ResourceTimeline: unknown;
+    export const Interaction: unknown;
 }
 
+// Keep the old module declarations for backwards compatibility
+// (in case someone still imports from separate packages)
 declare module '@event-calendar/day-grid' {
     const DayGrid: unknown;
     export default DayGrid;
