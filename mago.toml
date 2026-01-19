@@ -44,3 +44,6 @@ enabled = false
 
 [linter.rules.inline-variable-return]
 enabled = false
+
+[linter.rules.halstead]
+enabled = false

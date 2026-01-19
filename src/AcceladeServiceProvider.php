@@ -8,8 +8,13 @@ use Accelade\Animation\AnimationManager;
 use Accelade\Bridge\BridgeManager;
 use Accelade\Compilers\AcceladeTagCompiler;
 use Accelade\Console\InstallCommand;
+use Accelade\Console\InstallMcpServerCommand;
 use Accelade\Docs\DocsRegistry;
 use Accelade\Icons\BladeIconsRegistry;
+use Accelade\Mcp\McpRegistry;
+use Accelade\Mcp\Tools\ComponentInfoTool;
+use Accelade\Mcp\Tools\ListComponentsTool;
+use Accelade\Mcp\Tools\SearchDocsTool;
 use Accelade\Notification\NotificationManager;
 use Accelade\SEO\SEO;
 use BladeUI\Icons\Factory as BladeIconsFactory;
@@ -56,6 +61,13 @@ class AcceladeServiceProvider extends ServiceProvider
         // Bind the class to the singleton alias for dependency injection
         $this->app->alias('accelade.docs', DocsRegistry::class);
 
+        // Register MCP Registry singleton
+        $this->app->singleton('accelade.mcp', function () {
+            return new McpRegistry;
+        });
+
+        $this->app->alias('accelade.mcp', McpRegistry::class);
+
         // Register Blade Icons Registry
         $this->app->singleton(BladeIconsRegistry::class, function ($app) {
             return new BladeIconsRegistry(
@@ -76,6 +88,7 @@ class AcceladeServiceProvider extends ServiceProvider
         $this->registerPublishing();
         $this->registerCommands();
         $this->registerDefaultDocs();
+        $this->registerMcpTools();
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'accelade');
     }
@@ -283,6 +296,7 @@ class AcceladeServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallCommand::class,
+                InstallMcpServerCommand::class,
             ]);
         }
     }
@@ -298,7 +312,13 @@ class AcceladeServiceProvider extends ServiceProvider
         // Register navigation groups
         $docs->registerGroup('getting-started', 'Getting Started', 'book', 10);
         $docs->registerGroup('core', 'Core', 'cube', 20);
-        $docs->registerGroup('resources', 'Resources', 'folder', 60);
+        $docs->registerGroup('resources', 'Resources', 'folder', 70);
+
+        // Register sub-groups within Core
+        $docs->registerSubgroup('core', 'navigation', '🧭 Navigation', '', 10);
+        $docs->registerSubgroup('core', 'ui-components', '🎨 UI Components', '', 20);
+        $docs->registerSubgroup('core', 'data-state', '💾 Data & State', '', 30);
+        $docs->registerSubgroup('core', 'advanced', '⚡ Advanced', '', 40);
 
         // Register sections by group
         $this->registerGettingStartedDocs($docs);
@@ -315,41 +335,80 @@ class AcceladeServiceProvider extends ServiceProvider
 
     protected function registerComponentsDocs(DocsRegistry $docs): void
     {
+        // Counter demo stays at group level
         $docs->section('counter')->label('Counter Demo')->markdown('components.md')->demo()->inGroup('core')->register();
-        $docs->section('navigation')->label('SPA Navigation')->markdown('spa-navigation.md')->demo()->inGroup('core')->register();
-        $docs->section('link')->label('Link Component')->markdown('link.md')->demo()->inGroup('core')->register();
-        $docs->section('progress')->label('Progress Bar')->markdown('spa-navigation.md')->demo()->inGroup('core')->register();
-        $docs->section('persistent')->label('Persistent Layout')->markdown('persistent-layout.md')->demo()->inGroup('core')->register();
-        $docs->section('data')->label('Data Component')->markdown('data.md')->demo()->inGroup('core')->register();
-        $docs->section('state')->label('State Management')->markdown('state.md')->demo()->inGroup('core')->register();
-        $docs->section('modal')->label('Modal')->markdown('modal.md')->demo()->inGroup('core')->register();
-        $docs->section('toggle')->label('Toggle')->markdown('toggle.md')->demo()->inGroup('core')->register();
-        $docs->section('icon')->label('Icon')->markdown('icon.md')->demo()->inGroup('core')->register();
-        $docs->section('transition')->label('Transitions')->markdown('animations.md')->demo()->inGroup('core')->register();
-        $docs->section('notifications')->label('Notifications')->markdown('notifications.md')->demo()->inGroup('core')->register();
-        $docs->section('code-block')->label('Code Block')->markdown('code-block.md')->demo()->inGroup('core')->register();
-        $docs->section('lazy')->label('Lazy Loading')->markdown('lazy-loading.md')->demo()->inGroup('core')->register();
-        $docs->section('defer')->label('Defer')->markdown('content.md')->demo()->inGroup('core')->register();
-        $docs->section('content')->label('Content')->markdown('content.md')->demo()->inGroup('core')->register();
-        $docs->section('rehydrate')->label('Rehydrate')->markdown('rehydrate.md')->demo()->inGroup('core')->register();
-        $docs->section('teleport')->label('Teleport')->markdown('teleport.md')->demo()->inGroup('core')->register();
-        $docs->section('event-bus')->label('Event Bus')->markdown('event-bus.md')->demo()->inGroup('core')->register();
-        $docs->section('event')->label('Event Component')->markdown('event.md')->demo()->inGroup('core')->register();
-        $docs->section('bridge')->label('Bridge (PHP/JS)')->markdown('bridge.md')->demo()->inGroup('core')->register();
-        $docs->section('shared-data')->label('Shared Data')->markdown('shared-data.md')->demo()->inGroup('core')->register();
-        $docs->section('flash')->label('Flash Messages')->markdown('flash.md')->demo()->inGroup('core')->register();
-        $docs->section('errors')->label('Error Handling')->markdown('exception-handling.md')->demo()->inGroup('core')->register();
-        $docs->section('scripts')->label('Scripts')->markdown('scripts.md')->demo()->inGroup('core')->register();
+
+        // Navigation sub-group
+        $docs->section('navigation')->label('SPA Navigation')->markdown('spa-navigation.md')->demo()->inGroup('core')->inSubgroup('navigation')->register();
+        $docs->section('link')->label('Link Component')->markdown('link.md')->demo()->inGroup('core')->inSubgroup('navigation')->register();
+        $docs->section('progress')->label('Progress Bar')->markdown('spa-navigation.md')->demo()->inGroup('core')->inSubgroup('navigation')->register();
+        $docs->section('persistent')->label('Persistent Layout')->markdown('persistent-layout.md')->demo()->inGroup('core')->inSubgroup('navigation')->register();
+
+        // UI Components sub-group
+        $docs->section('modal')->label('Modal')->markdown('modal.md')->demo()->inGroup('core')->inSubgroup('ui-components')->register();
+        $docs->section('toggle')->label('Toggle')->markdown('toggle.md')->demo()->inGroup('core')->inSubgroup('ui-components')->register();
+        $docs->section('tooltip')->label('Tooltip')->markdown('tooltip.md')->icon('💬')->demo()->inGroup('core')->inSubgroup('ui-components')->register();
+        $docs->section('draggable')->label('Draggable')->markdown('draggable.md')->icon('🔀')->demo()->inGroup('core')->inSubgroup('ui-components')->register();
+        $docs->section('calendar')->label('Calendar')->markdown('calendar.md')->icon('📅')->demo()->inGroup('core')->inSubgroup('ui-components')->register();
+        $docs->section('icon')->label('Icon')->markdown('icon.md')->demo()->inGroup('core')->inSubgroup('ui-components')->register();
+        $docs->section('transition')->label('Transitions')->markdown('animations.md')->demo()->inGroup('core')->inSubgroup('ui-components')->register();
+        $docs->section('notifications')->label('Notifications')->markdown('notifications.md')->demo()->inGroup('core')->inSubgroup('ui-components')->register();
+        $docs->section('code-block')->label('Code Block')->markdown('code-block.md')->demo()->inGroup('core')->inSubgroup('ui-components')->register();
+        $docs->section('chart')->label('Charts')->markdown('chart.md')->icon('📊')->demo()->inGroup('core')->inSubgroup('ui-components')->register();
+
+        // Data & State sub-group
+        $docs->section('data')->label('Data Component')->markdown('data.md')->demo()->inGroup('core')->inSubgroup('data-state')->register();
+        $docs->section('state')->label('State Management')->markdown('state.md')->demo()->inGroup('core')->inSubgroup('data-state')->register();
+        $docs->section('shared-data')->label('Shared Data')->markdown('shared-data.md')->demo()->inGroup('core')->inSubgroup('data-state')->register();
+        $docs->section('flash')->label('Flash Messages')->markdown('flash.md')->demo()->inGroup('core')->inSubgroup('data-state')->register();
+
+        // Advanced sub-group
+        $docs->section('lazy')->label('Lazy Loading')->markdown('lazy-loading.md')->demo()->inGroup('core')->inSubgroup('advanced')->register();
+        $docs->section('defer')->label('Defer')->markdown('content.md')->demo()->inGroup('core')->inSubgroup('advanced')->register();
+        $docs->section('content')->label('Content')->markdown('content.md')->demo()->inGroup('core')->inSubgroup('advanced')->register();
+        $docs->section('rehydrate')->label('Rehydrate')->markdown('rehydrate.md')->demo()->inGroup('core')->inSubgroup('advanced')->register();
+        $docs->section('teleport')->label('Teleport')->markdown('teleport.md')->demo()->inGroup('core')->inSubgroup('advanced')->register();
+        $docs->section('event-bus')->label('Event Bus')->markdown('event-bus.md')->demo()->inGroup('core')->inSubgroup('advanced')->register();
+        $docs->section('event')->label('Event Component')->markdown('event.md')->demo()->inGroup('core')->inSubgroup('advanced')->register();
+        $docs->section('bridge')->label('Bridge (PHP/JS)')->markdown('bridge.md')->demo()->inGroup('core')->inSubgroup('advanced')->register();
+        $docs->section('errors')->label('Error Handling')->markdown('exception-handling.md')->demo()->inGroup('core')->inSubgroup('advanced')->register();
+        $docs->section('scripts')->label('Scripts')->markdown('scripts.md')->demo()->inGroup('core')->inSubgroup('advanced')->register();
     }
 
     protected function registerResourcesDocs(DocsRegistry $docs): void
     {
         $docs->section('api-reference')->label('API Reference')->markdown('api-reference.md')->inGroup('resources')->register();
+        $docs->section('mcp-server')->label('MCP Server')->markdown('mcp-server.md')->inGroup('resources')->register();
         $docs->section('frameworks')->label('Frameworks')->markdown('frameworks.md')->inGroup('resources')->register();
         $docs->section('architecture')->label('Architecture')->markdown('architecture.md')->inGroup('resources')->register();
         $docs->section('testing')->label('Testing')->markdown('testing.md')->inGroup('resources')->register();
         $docs->section('contributing')->label('Contributing')->markdown('contributing.md')->inGroup('resources')->register();
         $docs->section('sponsor')->label('Sponsor')->markdown('sponsor.md')->inGroup('resources')->register();
         $docs->section('thanks')->label('Thanks')->markdown('thanks.md')->inGroup('resources')->register();
+    }
+
+    /**
+     * Register MCP tools and package documentation.
+     */
+    protected function registerMcpTools(): void
+    {
+        /** @var McpRegistry $mcp */
+        $mcp = $this->app->make('accelade.mcp');
+
+        // Register Accelade package documentation
+        $mcp->registerPackage(
+            'accelade',
+            __DIR__.'/../docs',
+            'Core package with reactive Blade components for SPA-like navigation, modals, toggles, state management, and more'
+        );
+
+        $mcp->registerReadme('accelade', __DIR__.'/../README.md');
+
+        // Register default MCP tools
+        $mcp->registerTools([
+            SearchDocsTool::class,
+            ListComponentsTool::class,
+            ComponentInfoTool::class,
+        ]);
     }
 }

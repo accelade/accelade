@@ -773,8 +773,273 @@ HTML;
         background-size: 200% 100%;
         animation: accelade-shimmer 1.5s ease-in-out infinite;
     }
+
+    /* ========================================
+       ApexCharts Dark Mode Support
+       ======================================== */
+    .dark .apexcharts-menu,
+    [data-theme="dark"] .apexcharts-menu {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2) !important;
+    }
+
+    .dark .apexcharts-menu-item,
+    [data-theme="dark"] .apexcharts-menu-item {
+        color: #e2e8f0 !important;
+    }
+
+    .dark .apexcharts-menu-item:hover,
+    [data-theme="dark"] .apexcharts-menu-item:hover {
+        background: #334155 !important;
+    }
+
+    .dark .apexcharts-toolbar .apexcharts-menu-icon svg,
+    .dark .apexcharts-toolbar .apexcharts-pan-icon svg,
+    .dark .apexcharts-toolbar .apexcharts-reset-icon svg,
+    .dark .apexcharts-toolbar .apexcharts-selection-icon svg,
+    .dark .apexcharts-toolbar .apexcharts-zoom-icon svg,
+    .dark .apexcharts-toolbar .apexcharts-zoomin-icon svg,
+    .dark .apexcharts-toolbar .apexcharts-zoomout-icon svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-menu-icon svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-pan-icon svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-reset-icon svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-selection-icon svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-zoom-icon svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-zoomin-icon svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-zoomout-icon svg {
+        fill: #94a3b8 !important;
+    }
+
+    .dark .apexcharts-toolbar .apexcharts-menu-icon:hover svg,
+    .dark .apexcharts-toolbar .apexcharts-pan-icon:hover svg,
+    .dark .apexcharts-toolbar .apexcharts-reset-icon:hover svg,
+    .dark .apexcharts-toolbar .apexcharts-selection-icon:hover svg,
+    .dark .apexcharts-toolbar .apexcharts-zoom-icon:hover svg,
+    .dark .apexcharts-toolbar .apexcharts-zoomin-icon:hover svg,
+    .dark .apexcharts-toolbar .apexcharts-zoomout-icon:hover svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-menu-icon:hover svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-pan-icon:hover svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-reset-icon:hover svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-selection-icon:hover svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-zoom-icon:hover svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-zoomin-icon:hover svg,
+    [data-theme="dark"] .apexcharts-toolbar .apexcharts-zoomout-icon:hover svg {
+        fill: #e2e8f0 !important;
+    }
+
+    .dark .apexcharts-tooltip,
+    [data-theme="dark"] .apexcharts-tooltip {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    .dark .apexcharts-tooltip-title,
+    [data-theme="dark"] .apexcharts-tooltip-title {
+        background: #0f172a !important;
+        border-bottom: 1px solid #334155 !important;
+        color: #f1f5f9 !important;
+    }
+
+    .dark .apexcharts-tooltip-text-y-label,
+    .dark .apexcharts-tooltip-text-y-value,
+    [data-theme="dark"] .apexcharts-tooltip-text-y-label,
+    [data-theme="dark"] .apexcharts-tooltip-text-y-value {
+        color: #e2e8f0 !important;
+    }
+
+    .dark .apexcharts-xaxistooltip,
+    [data-theme="dark"] .apexcharts-xaxistooltip {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    .dark .apexcharts-xaxistooltip-bottom:before,
+    [data-theme="dark"] .apexcharts-xaxistooltip-bottom:before {
+        border-bottom-color: #334155 !important;
+    }
+
+    .dark .apexcharts-xaxistooltip-bottom:after,
+    [data-theme="dark"] .apexcharts-xaxistooltip-bottom:after {
+        border-bottom-color: #1e293b !important;
+    }
+
+    .dark .apexcharts-yaxistooltip,
+    [data-theme="dark"] .apexcharts-yaxistooltip {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    .dark .apexcharts-legend-text,
+    [data-theme="dark"] .apexcharts-legend-text {
+        color: #94a3b8 !important;
+    }
+
+    .dark .apexcharts-text,
+    .dark .apexcharts-xaxis-label,
+    .dark .apexcharts-yaxis-label,
+    [data-theme="dark"] .apexcharts-text,
+    [data-theme="dark"] .apexcharts-xaxis-label,
+    [data-theme="dark"] .apexcharts-yaxis-label {
+        fill: #94a3b8 !important;
+    }
+
+    .dark .apexcharts-gridline,
+    [data-theme="dark"] .apexcharts-gridline {
+        stroke: #334155 !important;
+    }
+
+    .dark .apexcharts-radar-series polygon,
+    [data-theme="dark"] .apexcharts-radar-series polygon {
+        stroke: #475569 !important;
+    }
+
+    .dark .apexcharts-radar-series line,
+    [data-theme="dark"] .apexcharts-radar-series line {
+        stroke: #475569 !important;
+    }
+
+    /* ========================================
+       Event Calendar Light/Dark Mode
+       ======================================== */
+    /* Light mode - ensure proper colors */
+    .ec {
+        --ec-bg-color: #ffffff;
+        --ec-text-color: #1f2937;
+        --ec-border-color: #e5e7eb;
+        --ec-today-bg-color: rgba(59, 130, 246, 0.08);
+        --ec-highlight-color: rgba(59, 130, 246, 0.05);
+        --ec-list-day-bg-color: #f8fafc;
+    }
+
+    /* Dark mode calendar - match docs-bg (#0f172a) */
+    .dark .ec,
+    [data-theme="dark"] .ec {
+        --ec-bg-color: #0f172a;
+        --ec-text-color: #f1f5f9;
+        --ec-border-color: #334155;
+        --ec-today-bg-color: rgba(59, 130, 246, 0.15);
+        --ec-highlight-color: rgba(59, 130, 246, 0.1);
+        --ec-list-day-bg-color: #1e293b;
+    }
+
+    /* Calendar buttons - Light mode */
+    .ec .ec-button {
+        background-color: #ffffff;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        font-weight: 500;
+        font-size: 0.875rem;
+        padding: 0.5rem 0.875rem;
+        border-radius: 0.375rem;
+        transition: all 0.15s ease;
+    }
+
+    .ec .ec-button:hover:not(:disabled) {
+        background-color: #f9fafb;
+        border-color: #9ca3af;
+    }
+
+    .ec .ec-button.ec-active,
+    .ec .ec-button:active:not(:disabled) {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+        color: #ffffff;
+    }
+
+    .ec .ec-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Calendar buttons - Dark mode */
+    .dark .ec .ec-button,
+    [data-theme="dark"] .ec .ec-button {
+        background-color: #1e293b;
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+
+    .dark .ec .ec-button:hover:not(:disabled),
+    [data-theme="dark"] .ec .ec-button:hover:not(:disabled) {
+        background-color: #334155;
+        border-color: #64748b;
+    }
+
+    .dark .ec .ec-button.ec-active,
+    .dark .ec .ec-button:active:not(:disabled),
+    [data-theme="dark"] .ec .ec-button.ec-active,
+    [data-theme="dark"] .ec .ec-button:active:not(:disabled) {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+        color: #ffffff;
+    }
+
+    /* Button group styling */
+    .ec .ec-button-group {
+        display: inline-flex;
+        border-radius: 0.375rem;
+        overflow: hidden;
+    }
+
+    .ec .ec-button-group .ec-button {
+        border-radius: 0;
+        margin-left: -1px;
+    }
+
+    .ec .ec-button-group .ec-button:first-child {
+        border-radius: 0.375rem 0 0 0.375rem;
+        margin-left: 0;
+    }
+
+    .ec .ec-button-group .ec-button:last-child {
+        border-radius: 0 0.375rem 0.375rem 0;
+    }
+
+    /* Calendar container padding */
+    [data-accelade-calendar] {
+        padding: 0.5rem;
+    }
+
+    /* Calendar toolbar spacing */
+    .ec .ec-toolbar {
+        padding: 0.5rem 0;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Calendar title styling */
+    .ec .ec-title {
+        font-weight: 600;
+        font-size: 1.125rem;
+        color: var(--ec-text-color);
+    }
+
+    /* Calendar day headers */
+    .ec .ec-day-head {
+        font-weight: 500;
+        font-size: 0.875rem;
+        color: var(--ec-text-color);
+        opacity: 0.7;
+    }
+
+    /* Calendar grid borders */
+    .ec .ec-header,
+    .ec .ec-body,
+    .ec .ec-day {
+        border-color: var(--ec-border-color);
+    }
 </style>
 HTML;
+
+        // Include the bundled CSS (contains calendar and other component styles)
+        $cssPath = __DIR__.'/../dist/accelade.css';
+        if (file_exists($cssPath)) {
+            $bundledCss = file_get_contents($cssPath);
+            $styles .= "\n<style>\n/* Accelade Bundled Styles */\n{$bundledCss}\n</style>";
+        }
 
         // Append injected styles from other packages
         return $styles.$this->renderInjectedStyles();

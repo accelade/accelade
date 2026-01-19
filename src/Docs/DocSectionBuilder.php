@@ -30,6 +30,8 @@ class DocSectionBuilder
 
     protected ?string $group = null;
 
+    protected ?string $subgroup = null;
+
     protected ?string $icon = null;
 
     public function __construct(
@@ -124,6 +126,17 @@ class DocSectionBuilder
     }
 
     /**
+     * Add this section to a sub-group within a group.
+     * Note: You must also call inGroup() to specify the parent group.
+     */
+    public function inSubgroup(string $subgroup): self
+    {
+        $this->subgroup = $subgroup;
+
+        return $this;
+    }
+
+    /**
      * Set the icon for this section (Lucide icon name).
      */
     public function icon(string $icon): self
@@ -157,7 +170,11 @@ class DocSectionBuilder
 
         $this->registry->registerSection($section);
 
-        if ($this->group !== null) {
+        if ($this->group !== null && $this->subgroup !== null) {
+            // Add to subgroup
+            $this->registry->addToSubgroup($this->group, $this->subgroup, $this->slug);
+        } elseif ($this->group !== null) {
+            // Add to group directly
             $this->registry->addToGroup($this->group, $this->slug);
         }
 

@@ -82,6 +82,20 @@ export default defineConfig(({ mode }) => {
                     drop_console: false,
                 },
             },
+            // Ensure ES6 class semantics are preserved for @event-calendar plugins
+            target: 'es2020',
+        },
+
+        // esbuild options to preserve ES6 class semantics
+        esbuild: {
+            target: 'es2020',
+            keepNames: true,
+        },
+
+        optimizeDeps: {
+            esbuildOptions: {
+                target: 'es2020',
+            },
         },
 
         resolve: {
@@ -89,6 +103,15 @@ export default defineConfig(({ mode }) => {
                 '@': resolve(__dirname, 'resources/js'),
                 // Use Vue's full build with runtime compiler for template support
                 'vue': 'vue/dist/vue.esm-bundler.js',
+                // Use pre-compiled dist files for @event-calendar packages (not Svelte sources)
+                '@event-calendar/core/index.css': resolve(__dirname, 'node_modules/@event-calendar/core/index.css'),
+                '@event-calendar/core': resolve(__dirname, 'node_modules/@event-calendar/core/index.js'),
+                '@event-calendar/day-grid': resolve(__dirname, 'node_modules/@event-calendar/day-grid/index.js'),
+                '@event-calendar/time-grid': resolve(__dirname, 'node_modules/@event-calendar/time-grid/index.js'),
+                '@event-calendar/list': resolve(__dirname, 'node_modules/@event-calendar/list/index.js'),
+                '@event-calendar/resource-time-grid': resolve(__dirname, 'node_modules/@event-calendar/resource-time-grid/index.js'),
+                '@event-calendar/resource-timeline': resolve(__dirname, 'node_modules/@event-calendar/resource-timeline/index.js'),
+                '@event-calendar/interaction': resolve(__dirname, 'node_modules/@event-calendar/interaction/index.js'),
             },
         },
 

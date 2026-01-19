@@ -33,6 +33,10 @@ import { createTransition } from '../core/transition/TransitionFactory';
 import type { TransitionInstance } from '../core/transition/types';
 import { createBridge, createMethodProxies, disposeBridge } from '../core/bridge';
 import type { BridgeInstance } from '../core/bridge';
+import { createTooltip, createTooltipMethods } from '../core/tooltip/TooltipFactory';
+import type { TooltipInstance } from '../core/tooltip/types';
+import { createDraggable, createDraggableMethods } from '../core/draggable/DraggableFactory';
+import type { DraggableInstance } from '../core/draggable/types';
 
 /**
  * Global stores for shared reactive state
@@ -267,6 +271,18 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         let stateInstance: StateInstance | undefined;
         if (element.hasAttribute('data-accelade-state-component')) {
             stateInstance = this.setupState(element, config.id, stateAdapter);
+        }
+
+        // Setup Tooltip component if applicable
+        let tooltipInstance: TooltipInstance | undefined;
+        if (element.hasAttribute('data-accelade-tooltip')) {
+            tooltipInstance = this.setupTooltip(element, config.id, stateAdapter, customMethods);
+        }
+
+        // Setup Draggable component if applicable
+        let draggableInstance: DraggableInstance | undefined;
+        if (element.hasAttribute('data-accelade-draggable')) {
+            draggableInstance = this.setupDraggable(element, config.id, stateAdapter, customMethods);
         }
 
         // Setup Transition elements inside this component
@@ -631,6 +647,63 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         customMethods.setToggle = toggleMethods.setToggle;
 
         // Add cleanup for Toggle instance
+        this.addCleanups(componentId, [() => instance.dispose()]);
+
+        return instance;
+    }
+
+    /**
+     * Setup Tooltip component
+     */
+    protected setupTooltip(
+        element: HTMLElement,
+        componentId: string,
+        stateAdapter: IStateAdapter,
+        customMethods: CustomMethods
+    ): TooltipInstance | undefined {
+        const instance = createTooltip(componentId, element, stateAdapter);
+        if (!instance) {
+            return undefined;
+        }
+
+        // Add tooltip methods to customMethods
+        const tooltipMethods = createTooltipMethods(instance);
+        customMethods.showTooltip = tooltipMethods.show;
+        customMethods.hideTooltip = tooltipMethods.hide;
+        customMethods.toggleTooltip = tooltipMethods.toggle;
+        customMethods.setTooltipContent = tooltipMethods.setContent;
+        customMethods.setTooltipPosition = tooltipMethods.setPosition;
+
+        // Add cleanup for Tooltip instance
+        this.addCleanups(componentId, [() => instance.dispose()]);
+
+        return instance;
+    }
+
+    /**
+     * Setup Draggable component
+     */
+    protected setupDraggable(
+        element: HTMLElement,
+        componentId: string,
+        stateAdapter: IStateAdapter,
+        customMethods: CustomMethods
+    ): DraggableInstance | undefined {
+        const instance = createDraggable(componentId, element, stateAdapter);
+        if (!instance) {
+            return undefined;
+        }
+
+        // Add draggable methods to customMethods
+        const draggableMethods = createDraggableMethods(instance);
+        customMethods.enableDrag = draggableMethods.enableDrag;
+        customMethods.disableDrag = draggableMethods.disableDrag;
+        customMethods.isDragEnabled = draggableMethods.isDragEnabled;
+        customMethods.getDragItems = draggableMethods.getDragItems;
+        customMethods.moveDragItem = draggableMethods.moveDragItem;
+        customMethods.refreshDrag = draggableMethods.refreshDrag;
+
+        // Add cleanup for Draggable instance
         this.addCleanups(componentId, [() => instance.dispose()]);
 
         return instance;

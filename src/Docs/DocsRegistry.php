@@ -22,7 +22,7 @@ class DocsRegistry
     /**
      * Sidebar navigation groups.
      *
-     * @var array<string, array{label: string, icon: string, priority: int, sections: array<string>}>
+     * @var array<string, array{label: string, icon: string, priority: int, sections: array<string>, subgroups: array<string, array{label: string, icon: string, priority: int, sections: array<string>}>}>
      */
     protected array $groups = [];
 
@@ -90,7 +90,37 @@ class DocsRegistry
             'icon' => $icon,
             'priority' => $priority,
             'sections' => [],
+            'subgroups' => [],
         ];
+
+        return $this;
+    }
+
+    /**
+     * Register a sub-group within a parent group.
+     */
+    public function registerSubgroup(string $parentKey, string $key, string $label, string $icon = '', int $priority = 50): self
+    {
+        if (isset($this->groups[$parentKey])) {
+            $this->groups[$parentKey]['subgroups'][$key] = [
+                'label' => $label,
+                'icon' => $icon,
+                'priority' => $priority,
+                'sections' => [],
+            ];
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a section to a sub-group.
+     */
+    public function addToSubgroup(string $groupKey, string $subgroupKey, string $sectionSlug): self
+    {
+        if (isset($this->groups[$groupKey]['subgroups'][$subgroupKey])) {
+            $this->groups[$groupKey]['subgroups'][$subgroupKey]['sections'][] = $sectionSlug;
+        }
 
         return $this;
     }
@@ -171,7 +201,7 @@ class DocsRegistry
     /**
      * Get navigation structure for sidebar.
      *
-     * @return array<int, array{key: string, label: string, icon: string, items: array<int, array{slug: string, label: string, hasDemo: bool, icon: ?string}>}>
+     * @return array<int, array{key: string, label: string, icon: string, items: array<int, array{slug: string, label: string, hasDemo: bool, icon: ?string}>, subgroups: array<int, array{key: string, label: string, icon: string, items: array}>}>
      */
     public function getNavigation(): array
     {
@@ -180,6 +210,7 @@ class DocsRegistry
         foreach ($this->getGroups() as $key => $group) {
             $items = [];
 
+            // Direct sections in the group (not in subgroups)
             foreach ($group['sections'] as $slug) {
                 if (isset($this->sections[$slug])) {
                     $section = $this->sections[$slug];
@@ -192,12 +223,45 @@ class DocsRegistry
                 }
             }
 
-            if (count($items) > 0) {
+            // Build subgroups
+            $subgroups = [];
+            if (! empty($group['subgroups'])) {
+                // Sort subgroups by priority
+                $sortedSubgroups = $group['subgroups'];
+                uasort($sortedSubgroups, fn ($a, $b) => $a['priority'] <=> $b['priority']);
+
+                foreach ($sortedSubgroups as $subKey => $subgroup) {
+                    $subItems = [];
+                    foreach ($subgroup['sections'] as $slug) {
+                        if (isset($this->sections[$slug])) {
+                            $section = $this->sections[$slug];
+                            $subItems[] = [
+                                'slug' => $section->slug,
+                                'label' => $section->label,
+                                'hasDemo' => $section->hasDemo,
+                                'icon' => $section->icon,
+                            ];
+                        }
+                    }
+
+                    if (count($subItems) > 0) {
+                        $subgroups[] = [
+                            'key' => $subKey,
+                            'label' => $subgroup['label'],
+                            'icon' => $subgroup['icon'],
+                            'items' => $subItems,
+                        ];
+                    }
+                }
+            }
+
+            if (count($items) > 0 || count($subgroups) > 0) {
                 $navigation[] = [
                     'key' => $key,
                     'label' => $group['label'],
                     'icon' => $group['icon'],
                     'items' => $items,
+                    'subgroups' => $subgroups,
                 ];
             }
         }

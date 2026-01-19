@@ -185,6 +185,74 @@ export {
     type BridgeInstance,
 } from './core/bridge';
 
+// Tooltip
+export {
+    TooltipFactory,
+    initTooltip,
+    initAllTooltips,
+    createTooltipMethods,
+    getTooltipInstance,
+    getTooltipSettings,
+    setTooltipSettings,
+    type TooltipConfig,
+    type TooltipInstance,
+    type TooltipMethods,
+    type TooltipPosition,
+    type TooltipTrigger,
+    type TooltipTheme,
+    type TooltipGlobalSettings,
+} from './core/tooltip';
+
+// Chart
+export {
+    ChartFactory,
+    ChartJsFactory,
+    ApexChartsFactory,
+    initAllCharts,
+    initAllChartJs,
+    initAllApexCharts,
+    getChart,
+    getChartJsInstance,
+    getApexChartInstance,
+    createChartJsMethods,
+    createApexChartsMethods,
+    CHART_COLORS,
+    CHART_PALETTE,
+    withAlpha,
+    type ChartType,
+    type ChartDataset,
+    type ChartData,
+    type ChartOptions,
+    type ChartConfig,
+    type ChartInstance,
+    type ChartMethods,
+    type ChartEventDetail,
+} from './core/chart';
+
+// Calendar
+export {
+    CalendarFactory,
+    getCalendarInstance,
+    type CalendarView,
+    type CalendarDuration,
+    type CalendarEvent,
+    type CalendarResource,
+    type CalendarEventSource,
+    type CalendarHeaderToolbar,
+    type CalendarValidRange,
+    type CalendarCustomButton,
+    type CalendarTheme,
+    type CalendarConfig,
+    type CalendarState,
+    type CalendarEventInfo,
+    type CalendarDateClickInfo,
+    type CalendarSelectInfo,
+    type CalendarEventDropInfo,
+    type CalendarEventResizeInfo,
+    type CalendarInstance,
+    type CalendarMethods,
+} from './core/calendar';
+
 // Framework registry
 export { FrameworkRegistry } from './registry/FrameworkRegistry';
 
@@ -244,6 +312,11 @@ import { getEventBus, emit as eventBusEmit, on as eventBusOn, once as eventBusOn
 import { getBridge, getAllBridges } from './core/bridge';
 import ErrorHandler, { init as initErrorHandler, handleError, handleAjaxError, type ErrorConfig } from './core/errors/ErrorHandler';
 import { showConfirmDialog, confirm as confirmFn, confirmDanger } from './core/link/ConfirmDialog';
+import { initAllTooltips, getTooltipInstance, getTooltipSettings, setTooltipSettings } from './core/tooltip/TooltipFactory';
+import { initAllCharts, getChart, ChartFactory } from './core/chart';
+import type { ChartInstance } from './core/chart';
+import { CalendarFactory, getCalendarInstance } from './core/calendar';
+import type { CalendarInstance, CalendarEvent } from './core/calendar';
 
 // Singleton notification manager
 let notificationManager: NotificationManager | null = null;
@@ -700,6 +773,68 @@ const confirm = {
     danger: confirmDanger,
 };
 
+// Chart API object
+const chart = {
+    /**
+     * Initialize all charts on the page
+     */
+    initAll: initAllCharts,
+
+    /**
+     * Get a chart instance by ID
+     */
+    get: getChart,
+
+    /**
+     * Chart.js specific methods
+     */
+    chartjs: ChartFactory.chartjs,
+
+    /**
+     * ApexCharts specific methods
+     */
+    apexcharts: ChartFactory.apexcharts,
+};
+
+/**
+ * Initialize all calendars on the page
+ */
+function initAllCalendars(): void {
+    const elements = document.querySelectorAll<HTMLElement>('[data-accelade-calendar]');
+    elements.forEach((el) => {
+        if (el.hasAttribute('data-calendar-initialized')) return;
+
+        const adapter = FrameworkRegistry.getAdapter();
+        const stateAdapter = adapter.createStateAdapter(el, {});
+
+        const calendarId = el.getAttribute('data-calendar-id') || `calendar-${Date.now()}`;
+        CalendarFactory.create(calendarId, el, stateAdapter);
+        el.setAttribute('data-calendar-initialized', 'true');
+    });
+}
+
+// Calendar API object
+const calendar = {
+    /**
+     * Initialize all calendars on the page
+     */
+    initAll: initAllCalendars,
+
+    /**
+     * Get a calendar instance by ID
+     */
+    get: getCalendarInstance,
+
+    /**
+     * Create a calendar programmatically
+     */
+    create: (id: string, element: HTMLElement) => {
+        const adapter = FrameworkRegistry.getAdapter();
+        const stateAdapter = adapter.createStateAdapter(element, {});
+        return CalendarFactory.create(id, element, stateAdapter);
+    },
+};
+
 /**
  * Main Accelade API
  *
@@ -751,6 +886,35 @@ const Accelade = {
 
     // Confirm dialog
     confirm,
+
+    // Charts
+    chart,
+
+    // Calendar
+    calendar,
+
+    // Tooltip
+    tooltip: {
+        /**
+         * Initialize all tooltips on the page
+         */
+        initAll: initAllTooltips,
+
+        /**
+         * Get a tooltip instance by ID
+         */
+        get: getTooltipInstance,
+
+        /**
+         * Get global tooltip settings
+         */
+        getSettings: getTooltipSettings,
+
+        /**
+         * Set global tooltip settings (persisted to localStorage)
+         */
+        setSettings: setTooltipSettings,
+    },
 
     // Convenience event bus methods (Splade-compatible API)
     emit: eventBusEmit,
@@ -825,12 +989,18 @@ if (typeof window !== 'undefined') {
             initLazy();
             initRehydrate();
             initTeleport();
+            initAllTooltips();
+            initAllCharts();
+            initAllCalendars();
         });
     } else {
         init();
         initLazy();
         initRehydrate();
         initTeleport();
+        initAllTooltips();
+        initAllCharts();
+        initAllCalendars();
     }
 
     // Re-initialize after SPA navigation
@@ -843,6 +1013,12 @@ if (typeof window !== 'undefined') {
         initRehydrate();
         // Re-init teleport for new teleport components
         initTeleport();
+        // Re-init tooltips for new tooltip elements
+        initAllTooltips();
+        // Re-init charts for new chart elements
+        initAllCharts();
+        // Re-init calendars for new calendar elements
+        initAllCalendars();
     });
 }
 

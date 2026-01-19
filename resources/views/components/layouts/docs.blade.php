@@ -69,13 +69,20 @@
     // Use navigation from registry if provided, otherwise get from app
     $navData = $navigation ?? app('accelade.docs')->getNavigation();
 
-    // Build section groups from navigation data
+    // Build section groups from navigation data (with subgroups support)
     $sectionGroups = [];
     $allSections = [];
     foreach ($navData as $group) {
-        $groupSections = [];
+        $groupData = [
+            'key' => $group['key'],
+            'label' => $group['label'],
+            'icon' => $group['icon'],
+            'items' => [],
+            'subgroups' => [],
+        ];
+
+        // Direct items in the group
         foreach ($group['items'] as $item) {
-            // Use section's icon if set, otherwise fallback to emoji mapping
             $itemIcon = $item['icon'] ?? $sectionIcons[$item['slug']] ?? '📄';
             $sectionData = [
                 'id' => $item['slug'],
@@ -84,10 +91,36 @@
                 'demo' => $item['hasDemo'],
                 'keywords' => '',
             ];
-            $groupSections[] = $sectionData;
+            $groupData['items'][] = $sectionData;
             $allSections[$item['slug']] = $sectionData;
         }
-        $sectionGroups[$group['label']] = $groupSections;
+
+        // Subgroups
+        if (!empty($group['subgroups'])) {
+            foreach ($group['subgroups'] as $subgroup) {
+                $subgroupData = [
+                    'key' => $subgroup['key'],
+                    'label' => $subgroup['label'],
+                    'icon' => $subgroup['icon'],
+                    'items' => [],
+                ];
+                foreach ($subgroup['items'] as $item) {
+                    $itemIcon = $item['icon'] ?? $sectionIcons[$item['slug']] ?? '📄';
+                    $sectionData = [
+                        'id' => $item['slug'],
+                        'label' => $item['label'],
+                        'icon' => $itemIcon,
+                        'demo' => $item['hasDemo'],
+                        'keywords' => '',
+                    ];
+                    $subgroupData['items'][] = $sectionData;
+                    $allSections[$item['slug']] = $sectionData;
+                }
+                $groupData['subgroups'][] = $subgroupData;
+            }
+        }
+
+        $sectionGroups[] = $groupData;
     }
 
     // Current section info
@@ -263,6 +296,42 @@
         .sidebar-link:hover { color: var(--docs-text); background: var(--docs-border); }
         .sidebar-link.active { color: var(--docs-accent); font-weight: 500; }
         .sidebar-link .icon { font-size: 0.875rem; width: 1.25rem; text-align: center; }
+
+        /* Subgroup styles - matches sidebar-link style exactly */
+        .sidebar-subgroup { margin-top: 0; }
+        .sidebar-subgroup-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+            color: var(--docs-text-muted);
+            border-radius: 0.375rem;
+            transition: all 0.15s;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            text-align: start;
+        }
+        .sidebar-subgroup-toggle:hover { color: var(--docs-text); background: var(--docs-border); }
+        .sidebar-subgroup-toggle.has-active { color: var(--docs-accent); font-weight: 500; }
+        .sidebar-subgroup-toggle .icon { font-size: 0.875rem; width: 1.25rem; text-align: center; flex-shrink: 0; }
+        .sidebar-subgroup-toggle .toggle-chevron {
+            transition: transform 0.2s ease;
+            color: var(--docs-text-muted);
+            flex-shrink: 0;
+            margin-inline-start: auto;
+        }
+        .sidebar-subgroup.expanded .sidebar-subgroup-toggle .toggle-chevron { transform: rotate(180deg); }
+        .sidebar-subgroup-items {
+            display: none;
+            padding-inline-start: 0.5rem;
+            margin-top: 0.25rem;
+            border-inline-start: 1px solid var(--docs-border);
+            margin-inline-start: 0.75rem;
+        }
+        .sidebar-subgroup.expanded .sidebar-subgroup-items { display: block; }
 
         /* Mobile sidebar - RTL aware */
         @media (max-width: 1023px) {
@@ -583,10 +652,12 @@
 
             <!-- Navigation -->
             <nav class="flex-1 p-3 overflow-y-auto" id="docs-sidebar-nav">
-                @foreach($sectionGroups as $groupName => $sections)
+                @foreach($sectionGroups as $group)
                     <div class="sidebar-group">
-                        <div class="sidebar-group-title">{{ $groupName }}</div>
-                        @foreach($sections as $s)
+                        <div class="sidebar-group-title">{{ $group['label'] }}</div>
+
+                        {{-- Direct items in group --}}
+                        @foreach($group['items'] as $s)
                             <x-accelade::link
                                 href="{{ route('docs.section', ['section' => $s['id'], 'framework' => $framework]) }}"
                                 :preserveScroll="true"
@@ -601,6 +672,49 @@
                                 </span>
                                 <span>{{ $s['label'] }}</span>
                             </x-accelade::link>
+                        @endforeach
+
+                        {{-- Subgroups with toggle --}}
+                        @foreach($group['subgroups'] as $subgroup)
+                            @php
+                                $subgroupHasActive = collect($subgroup['items'])->contains(fn($item) => $item['id'] === $section);
+                                $subgroupKey = $group['key'] . '-' . $subgroup['key'];
+                                // Extract emoji from label (first character if it's an emoji)
+                                $labelParts = preg_split('/\s+/', $subgroup['label'], 2);
+                                $subgroupIcon = mb_strlen($labelParts[0]) <= 2 ? $labelParts[0] : '📁';
+                                $subgroupText = count($labelParts) > 1 ? $labelParts[1] : $subgroup['label'];
+                            @endphp
+                            <div class="sidebar-subgroup {{ $subgroupHasActive ? 'expanded' : '' }}" data-subgroup="{{ $subgroupKey }}" data-has-active="{{ $subgroupHasActive ? 'true' : 'false' }}">
+                                <button
+                                    type="button"
+                                    class="sidebar-subgroup-toggle {{ $subgroupHasActive ? 'has-active' : '' }}"
+                                    onclick="toggleSubgroup('{{ $subgroupKey }}')"
+                                    aria-expanded="{{ $subgroupHasActive ? 'true' : 'false' }}">
+                                    <span class="icon">{{ $subgroupIcon }}</span>
+                                    <span>{{ $subgroupText }}</span>
+                                    <svg class="toggle-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </button>
+                                <div class="sidebar-subgroup-items">
+                                    @foreach($subgroup['items'] as $s)
+                                        <x-accelade::link
+                                            href="{{ route('docs.section', ['section' => $s['id'], 'framework' => $framework]) }}"
+                                            :preserveScroll="true"
+                                            class="sidebar-link {{ $section === $s['id'] ? 'active' : '' }}"
+                                            activeClass="">
+                                            <span class="icon">
+                                                @if(preg_match('/^[a-z][a-z0-9-]*$/i', $s['icon']))
+                                                    <x-accelade::icon :name="$s['icon']" class="w-4 h-4" />
+                                                @else
+                                                    {{ $s['icon'] }}
+                                                @endif
+                                            </span>
+                                            <span>{{ $s['label'] }}</span>
+                                        </x-accelade::link>
+                                    @endforeach
+                                </div>
+                            </div>
                         @endforeach
                     </div>
                 @endforeach
@@ -772,16 +886,17 @@
                     <kbd class="px-1.5 py-0.5 text-xs rounded bg-[var(--docs-bg-alt)] border border-[var(--docs-border)] text-[var(--docs-text-muted)]">ESC</kbd>
                 </div>
                 <div id="search-results" class="max-h-80 overflow-y-auto p-2">
-                    @foreach($sectionGroups as $groupName => $sections)
-                        <div class="search-group" data-group="{{ \Illuminate\Support\Str::slug($groupName) }}">
-                            <div class="search-group-title px-2 py-1.5 text-xs font-medium text-[var(--docs-text-muted)] uppercase">{{ $groupName }}</div>
-                            @foreach($sections as $s)
+                    @foreach($sectionGroups as $group)
+                        <div class="search-group" data-group="{{ \Illuminate\Support\Str::slug($group['label']) }}">
+                            <div class="search-group-title px-2 py-1.5 text-xs font-medium text-[var(--docs-text-muted)] uppercase">{{ $group['label'] }}</div>
+                            {{-- Direct items --}}
+                            @foreach($group['items'] as $s)
                                 <x-accelade::link
                                     href="{{ route('docs.section', ['section' => $s['id'], 'framework' => $framework]) }}"
                                     class="search-item flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--docs-bg-alt)]"
                                     activeClass=""
-                                    data-search="{{ strtolower($s['label'] . ' ' . $groupName . ' ' . ($s['keywords'] ?? '')) }}"
-                                    data-group="{{ \Illuminate\Support\Str::slug($groupName) }}">
+                                    data-search="{{ strtolower($s['label'] . ' ' . $group['label'] . ' ' . ($s['keywords'] ?? '')) }}"
+                                    data-group="{{ \Illuminate\Support\Str::slug($group['label']) }}">
                                     <span>
                                         @if(preg_match('/^[a-z][a-z0-9-]*$/i', $s['icon']))
                                             <x-accelade::icon :name="$s['icon']" class="w-4 h-4" />
@@ -791,6 +906,27 @@
                                     </span>
                                     <span class="font-medium">{{ $s['label'] }}</span>
                                 </x-accelade::link>
+                            @endforeach
+                            {{-- Subgroup items --}}
+                            @foreach($group['subgroups'] as $subgroup)
+                                @foreach($subgroup['items'] as $s)
+                                    <x-accelade::link
+                                        href="{{ route('docs.section', ['section' => $s['id'], 'framework' => $framework]) }}"
+                                        class="search-item flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--docs-bg-alt)]"
+                                        activeClass=""
+                                        data-search="{{ strtolower($s['label'] . ' ' . $group['label'] . ' ' . $subgroup['label'] . ' ' . ($s['keywords'] ?? '')) }}"
+                                        data-group="{{ \Illuminate\Support\Str::slug($group['label']) }}">
+                                        <span>
+                                            @if(preg_match('/^[a-z][a-z0-9-]*$/i', $s['icon']))
+                                                <x-accelade::icon :name="$s['icon']" class="w-4 h-4" />
+                                            @else
+                                                {{ $s['icon'] }}
+                                            @endif
+                                        </span>
+                                        <span class="font-medium">{{ $s['label'] }}</span>
+                                        <span class="text-xs text-[var(--docs-text-muted)]">{{ $subgroup['label'] }}</span>
+                                    </x-accelade::link>
+                                @endforeach
                             @endforeach
                         </div>
                     @endforeach
@@ -831,6 +967,70 @@
 
         function toggleFrameworkDropdown() {
             document.getElementById('framework-dropdown').classList.toggle('hidden');
+        }
+
+        // Subgroup toggle with accordion behavior (only one open at a time)
+        function toggleSubgroup(key) {
+            var subgroup = document.querySelector('[data-subgroup="' + key + '"]');
+            if (!subgroup) return;
+
+            var willExpand = !subgroup.classList.contains('expanded');
+
+            // If expanding, close all other subgroups first (accordion behavior)
+            if (willExpand) {
+                document.querySelectorAll('.sidebar-subgroup.expanded').forEach(function(other) {
+                    if (other !== subgroup) {
+                        other.classList.remove('expanded');
+                        var otherBtn = other.querySelector('.sidebar-subgroup-toggle');
+                        if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+
+            subgroup.classList.toggle('expanded', willExpand);
+            var btn = subgroup.querySelector('.sidebar-subgroup-toggle');
+            if (btn) btn.setAttribute('aria-expanded', willExpand ? 'true' : 'false');
+
+            // Save state to localStorage (clear others if expanding)
+            var expandedGroups = {};
+            if (willExpand) {
+                expandedGroups[key] = true;
+            }
+            localStorage.setItem('docs-expanded-subgroups', JSON.stringify(expandedGroups));
+        }
+
+        // Initialize subgroup states with accordion behavior (only one open at a time)
+        function initSubgroups() {
+            var expandedGroups = JSON.parse(localStorage.getItem('docs-expanded-subgroups') || '{}');
+            var subgroups = document.querySelectorAll('.sidebar-subgroup');
+
+            // Check if any subgroup has an active item
+            var activeSubgroup = null;
+            subgroups.forEach(function(subgroup) {
+                if (subgroup.dataset.hasActive === 'true') {
+                    activeSubgroup = subgroup;
+                }
+            });
+
+            subgroups.forEach(function(subgroup) {
+                var key = subgroup.dataset.subgroup;
+                var btn = subgroup.querySelector('.sidebar-subgroup-toggle');
+                var hasActive = subgroup.dataset.hasActive === 'true';
+
+                if (hasActive) {
+                    // Active subgroup stays expanded
+                    subgroup.classList.add('expanded');
+                    if (btn) btn.setAttribute('aria-expanded', 'true');
+                } else if (!activeSubgroup && expandedGroups[key]) {
+                    // Only apply localStorage state if no active subgroup exists
+                    subgroup.classList.add('expanded');
+                    if (btn) btn.setAttribute('aria-expanded', 'true');
+                } else {
+                    // Close all other subgroups (accordion behavior)
+                    subgroup.classList.remove('expanded');
+                    if (btn) btn.setAttribute('aria-expanded', 'false');
+                }
+            });
         }
 
         function openSearch() {
@@ -934,6 +1134,30 @@
             });
         }
 
+        // Scroll sidebar to show active item
+        function scrollSidebarToActive() {
+            var nav = document.getElementById('docs-sidebar-nav');
+            var activeLink = nav && nav.querySelector('.sidebar-link.active');
+            if (activeLink && nav) {
+                // Get positions
+                var navRect = nav.getBoundingClientRect();
+                var linkRect = activeLink.getBoundingClientRect();
+
+                // Check if the active link is not visible in the viewport
+                var linkTop = linkRect.top - navRect.top + nav.scrollTop;
+                var linkBottom = linkTop + linkRect.height;
+                var visibleTop = nav.scrollTop;
+                var visibleBottom = nav.scrollTop + navRect.height;
+
+                // If link is above or below visible area, scroll to it
+                if (linkTop < visibleTop || linkBottom > visibleBottom) {
+                    // Scroll to center the active item in the sidebar
+                    var scrollTarget = linkTop - (navRect.height / 2) + (linkRect.height / 2);
+                    nav.scrollTop = Math.max(0, scrollTarget);
+                }
+            }
+        }
+
         function initDocsPage() {
             if (typeof Prism !== 'undefined') {
                 Prism.highlightAll();
@@ -941,6 +1165,8 @@
 
             fixDocLinks();
             updateTocActive();
+            initSubgroups();
+            scrollSidebarToActive();
 
             document.querySelectorAll('.docs-prose h2, .docs-prose h3').forEach(function(h) {
                 if (!h.id) {
