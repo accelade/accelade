@@ -60,25 +60,23 @@ class Chart extends Component
      * @param  array<int, string>  $labels
      * @param  array<int, array<string, mixed>>  $datasets
      * @param  array<string, mixed>  $options
+     * @param  array{height?: string, width?: string, reactive?: bool, id?: string|null}  $config
      */
     public function __construct(
         string $type = 'line',
         array $labels = [],
         array $datasets = [],
         array $options = [],
-        string $height = '400px',
-        string $width = '100%',
-        bool $reactive = true,
-        ?string $id = null,
+        array $config = [],
     ) {
         $this->type = $type;
         $this->labels = $labels;
         $this->datasets = $datasets;
         $this->options = $options;
-        $this->height = $height;
-        $this->width = $width;
-        $this->reactive = $reactive;
-        $this->chartId = $id ?? 'chart-'.bin2hex(random_bytes(4));
+        $this->height = $config['height'] ?? '400px';
+        $this->width = $config['width'] ?? '100%';
+        $this->reactive = $config['reactive'] ?? true;
+        $this->chartId = $config['id'] ?? 'chart-'.bin2hex(random_bytes(4));
     }
 
     /**
