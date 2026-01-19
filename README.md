@@ -239,30 +239,99 @@ ACCELADE_FRAMEWORK=vue
 
 ## Documentation
 
+### Getting Started
+
 | Guide | Description |
 |-------|-------------|
-| [Getting Started](docs/getting-started.md) | Installation and first steps |
-| [Components](docs/components.md) | Building reactive components |
+| [Installation](docs/installation.md) | Install and configure Accelade |
+| [Getting Started](docs/getting-started.md) | First steps and basic concepts |
+| [Configuration](docs/configuration.md) | All config options |
+| [Architecture](docs/architecture.md) | How Accelade works under the hood |
+
+### Core Components
+
+| Component | Description |
+|-----------|-------------|
+| [State](docs/state.md) | Reactive state management |
+| [Data](docs/data.md) | Reactive data with storage persistence |
+| [Toggle](docs/toggle.md) | Toggle visibility with animations |
+| [Modal](docs/modal.md) | Modal dialogs and overlays |
+| [Link](docs/link.md) | SPA navigation links |
+| [Content](docs/content.md) | Render pre-rendered HTML (Markdown, CMS) |
+| [Flash](docs/flash.md) | Flash message component |
+| [Event](docs/event.md) | Event handling component |
+| [Teleport](docs/teleport.md) | Teleport content to other DOM locations |
+| [Rehydrate](docs/rehydrate.md) | Rehydrate server-rendered content |
+
+### UI Components
+
+| Component | Description |
+|-----------|-------------|
+| [Code Block](docs/code-block.md) | Syntax highlighted code blocks |
+| [Icon](docs/icon.md) | Icon component with Blade Icons |
+| [Tooltip](docs/tooltip.md) | Tooltip component |
+| [Draggable](docs/draggable.md) | Drag and drop functionality |
+| [Chart](docs/chart.md) | Chart.js and ApexCharts integration |
+| [Calendar](docs/calendar.md) | Calendar component |
+
+### Features
+
+| Guide | Description |
+|-------|-------------|
+| [SPA Navigation](docs/spa-navigation.md) | Client-side routing |
 | [Animations](docs/animations.md) | Animation presets and transitions |
-| [Data Component](docs/data.md) | Reactive data with storage persistence |
-| [Shared Data](docs/shared-data.md) | Share data from PHP to JavaScript |
 | [Lazy Loading](docs/lazy-loading.md) | Deferred content with shimmer |
 | [Persistent Layout](docs/persistent-layout.md) | Keep elements active during navigation |
+| [Shared Data](docs/shared-data.md) | Share data from PHP to JavaScript |
 | [Event Bus](docs/event-bus.md) | Decoupled component communication |
-| [Bridge Components](docs/bridge.md) | Two-way PHP/JavaScript binding (Beta) |
-| [Content](docs/content.md) | Render pre-rendered HTML (Markdown, CMS) |
-| [SEO](docs/seo.md) | Meta tags, OpenGraph, Twitter Cards |
+| [Bridge](docs/bridge.md) | Two-way PHP/JavaScript binding (Beta) |
+| [Scripts](docs/scripts.md) | Script management |
 | [Notifications](docs/notifications.md) | Toast notification system |
-| [SPA Navigation](docs/spa-navigation.md) | Client-side routing |
-| [Frameworks](docs/frameworks.md) | Vue, React, Svelte, Angular |
-| [Configuration](docs/configuration.md) | All config options |
+| [SEO](docs/seo.md) | Meta tags, OpenGraph, Twitter Cards |
+| [Exception Handling](docs/exception-handling.md) | Error handling and display |
+
+### Advanced
+
+| Guide | Description |
+|-------|-------------|
+| [Frameworks](docs/frameworks.md) | Vue, React, Svelte, Angular adapters |
+| [MCP Server](docs/mcp-server.md) | AI-assisted development with Claude |
+| [Testing](docs/testing.md) | Testing your Accelade components |
 | [API Reference](docs/api-reference.md) | Complete API docs |
+| [Contributing](docs/contributing.md) | How to contribute |
+
+---
+
+## Accelade Ecosystem
+
+Accelade is part of a larger ecosystem of packages designed to work together seamlessly:
+
+| Package | Description |
+|---------|-------------|
+| **[accelade/schemas](https://github.com/accelade/schemas)** | Schema-based layouts with sections, tabs, grids, wizards, and more |
+| **[accelade/forms](https://github.com/accelade/forms)** | Form builder with validation, file uploads, and rich inputs |
+| **[accelade/infolists](https://github.com/accelade/infolists)** | Display read-only data with Filament-compatible API |
+| **[accelade/tables](https://github.com/accelade/tables)** | Data tables with sorting, filtering, and pagination |
+| **[accelade/actions](https://github.com/accelade/actions)** | Action buttons with modals, confirmations, and bulk operations |
+| **[accelade/widgets](https://github.com/accelade/widgets)** | Dashboard widgets including stats, charts, and tables |
+| **[accelade/filters](https://github.com/accelade/filters)** | Advanced filtering components |
+| **[accelade/grids](https://github.com/accelade/grids)** | Grid and card layouts |
+| **[accelade/query-builder](https://github.com/accelade/query-builder)** | Visual query builder component |
+| **[accelade/ai](https://github.com/accelade/ai)** | AI-powered features and integrations |
+
+All packages follow the same Blade-first philosophy and work together without requiring a full SPA framework.
 
 ---
 
 ## Credits
 
 Built with inspiration from [Livewire](https://livewire.laravel.com), [Filament](https://filamentphp.com), and [Inertia.js](https://inertiajs.com).
+
+---
+
+## Sponsors
+
+If you find Accelade useful, please consider [sponsoring](docs/sponsor.md) the project. Your support helps maintain and improve the ecosystem.
 
 ---
 
