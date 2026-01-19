@@ -805,7 +805,7 @@ function initAllCalendars(): void {
         if (el.hasAttribute('data-calendar-initialized')) return;
 
         const adapter = FrameworkRegistry.getAdapter();
-        const stateAdapter = adapter.createStateAdapter(el, {});
+        const stateAdapter = adapter.createStateAdapter();
 
         const calendarId = el.getAttribute('data-calendar-id') || `calendar-${Date.now()}`;
         CalendarFactory.create(calendarId, el, stateAdapter);
@@ -830,7 +830,7 @@ const calendar = {
      */
     create: (id: string, element: HTMLElement) => {
         const adapter = FrameworkRegistry.getAdapter();
-        const stateAdapter = adapter.createStateAdapter(element, {});
+        const stateAdapter = adapter.createStateAdapter();
         return CalendarFactory.create(id, element, stateAdapter);
     },
 };

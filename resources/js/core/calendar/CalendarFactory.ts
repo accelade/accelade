@@ -523,7 +523,7 @@ export function createCalendarInstance(
      * Add event
      */
     const addEvent = (event: CalendarEvent): void => {
-        ec.addEvent(event);
+        ec.addEvent(event as unknown as { [key: string]: unknown });
         const events = stateAdapter.get('events') as CalendarEvent[];
         stateAdapter.set('events', [...events, event]);
     };
@@ -532,7 +532,7 @@ export function createCalendarInstance(
      * Update event
      */
     const updateEvent = (event: CalendarEvent): void => {
-        ec.updateEvent(event);
+        ec.updateEvent(event as unknown as { [key: string]: unknown });
         const events = stateAdapter.get('events') as CalendarEvent[];
         const updatedEvents = events.map(e => e.id === event.id ? event : e);
         stateAdapter.set('events', updatedEvents);
@@ -579,7 +579,8 @@ export function createCalendarInstance(
      * Get date from point
      */
     const dateFromPoint = (x: number, y: number): { date: Date; allDay: boolean; resource?: CalendarResource } | null => {
-        return ec.dateFromPoint(x, y);
+        const result = ec.dateFromPoint(x, y);
+        return result ? { date: result, allDay: false } : null;
     };
 
     /**

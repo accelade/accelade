@@ -83,7 +83,7 @@ export async function initChartJs(element: HTMLElement): Promise<ChartInstance |
     }
 
     // Create chart (cast config to Chart.js expected type)
-    const chartJsInstance = new Chart(ctx, config as Parameters<typeof Chart>[1]);
+    const chartJsInstance = new Chart(ctx, config as ConstructorParameters<typeof Chart>[1]);
 
     // Create instance wrapper
     const instance: ChartInstance = {

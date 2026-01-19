@@ -661,18 +661,18 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         stateAdapter: IStateAdapter,
         customMethods: CustomMethods
     ): TooltipInstance | undefined {
-        const instance = createTooltip(componentId, element, stateAdapter);
+        const instance = createTooltip(element);
         if (!instance) {
             return undefined;
         }
 
         // Add tooltip methods to customMethods
         const tooltipMethods = createTooltipMethods(instance);
-        customMethods.showTooltip = tooltipMethods.show;
-        customMethods.hideTooltip = tooltipMethods.hide;
-        customMethods.toggleTooltip = tooltipMethods.toggle;
-        customMethods.setTooltipContent = tooltipMethods.setContent;
-        customMethods.setTooltipPosition = tooltipMethods.setPosition;
+        customMethods.showTooltip = tooltipMethods.showTooltip;
+        customMethods.hideTooltip = tooltipMethods.hideTooltip;
+        customMethods.toggleTooltip = tooltipMethods.toggleTooltip;
+        customMethods.setTooltipContent = tooltipMethods.setTooltipContent;
+        customMethods.setTooltipPosition = tooltipMethods.setTooltipPosition;
 
         // Add cleanup for Tooltip instance
         this.addCleanups(componentId, [() => instance.dispose()]);

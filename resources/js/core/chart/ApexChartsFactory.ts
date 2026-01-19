@@ -178,10 +178,10 @@ export async function initApexCharts(element: HTMLElement): Promise<ChartInstanc
         },
 
         addDataset(dataset: ChartDataset): void {
-            apexInstance.appendSeries({
+            apexInstance.appendSeries([{
                 name: dataset.label ?? '',
                 data: dataset.data as number[],
-            });
+            }]);
             dispatchChartEvent(element, 'datasetAdd', { id: chartId, dataset });
         },
 
