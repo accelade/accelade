@@ -223,10 +223,11 @@ export abstract class BaseAdapter implements IFrameworkAdapter {
         }
 
         // Execute custom scripts
+        // Pass reactive state (proxy) so scripts can directly modify state
         const customMethods = ScriptExecutor.execute(
             element,
             {
-                state: stateAdapter.getState(),
+                state: stateAdapter.getReactiveState() as Record<string, unknown>,
                 actions,
                 helpers,
                 setState: (key, value) => stateAdapter.set(key, value),
