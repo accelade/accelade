@@ -47,7 +47,7 @@
         "test:install": "playwright install chromium"
     },
     "dependencies": {
-        "@event-calendar/core": "^5.3.0",
+        "@event-calendar/core": "^5.3.1",
         "@sveltejs/vite-plugin-svelte": "^6.2.4",
         "apexcharts": "^5.3.6",
         "chart.js": "^4.4.1",
