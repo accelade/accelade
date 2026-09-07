@@ -57,7 +57,7 @@
         "@playwright/test": "^1.62.1",
         "@types/node": "^25.5.0",
         "@types/react": "^19.2.18",
-        "@types/react-dom": "^19.2.5",
+        "@types/react-dom": "^19.2.7",
         "@vitejs/plugin-react": "^5.1.4",
         "@vitejs/plugin-vue": "^6.0.4",
         "react": "^19.2.8",
